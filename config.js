@@ -3,13 +3,13 @@
 window.TK_CONFIG = {
   /* Supabase > Project Settings > API : "Project URL" et clé "anon public".
      Laisse vide pour tester en mode démo (données fictives, rien n'est enregistré). */
-  SUPABASE_URL: '',
-  SUPABASE_ANON_KEY: '',
+  SUPABASE_URL: 'https://yspeztbrwepzgtptljto.supabase.co',
+  SUPABASE_ANON_KEY: 'sb_publishable_p98GocBhfkZYDbgWnVCPng_gnyKawa8',
 
   /* Fond de carte. Les tuiles CARTO conviennent pour une bêta ; vérifie leurs conditions
      avant un lancement public, ou remplace par un autre fournisseur (une seule ligne à changer). */
   /* Clé gratuite CARTO (https://carto.com/basemaps/apikey/) : sans elle, un filigrane « API KEY REQUIRED » s'affiche sur la carte. */
-  CARTO_KEY: '',
+  CARTO_KEY: 'https://carto.com/basemaps/apikey/',
   TILE_URL: 'https://basemaps.cartocdn.com/rastertiles/{style}/{z}/{x}/{y}{r}.png',
   TILE_ATTRIBUTION: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
 
