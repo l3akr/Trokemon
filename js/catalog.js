@@ -130,7 +130,75 @@ TK.DEMO_CARDS=[
  {card_id:'d12',name:'Dracaufeu',number:'004/102',set_id:'demo-base',set_name:'Série de base',type:'graded',company:'PSA',grade:'7',val:180}
 ];
 
+/* ---------- générations (séries regroupées) ---------- */
+var ERAS=[['me','Méga-Évolution'],['sv','Écarlate et Violet'],['swsh','Épée et Bouclier'],['sm','Soleil et Lune'],['xy','XY'],['bw','Noir et Blanc'],['hgss','HeartGold et SoulSilver'],['dp','Diamant et Perle'],['pl','Platine'],['ex','EX'],['ecard','e-Card'],['neo','Néo'],['gym','Gym'],['base','Wizards (Base)']];
+/* Renvoie {k, n, o, serie} : clé, nom, ordre d'affichage (récent d'abord) et dossier de la série chez TCGdex. */
+TK.eraOf=function(setId){
+ var id=String(setId||'');
+ if(id.indexOf('demo-')===0){return {k:'demo',n:'Démo',o:50,serie:''};}
+ if(/^[A-Z]/.test(id)){return {k:'pocket',n:'TCG Pocket',o:97,serie:''};}
+ var m=id.match(/^[a-z]+/),pre=m?m[0]:'',c=[pre,pre.replace(/p$/,'')];
+ for(var j=0;j<c.length;j++){for(var i=0;i<ERAS.length;i++){if(ERAS[i][0]===c[j]){return {k:ERAS[i][0],n:ERAS[i][1],o:i,serie:ERAS[i][0]};}}}
+ return {k:'autres',n:'Autres séries et promos',o:98,serie:pre};
+};
+/* Image de secours : si l'image française manque, essaie la version anglaise ; sinon pastille. */
+window.TK_imgFallback=function(el){
+ var src=el.getAttribute('src')||'';
+ if(!el.getAttribute('data-fb')&&src.indexOf('/fr/')>-1){el.setAttribute('data-fb','1');el.src=src.replace('/fr/','/en/');return;}
+ var n=(el.getAttribute('data-n')||'?').charAt(0).toUpperCase(),sp=document.createElement('span');
+ sp.className=el.className.replace('cimg','cph').replace('cthumb','cph')+' cph';sp.setAttribute('aria-hidden','true');sp.textContent=n;
+ sp.style.background='var(--surface2)';
+ if(el.parentNode){el.parentNode.replaceChild(sp,el);}
+};
+
+var abbrMap={},abbrIdx={},setCache={},nameCache={};
+try{var ab=JSON.parse(localStorage.getItem('tk_abbr')||'null');if(ab&&ab.m&&Date.now()-ab.t<7*864e5){abbrMap=ab.m;}}catch(e){}
+function indexAbbr(){abbrIdx={};Object.keys(abbrMap).forEach(function(id){abbrIdx[String(abbrMap[id]).toUpperCase()]=id;});}
+indexAbbr();
+function saveAbbr(){try{localStorage.setItem('tk_abbr',JSON.stringify({t:Date.now(),m:abbrMap}));}catch(e){}}
+function setAbbr(id,v){if(v&&abbrMap[id]!==v){abbrMap[id]=v;indexAbbr();saveAbbr();}}
+function lowRarity(r,name){
+ var n=norm(r||'');
+ if(/(^| )(ex|gx|v|vmax|vstar|vunion|break|prime|legend)( |$)/i.test(String(name||''))){return false;}
+ return ['commune','peu commune','rare','holo rare','rare holo','common','uncommon'].indexOf(n)>-1;
+}
+function numCmp(a,b){var x=parseInt(a,10),y=parseInt(b,10);if(isNaN(x)||isNaN(y)){return String(a).localeCompare(String(b));}return x-y;}
+function stripZ(x){return String(x==null?'':x).replace(/^0+(?=\d)/,'');}
+function cardOut(c,sid){
+ var s=setIdx[sid],off=s&&s.official;
+ var img=c.image?c.image+'/low.webp':(sid&&sid.indexOf('demo-')!==0?'https://assets.tcgdex.net/fr/'+TK.eraOf(sid).serie+'/'+sid+'/'+c.localId+'/low.webp':null);
+ return {card_id:c.id,name:c.name,localId:c.localId,number:off?c.localId+'/'+off:String(c.localId),set_id:sid,set_name:s?s.name:sid,set_abbr:abbrMap[sid]||null,image:img};
+}
+/* Analyse « Mega Darkrai PBL 110/84 » -> mots, numéro, série reconnue par son sigle. */
+function parseQuery(q){
+ var toks=String(q||'').replace(/[()\-–#]/g,' ').split(/\s+/).filter(Boolean),words=[],num=null,sid=null;
+ toks.forEach(function(t){
+  if(/^\d+(\/\d+)?$/.test(t)){num=t;}
+  else if(t.length>=2&&t.length<=5&&abbrIdx[t.toUpperCase()]&&!sid){sid=abbrIdx[t.toUpperCase()];}
+  else{words.push(t);}
+ });
+ return {words:words,num:num,setId:sid};
+}
+function matchLocal(list,p){
+ return list.filter(function(c){
+  var n=norm(c.name);
+  for(var i=0;i<p.words.length;i++){if(n.indexOf(norm(p.words[i]))<0){return false;}}
+  if(p.num){var left=stripZ(String(p.num).split('/')[0]);if(stripZ(c.localId)!==left){return false;}}
+  return true;
+ });
+}
+async function fetchSet(id){
+ if(setCache[id]){return setCache[id];}
+ var r=await fetch(API+'/sets/'+encodeURIComponent(id));
+ if(!r.ok){throw new Error('catalogue');}
+ var j=await r.json();
+ if(j.abbreviation&&(j.abbreviation.official||j.abbreviation.normal)){setAbbr(id,j.abbreviation.official||j.abbreviation.normal);}
+ setCache[id]=j;return j;
+}
+
 TK.catalog={
+ abbr:function(id){return abbrMap[id]||null;},
+ setAbbrs:function(m){Object.keys(m).forEach(function(k){abbrMap[k]=m[k];});indexAbbr();},
  sets:async function(){
   if(setsCache){return setsCache;}
   try{
@@ -140,53 +208,82 @@ TK.catalog={
    setsCache=j.map(function(s){return {id:s.id,name:s.name,logo:s.logo?s.logo+'.png':null,symbol:s.symbol?s.symbol+'.png':null,official:s.cardCount&&s.cardCount.official,total:s.cardCount&&s.cardCount.total};}).reverse();
   }catch(e){
    if(!TK.demo){throw new Error('Catalogue indisponible pour le moment. Réessaie dans un instant.');}
-   setsCache=TK.DEMO_SETS.slice();
+   setsCache=TK.DEMO_SETS.slice();TK.catalog.setAbbrs({'demo-nn':'PBL','demo-151':'MEW','demo-pe':'PRE','demo-base':'BS'});
   }
   setsCache.forEach(function(s){setIdx[s.id]=s;});
+  TK.catalog.loadAbbr();
   return setsCache;
  },
- /* Recherche par nom (et/ou série). Renvoie des fiches prêtes à choisir. */
+ /* Sigles des séries (PBL, MEW…) : une seule requête GraphQL, sinon appris au fil des séries ouvertes. */
+ loadAbbr:async function(){
+  if(TK.catalog._abbrTried||TK.demo){return;}
+  TK.catalog._abbrTried=true;
+  if(Object.keys(abbrMap).length>20){return;}
+  try{
+   var r=await fetch('https://api.tcgdex.net/v2/graphql',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:'{ sets(filters:{}) { id abbreviation { official normal } } }'})});
+   if(!r.ok){return;}
+   var j=await r.json(),arr=(j.data&&j.data.sets)||[];
+   arr.forEach(function(x){var v=x.abbreviation&&(x.abbreviation.official||x.abbreviation.normal);if(v){abbrMap[x.id]=v;}});
+   indexAbbr();saveAbbr();
+  }catch(e){}
+ },
+ /* Recherche : nom, sigle de série, numéro, dans n'importe quel ordre. Renvoie {list, hint}. */
  search:async function(q,setId){
   await TK.catalog.sets();
-  var list=[];
+  var p=parseQuery(q),sid=setId||p.setId,list=[],hint='';
   function demoList(){
    var nn=norm(q||'');
-   return TK.DEMO_CARDS.filter(function(c){return c.type!=='sealed'&&(!nn||norm(c.name).indexOf(nn)>-1)&&(!setId||c.set_id===setId);}).map(function(c){
-    return {card_id:c.card_id,name:c.name,number:c.number,set_id:c.set_id,set_name:c.set_name,image:null,val:c.val};
+   return TK.DEMO_CARDS.filter(function(c){return c.type!=='sealed'&&(!nn||norm(c.name).indexOf(nn)>-1)&&(!sid||c.set_id===sid);}).map(function(c){
+    return {card_id:c.card_id,name:c.name,localId:c.number?String(c.number).split('/')[0]:'',number:c.number,set_id:c.set_id,set_name:c.set_name,set_abbr:abbrMap[c.set_id]||null,image:null,val:c.val};
    });
   }
-  if(!q&&!setId){return [];}
-  if(setId&&setId.indexOf('demo-')===0){return demoList();}
+  if(!p.words.length&&!p.num&&!sid){return {list:[],hint:''};}
+  if(sid&&sid.indexOf('demo-')===0){return {list:demoList(),hint:''};}
+  if(!sid&&!p.words.length&&p.num){return {list:[],hint:'Ajoute le nom de la carte, le sigle de la série (ex. PBL 110) ou choisis une série.'};}
   try{
-   if(setId&&setIdx[setId]){
-    var rs=await fetch(API+'/sets/'+encodeURIComponent(setId));
-    if(!rs.ok){throw new Error('catalogue');}
-    var set=await rs.json();
-    list=(set.cards||[]).map(function(c){return {id:c.id,localId:c.localId,name:c.name,image:c.image,setId:setId};});
-    if(q){var n=norm(q);list=list.filter(function(c){return norm(c.name).indexOf(n)>-1;});}
-   }else if(q){
-    var r=await fetch(API+'/cards?name='+encodeURIComponent(q));
-    if(!r.ok){throw new Error('catalogue');}
-    list=(await r.json()).map(function(c){var i=c.id.lastIndexOf('-');return {id:c.id,localId:c.localId,name:c.name,image:c.image,setId:c.id.slice(0,i)};});
+   if(sid&&setIdx[sid]){
+    var set=await fetchSet(sid);
+    list=matchLocal((set.cards||[]).map(function(c){return {id:c.id,localId:c.localId,name:c.name,image:c.image};}),p).map(function(c){return cardOut(c,sid);});
+   }else{
+    var key=norm(p.words.slice().sort(function(a,b){return b.length-a.length;})[0]);
+    if(!nameCache[key]){
+     var r=await fetch(API+'/cards?name='+encodeURIComponent(key));
+     if(!r.ok){throw new Error('catalogue');}
+     nameCache[key]=await r.json();
+    }
+    list=matchLocal(nameCache[key].map(function(c){var i=c.id.lastIndexOf('-');return {id:c.id,localId:c.localId,name:c.name,image:c.image,sid:c.id.slice(0,i)};}),p).map(function(c){return cardOut(c,c.sid);});
    }
   }catch(e){
    if(!TK.demo){throw new Error('Catalogue indisponible pour le moment. Réessaie dans un instant.');}
-   return demoList();
+   return {list:demoList(),hint:''};
   }
-  return list.slice(0,80).map(function(c){
-   var s=setIdx[c.setId],off=s&&s.official;
-   return {card_id:c.id,name:c.name,number:off?c.localId+'/'+off:String(c.localId),set_id:c.setId,set_name:s?s.name:c.setId,image:c.image?c.image+'/low.webp':null};
-  });
+  var order={};(setsCache||[]).forEach(function(s,i){order[s.id]=i;});
+  list.sort(function(a,b){var d=(order[a.set_id]==null?9999:order[a.set_id])-(order[b.set_id]==null?9999:order[b.set_id]);return d||numCmp(a.localId,b.localId);});
+  return {list:list,hint:''};
  },
- /* Détail d'une carte : prix Cardmarket (EUR) et image haute définition. */
+ /* Détail d'une carte : prix Cardmarket (EUR), image HD, rareté, versions disponibles. */
  detail:async function(cardId){
+  if(/^d\d+$/.test(cardId)){
+   var dc=TK.DEMO_CARDS.filter(function(c){return c.card_id===cardId;})[0];
+   if(!dc){return null;}
+   return {price:dc.val,priceFoil:dc.val*1.6,updated:new Date().toISOString(),image:null,rarity:dc.val<20?'Commune':'Double rare',low:dc.val<20&&!/ ex$/i.test(dc.name),variants:['Normale','Reverse','Reverse · Poké Ball']};
+  }
   try{
    var r=await fetch(API+'/cards/'+encodeURIComponent(cardId));
    if(!r.ok){return null;}
    var c=await r.json(),cm=(c.pricing&&c.pricing.cardmarket)||{};
-   var price=cm.trend||cm.avg||cm['trend-holo']||cm['avg-holo']||null,at=null;
+   var price=cm.trend||cm.avg||null,foil=cm['trend-holo']||cm['avg-holo']||null,at=null;
    if(cm.updated){at=typeof cm.updated==='number'?new Date(cm.updated<1e12?cm.updated*1000:cm.updated):new Date(cm.updated);if(isNaN(at)){at=null;}}
-   return {price:price,updated:at?at.toISOString():new Date().toISOString(),image:c.image?c.image+'/high.webp':null,rarity:c.rarity||null};
+   var VT={normal:'Normale',reverse:'Reverse',holo:'Holo'},out=[];
+   (c.variants_detailed||[]).forEach(function(v){
+    var ex=[];if(v.foil){ex.push(v.foil);}if(v.stamp&&v.stamp.length){ex.push('tampon '+v.stamp.join('/'));}if(v.subtype){ex.push(v.subtype);}
+    var lab=(VT[v.type]||v.type||'Normale')+(ex.length?' · '+ex.join(', '):'');
+    if(out.indexOf(lab)<0){out.push(lab);}
+   });
+   if(!out.length){var vv=c.variants||{};if(vv.normal){out.push('Normale');}if(vv.reverse){out.push('Reverse');}if(vv.holo){out.push('Holo');}if(vv.firstEdition){out.push('1re édition');}}
+   if(!out.length){out.push('Normale');}
+   if(c.set&&c.set.id&&c.set.abbreviation){setAbbr(c.set.id,c.set.abbreviation.official||c.set.abbreviation.normal);}
+   return {price:price||foil,priceFoil:foil||price,updated:at?at.toISOString():new Date().toISOString(),image:c.image?c.image+'/high.webp':null,rarity:c.rarity||null,low:lowRarity(c.rarity,c.name),variants:out};
   }catch(e){return null;}
  }
 };

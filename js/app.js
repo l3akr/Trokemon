@@ -44,7 +44,7 @@ var I={
  camera:'M4 8h3l2-3h6l2 3h3v11H4zM12 11a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z'
 };
 function eur(v){return v==null?'indisponible':'≈ '+Number(v).toLocaleString('fr-FR',{maximumFractionDigits:2})+' €';}
-function label(it){return esc(it.name)+(it.number?' ('+esc(it.number)+')':'');}
+function label(it){return esc(it.name)+(it.number?' ('+(it.set_abbr?esc(it.set_abbr)+' - ':'')+esc(it.number)+')':'');}
 function when(iso){if(!iso){return '';}var d=new Date(iso);return isNaN(d)?'':d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});}
 function km(a,b){
  var R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180;
@@ -70,7 +70,7 @@ function toast(t){var el=$('#toast');el.textContent=t;el.hidden=false;clearTimeo
 function phColor(s){var h=0;for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))%360;}return 'hsl('+h+' 28% 22%)';}
 function cardImg(it){
  var src=it.photo_front||it.catalog_image;
- return src?'<img class="cimg" loading="lazy" alt="" src="'+esc(src)+'">':'<span class="cph" aria-hidden="true" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</span>';
+ return src?'<img class="cimg" loading="lazy" alt="" data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(src)+'">':'<span class="cph" aria-hidden="true" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</span>';
 }
 function avatar(p,sz,ring){
  var st='width:'+sz+'px;height:'+sz+'px;'+(ring?'box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--accent);':'');
@@ -128,7 +128,22 @@ function vNotice(){
  var n=S.notice||{};
  return '<div class="outer">'+onav('')+'<div class="authwrap"><h1>'+esc(n.title)+'</h1><p class="muted" style="margin:8px 0 20px 0">'+esc(n.text)+'</p><button class="btn primary" data-a="goto" data-v="login">Aller à la connexion</button></div></div>';
 }
+function loadShowcase(){
+ if(S.showcase!==undefined){return;}
+ S.showcase=null;
+ try{DB.showcase().then(function(l){S.showcase=l||[];if(S.phase==='landing'){render();}}).catch(function(){S.showcase=[];});}catch(e){S.showcase=[];}
+}
+function showcaseCard(it){
+ return '<div class="stile"><div class="simg">'+(it.image?'<img class="cimg" loading="lazy" alt="" data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(it.image)+'">':'<span class="cph" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</span>')+'</div><div class="name" style="font-size:13px;margin-top:6px">'+label(it)+'</div><div class="muted" style="font-size:12px">'+esc(it.zone_label||'')+(it.variant?' · '+esc(it.variant):'')+'</div></div>';
+}
 function vLanding(){
+ loadShowcase();
+ var sc=S.showcase||[],first=sc[0];
+ var dcard=first?'<div class="democard"><div style="display:flex;justify-content:space-between;align-items:center"><span class="name">Zone '+esc(first.zone_label||'')+'</span><span class="chip acc">À l\'échange</span></div><div class="muted" style="margin-top:4px">Propose '+label(first)+(first.variant?' · '+esc(first.variant):'')+'</div></div>'
+  :TK.demo?'<div class="democard"><div style="display:flex;justify-content:space-between;align-items:center"><span class="name">Lune_47 · ≈ 2 km</span><span class="chip acc">Mutuel</span></div><div class="muted" style="margin-top:4px">Propose Lucario (102/96) · cherche Pikachu PSA 9</div></div>'
+  :'<div class="democard"><div class="name">Sois le premier !</div><div class="muted" style="margin-top:4px">Crée ton compte et propose une carte près de chez toi.</div></div>';
+ var fan=sc.length?'<div class="fan">'+sc.slice(0,3).map(function(it,i){return '<div class="fc fc'+i+'">'+(it.image?'<img alt="" data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(it.image)+'">':'')+'</div>';}).join('')+'</div>':'';
+ var strip=sc.length?'<section class="strip" aria-label="Cartes à l\'échange en ce moment"><h2 class="name" style="font-size:18px;margin:0 0 10px 0">À l\'échange en ce moment</h2><div class="srow2">'+sc.map(showcaseCard).join('')+'</div></section>':'';
  return '<div class="outer">'+onav('<button class="btn sm ghost" data-a="goto" data-v="login">Se connecter</button>')+
  '<section class="hero"><div><h1>Échanger du <span class="hl">TCG</span> n\'a jamais été aussi simple</h1>'+
  '<p class="lead">Repère autour de toi les cartes que tu cherches, propose celles que tu as et échange en main propre. Gratuit, sans abonnement.</p>'+
@@ -136,8 +151,8 @@ function vLanding(){
  (TK.demo?'<p class="note" style="margin-top:14px">Mode démo : données fictives, rien n\'est enregistré.</p>':'<p class="note" style="margin-top:14px">Version bêta. Merci de signaler les bugs !</p>')+'</div>'+
  '<div class="demo" aria-hidden="true"><svg width="100%" height="100%" viewBox="0 0 400 300" preserveAspectRatio="none" style="position:absolute;inset:0"><path d="M-10 90L410 60M-10 190L410 160M-10 270L410 250" stroke="#1E2227" stroke-width="10" fill="none"/><path d="M90 -10L120 310M220 -10L200 310M330 -10L350 310" stroke="#1E2227" stroke-width="7" fill="none"/></svg>'+
  '<span class="z" style="left:28%;top:30%;width:84px;height:84px"></span><span class="z" style="left:68%;top:24%;width:64px;height:64px"></span><span class="z" style="left:56%;top:56%;width:96px;height:96px;background:var(--accent);opacity:.35"></span><span class="z" style="left:16%;top:64%;width:56px;height:56px"></span>'+
- '<div class="democard"><div style="display:flex;justify-content:space-between;align-items:center"><span class="name">Lune_47 · ≈ 2 km</span><span class="chip acc">Mutuel</span></div><div class="muted" style="margin-top:4px">Propose Lucario (102/96) · cherche Pikachu PSA 9</div></div></div></section>'+
- '<section class="feats" aria-label="Fonctionnement">'+
+ ''+fan+dcard+'</div></section>'+
+ strip+'<section class="feats" aria-label="Fonctionnement">'+
  [['Une carte des échanges','Vois ce que les gens proposent ou cherchent autour de toi, en zones approximatives.'],['Des cartes bien identifiées','Numéro de carte, photos recto et verso, état ou grade, estimation du moment.'],['En main propre','Rendez-vous en boutique partenaire ou lieu public. Rien ne passe par nous.']].map(function(f){return '<div class="card"><h3>'+f[0]+'</h3><div class="muted">'+f[1]+'</div></div>';}).join('')+'</section>'+
  '<footer class="ofoot note">Projet indépendant, non affilié à Nintendo, Creatures, GAME FREAK ni The Pokémon Company. Pokémon est une marque de ses propriétaires.<br><a href="legal.html#mentions">Mentions légales</a> · <a href="legal.html#confidentialite">Confidentialité</a> · <a href="legal.html#cgu">Conditions</a></footer></div>';
 }
@@ -338,20 +353,23 @@ function setLogo(m){
 function setGroups(list,key,rowFn){
  var g={},names=[];
  list.forEach(function(i){var n=i.set_name||'Autres';if(!g[n]){g[n]=[];names.push(n);}g[n].push(i);});
- names.sort(function(a,b){return a==='Autres'?1:b==='Autres'?-1:a.localeCompare(b,'fr');});
+ var era={};names.forEach(function(n){era[n]=g[n][0].set_id?TK.eraOf(g[n][0].set_id):{k:'autres',n:'Autres',o:99};});
+ names.sort(function(a,b){return (era[a].o-era[b].o)||(a==='Autres'?1:b==='Autres'?-1:a.localeCompare(b,'fr'));});
+ var lastEra=null;
  var one=names.length===1;
  if(!S.sets&&!S.setsLoading){S.setsLoading=true;TK.catalog.sets().then(function(x){S.sets=x;render();}).catch(function(){});}
  var meta={};(S.sets||[]).forEach(function(x){meta[x.id]=x;});
  var head=names.length>1?'<div style="display:flex;justify-content:flex-end;gap:8px;margin:4px 0"><button class="btn sm ghost" data-a="grpall" data-v="'+key+'|1">Tout déplier</button><button class="btn sm ghost" data-a="grpall" data-v="'+key+'|0">Tout replier</button></div>':'';
  return head+names.map(function(n){
+  var eh='';if(era[n].k!==lastEra){lastEra=era[n].k;eh='<div class="era">'+esc(era[n].n)+'</div>';}
   var gk=key+'|'+n,open=S.open[gk]!==undefined?S.open[gk]:one,tot=g[n].reduce(function(t,i){return t+(i.value_eur>0?Number(i.value_eur):0);},0);
-  return '<details class="grp" data-gk="'+esc(gk)+'"'+(open?' open':'')+'><summary>'+setLogo(meta[g[n][0].set_id])+'<span class="grow">'+esc(n)+'</span><span class="chip">'+g[n].length+'</span>'+(tot>0?'<span class="muted" style="font-size:12px">≈ '+eur(tot)+'</span>':'')+'</summary>'+g[n].map(rowFn).join('')+'</details>';
+  return eh+'<details class="grp" data-gk="'+esc(gk)+'"'+(open?' open':'')+'><summary>'+setLogo(meta[g[n][0].set_id])+'<span class="grow">'+esc(n)+'</span><span class="chip">'+g[n].length+'</span>'+(tot>0?'<span class="muted" style="font-size:12px">'+eur(tot)+'</span>':'')+'</summary>'+g[n].map(rowFn).join('')+'</details>';
  }).join('');
 }
 function itemRow(it,del){
  return '<div class="row"><button class="rowmain" data-a="item" data-v="'+esc(it.id)+'">'+cardImg(it)+
  '<span class="grow"><span class="name" style="display:block">'+label(it)+'</span><span class="muted" style="display:block">'+esc(it.set_name||'')+'</span>'+
- '<span style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">'+typeChip(it)+(it.kind==='offer'?'<span class="chip">Recto · verso</span>':'')+'</span></span>'+
+ '<span style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">'+typeChip(it)+(it.variant?'<span class="chip">'+esc(it.variant)+'</span>':'')+(it.kind==='offer'&&it.photo_front?'<span class="chip">Recto · verso</span>':'')+'</span></span>'+
  '<span class="val">'+eur(it.value_eur)+'</span></button>'+
  (del?'<button class="icon-btn" data-a="del" data-v="'+esc(it.id)+'" aria-label="Retirer '+esc(it.name)+'">'+ico(I.trash,20)+'</button>':'')+'</div>';
 }
@@ -389,7 +407,8 @@ function vItem(t){
   '<div class="card">'+
   kv('Type',it.type==='loose'?'Carte loose':it.type==='graded'?'Carte gradée':'Produit scellé')+
   kv('Numéro',it.number?esc(it.number):'')+
-  kv('Série',esc(it.set_name||''))+
+  kv('Série',esc((it.set_name||'')+(it.set_abbr?' ('+it.set_abbr+')':'')))+
+  (it.variant?kv('Version',esc(it.variant)):'')+
   (it.type==='loose'?kv('État',esc(it.condition||'')):'')+
   (it.type==='graded'?kv('Grade',esc((it.grade_company||'')+' '+(it.grade||'')))+kv('N° de certificat',esc(it.cert||'')):'')+
   kv('Estimation','<b>'+eur(it.value_eur)+'</b>'+(src?'<br><span class="muted">'+src+'</span>':''))+
@@ -414,8 +433,45 @@ function vProfileOther(t){
 
 /* ---------- ajout d'une carte ---------- */
 function setOptions(sel,allLabel){
- var sets=S.sets||[];
- return '<option value="">'+allLabel+'</option>'+sets.map(function(s){return '<option value="'+esc(s.id)+'"'+(s.id===sel?' selected':'')+'>'+esc(s.name)+'</option>';}).join('');
+ var by={},order=[];
+ (S.sets||[]).forEach(function(x){var e=TK.eraOf(x.id);if(!by[e.k]){by[e.k]={e:e,list:[]};order.push(e.k);}by[e.k].list.push(x);});
+ order.sort(function(p,q){return by[p].e.o-by[q].e.o;});
+ return '<option value="">'+allLabel+'</option>'+order.map(function(k){
+  return '<optgroup label="'+esc(by[k].e.n)+'">'+by[k].list.map(function(x){var ab=TK.catalog.abbr(x.id);return '<option value="'+esc(x.id)+'"'+(x.id===sel?' selected':'')+'>'+esc(x.name)+(ab?' ('+esc(ab)+')':'')+'</option>';}).join('')+'</optgroup>';
+ }).join('');
+}
+function selCount(){
+ var a=S.add,n=0;Object.keys(a.sel).forEach(function(k){n+=Math.max(1,a.sel[k].picked.length)*(a.sel[k].qty||1);});return n;
+}
+function ownedCount(cardId){
+ var a=S.add,list=a&&a.kind==='offer'?S.my.offers:S.my.wants,n=0,k='c:'+cardId;
+ (list||[]).forEach(function(i){if(i.match_key===k){n++;}});return n;
+}
+function thumb(c){
+ return c.image?'<img class="cthumb" loading="lazy" alt="" data-n="'+esc(c.name)+'" onerror="TK_imgFallback(this)" src="'+esc(c.image)+'">':'<div class="ph cph" style="background:'+phColor(c.name)+'">'+esc(c.name.charAt(0))+'</div>';
+}
+function resultsHtml(){
+ var a=S.add;
+ if(a.err){return '<p class="err">'+esc(a.err)+'</p>';}
+ if(a.results==null){return '<p class="muted">'+(a.loading?'Recherche…':esc(a.hint||'Tape un nom, un sigle de série ou un numéro, ou choisis une série : les cartes s\'affichent tout de suite.'))+'</p>';}
+ if(!a.results.length){return '<p class="muted">'+(a.loading?'Recherche…':esc(a.hint||'Aucun résultat.'))+'</p>';}
+ var n=Math.min(a.shown,a.results.length);
+ return '<div class="muted" style="margin-bottom:8px" aria-live="polite">'+a.results.length+' carte'+(a.results.length>1?'s':'')+(a.loading?' · mise à jour…':'')+'</div><div class="cgrid">'+a.results.slice(0,n).map(function(c,i){
+  var sel=!!a.sel[c.card_id];
+  return '<button class="cat'+(sel?' sel':'')+(a.busy===c.card_id?' busy':'')+'" data-a="pickcard" data-v="'+i+'" aria-pressed="'+sel+'">'+thumb(c)+(sel?'<span class="selbadge" aria-hidden="true">✓</span>':'')+(ownedCount(c.card_id)?'<span class="ownbadge">Déjà ×'+ownedCount(c.card_id)+'</span>':'')+
+   '<div class="bd"><div class="name" style="font-size:14px">'+label(c)+'</div><div class="muted" style="font-size:12px">'+esc(c.set_name||'')+'</div></div></button>';
+ }).join('')+'</div>'+(n<a.results.length?'<button class="btn" style="margin-top:12px;width:100%" data-a="more">Afficher plus ('+(a.results.length-n)+')</button>':'');
+}
+function trayHtml(){
+ var a=S.add,ids=Object.keys(a.sel),offer=a.kind==='offer';
+ if(!ids.length){return '';}
+ return '<div class="card tray" style="margin-top:14px"><div class="name">Sélection · '+selCount()+' item'+(selCount()>1?'s':'')+'</div>'+
+  '<div class="note" style="margin:2px 0 6px 0">'+(offer?'Coche chaque version que tu possèdes : un item est créé par version. Les cartes courantes n\'ont pas besoin de photos.':'Coche la version voulue, ou rien si toutes conviennent.')+'</div>'+
+  ids.map(function(id){var t=a.sel[id];
+   return '<div class="trow"><div style="display:flex;gap:8px;align-items:center"><span class="grow"><span class="name" style="font-size:14px;display:block">'+label(t.card)+'</span><span class="muted" style="font-size:12px">'+esc(t.card.set_name||'')+'</span></span><button class="icon-btn" data-a="tdel" data-v="'+esc(id)+'" aria-label="Retirer '+esc(t.card.name)+'">✕</button></div>'+
+   '<div class="vchips" role="group" aria-label="Versions">'+t.detail.variants.map(function(v){return '<button class="vchip" data-a="tvar" data-v="'+esc(id)+'|'+esc(v)+'" aria-pressed="'+(t.picked.indexOf(v)>-1)+'">'+esc(v)+'</button>';}).join('')+'</div>'+'<div class="qty"><span class="muted">Quantité'+(t.picked.length>1?' (par version)':'')+(ownedCount(id)?' · déjà ×'+ownedCount(id)+' dans ta liste':'')+'</span><span class="qctl"><button class="icon-btn" data-a="tqty" data-v="'+esc(id)+'|-1" aria-label="Moins">−</button><b>'+(t.qty||1)+'</b><button class="icon-btn" data-a="tqty" data-v="'+esc(id)+'|1" aria-label="Plus">+</button></span></div></div>';
+  }).join('')+
+  (offer?'<div style="margin-top:10px"><label class="muted" for="f-condition">État (pour toutes)</label><select id="f-condition" class="field" data-f="condition">'+CONDITIONS.map(function(c){return '<option value="'+c[0]+'"'+(c[0]===a.f.condition?' selected':'')+'>'+c[1]+'</option>';}).join('')+'</select></div>':'')+'</div>';
 }
 function vAdd(){
  var a=S.add,isOffer=a.kind==='offer',title='Ajouter à '+(isOffer?'Je propose':'Je recherche');
@@ -430,27 +486,29 @@ function vAdd(){
    '<button class="btn primary" data-a="picksealed">Continuer</button></div>';
  }else{
   body='<div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">'+
-   '<input id="aq" class="field" type="search" placeholder="Nom de la carte (ex. Lucario)" aria-label="Nom de la carte" value="'+esc(a.q)+'" autocomplete="off">'+
-   '<div><label class="muted" for="aset">Série</label><select id="aset" class="field">'+setOptions(a.setId,'Toutes les séries')+'</select></div>'+
-   '<button class="btn primary" data-a="asearch">Rechercher</button></div>'+
-   '<div style="margin-top:14px">'+(a.loading?'<p class="muted">Recherche…</p>':a.err?'<p class="err">'+esc(a.err)+'</p>':a.results==null?'<p class="muted">Cherche une carte par son nom, ou parcours une série.</p>':a.results.length?'<div class="cgrid">'+a.results.map(function(c,i){
-     return '<button class="cat" data-a="pickcard" data-v="'+i+'">'+(c.image?'<img class="cthumb" loading="lazy" alt="" src="'+esc(c.image)+'">':'<div class="ph cph" style="background:'+phColor(c.name)+'">'+esc(c.name.charAt(0))+'</div>')+'<div class="bd"><div class="name" style="font-size:14px">'+label(c)+'</div><div class="muted" style="font-size:12px">'+esc(c.set_name||'')+'</div></div></button>';
-    }).join('')+'</div>':'<p class="muted">Aucun résultat.</p>')+
+   '<input id="aq" class="field" type="search" placeholder="Nom, sigle, n° (ex. Darkrai PBL 110)" aria-label="Rechercher une carte par nom, sigle de série ou numéro" value="'+esc(a.q)+'" autocomplete="off">'+
+   '<div><label class="muted" for="aset">Série</label><select id="aset" class="field">'+setOptions(a.setId,'Toutes les séries')+'</select></div></div>'+
+   trayHtml()+'<div style="margin-top:14px">'+resultsHtml()+
    '<p style="margin-top:14px"><button class="btn sm ghost" style="color:var(--accent)" data-a="manual">Je ne trouve pas ma carte</button></p></div>';
  }
- return page(header(title,null,true)+'<div class="scroll">'+pills+body+'</div>');
+ var nsel=Object.keys(a.sel).length,cnt=selCount(),bad=isOffer&&Object.keys(a.sel).some(function(k){return !a.sel[k].picked.length;});
+ return page(header(title,null,true)+'<div class="scroll">'+pills+body+'</div>'+(a.type==='loose'&&nsel?'<div class="foot">'+(bad?'<div class="note" style="margin-bottom:8px">Choisis au moins une version pour chaque carte.</div>':'')+'<button class="btn primary" data-a="addmulti"'+(bad||a.saving||!cnt?' disabled':'')+'>'+(a.saving?'Envoi…':'Ajouter '+cnt+' item'+(cnt>1?'s':''))+'</button></div>':''));
 }
 function photoBox(side,lbl){
  var ph=S.add.photos[side];
  return '<div><button class="photobox'+(ph?' ok':'')+'" data-a="pickside" data-v="'+side+'" aria-label="'+(ph?'Changer la photo ':'Ajouter la photo ')+lbl.toLowerCase()+'">'+
-  (ph?'<img src="'+esc(ph.url)+'" alt="Aperçu '+lbl.toLowerCase()+'">':ico(I.camera,28)+'<span>'+lbl+' *</span>')+'</button><input type="file" accept="image/*" id="pf-'+side+'" hidden></div>';
+  (ph?'<img src="'+esc(ph.url)+'" alt="Aperçu '+lbl.toLowerCase()+'">':ico(I.camera,28)+'<span>'+lbl+(S.add.type==='loose'&&S.add.price&&S.add.price.low&&!S.add.picked.manual?'':' *')+'</span>')+'</button><input type="file" accept="image/*" id="pf-'+side+'" hidden></div>';
 }
 function addMissing(){
  var a=S.add,f=a.f,m=[],offer=a.kind==='offer';
  if(a.picked.manual&&!f.name.trim()){m.push('le nom de la carte');}
  if(offer){
-  if(!a.photos.front){m.push('la photo recto');}
-  if(!a.photos.back){m.push('la photo verso');}
+  var optional=a.type==='loose'&&a.price&&a.price.low&&!a.picked.manual;
+  if(optional){if(!!a.photos.front!==!!a.photos.back){m.push('l\'autre photo (ou aucune)');}}
+  else{
+   if(!a.photos.front){m.push('la photo recto');}
+   if(!a.photos.back){m.push('la photo verso');}
+  }
   if(a.type==='graded'){if(!f.grade.trim()){m.push('la note');}if(!f.cert.trim()){m.push('le numéro de certificat');}}
  }
  return m;
@@ -466,12 +524,14 @@ function vAddForm(title){
  if(a.type==='loose'){fields+='<div><label class="muted" for="f-condition">État</label><select id="f-condition" class="field" data-f="condition">'+CONDITIONS.map(function(c){return '<option value="'+c[0]+'"'+(c[0]===f.condition?' selected':'')+'>'+c[1]+'</option>';}).join('')+'</select></div>';}
  if(a.type==='graded'){fields+='<div class="row2"><div><label class="muted" for="f-company">Société</label><select id="f-company" class="field" data-f="company">'+COMPANIES.map(function(c){return '<option'+(c===f.company?' selected':'')+'>'+c+'</option>';}).join('')+'</select></div><div><label class="muted" for="f-grade">Note'+(offer?' *':'')+'</label><input id="f-grade" class="field" data-f="grade" inputmode="decimal" placeholder="Ex. 9,5" value="'+esc(f.grade)+'"></div></div>'+
   '<div><label class="muted" for="f-cert">N° de certificat'+(offer?' *':'')+'</label><input id="f-cert" class="field" data-f="cert" value="'+esc(f.cert)+'" placeholder="Visible sur l\'étiquette de la slab"></div>';}
+ if(a.type==='loose'&&a.price&&a.price.variants&&a.price.variants.length){fields+='<div><div class="name" style="margin-bottom:6px">Version</div><div class="vchips" role="group" aria-label="Version">'+a.price.variants.map(function(v){return '<button class="vchip" data-a="svar" data-v="'+esc(v)+'" aria-pressed="'+(f.variant===v)+'">'+esc(v)+'</button>';}).join('')+'</div></div>';}
  var priceNote;
  if(a.type==='loose'){priceNote=a.price&&a.price.price?'Cote automatique Cardmarket : <b>'+eur(a.price.price)+'</b> (mise à jour le '+when(a.price.updated)+'). Elle est calculée pour toi et ne peut pas être modifiée.':'Cote automatique en cours de chargement ou indisponible pour cette carte.';}
  else if(a.type==='graded'){priceNote=(a.price&&a.price.price?'Repère : la carte non gradée vaut '+eur(a.price.price)+' sur Cardmarket. ':'')+'Pas d\'estimation automatique pour les cartes gradées en bêta : la valeur affichée sera « indisponible ».';}
  else{priceNote='Pas d\'estimation automatique pour les produits scellés en bêta : la valeur affichée sera « indisponible ».';}
  fields+='<div class="card" style="background:var(--surface2)"><div class="name" style="font-size:14px">Estimation</div><div class="note" style="margin-top:4px">'+priceNote+'</div></div>';
- if(offer){fields+='<div><div class="name" style="margin-bottom:2px">Photos *</div><div class="note" style="margin-bottom:8px">Recto et verso obligatoires. Photos non retouchées, bien éclairées, '+(a.type==='sealed'?'face avant et arrière de la boîte.':a.type==='graded'?'face avant et arrière de la slab, étiquette lisible.':'carte à plat, coins visibles.')+'</div><div class="row2">'+photoBox('front','Recto')+photoBox('back','Verso')+'</div></div>';}
+ var optPh=a.type==='loose'&&a.price&&a.price.low&&!p.manual;
+ if(offer){fields+='<div><div class="name" style="margin-bottom:2px">Photos'+(optPh?' (facultatives)':' *')+'</div><div class="note" style="margin-bottom:8px">'+(optPh?'Carte courante : les photos ne sont pas obligatoires, mais elles rassurent. Si tu en ajoutes, mets le recto et le verso.':'Recto et verso obligatoires.')+' Photos non retouchées, bien éclairées, '+(a.type==='sealed'?'face avant et arrière de la boîte.':a.type==='graded'?'face avant et arrière de la slab, étiquette lisible.':'carte à plat, coins visibles.')+'</div><div class="row2">'+photoBox('front','Recto')+photoBox('back','Verso')+'</div></div>';}
  fields+='<div><label class="muted" for="f-notes">Note (facultatif)</label><textarea id="f-notes" class="field" data-f="notes" rows="2" maxlength="500" style="padding:10px 12px;resize:vertical">'+esc(f.notes)+'</textarea></div>';
  return page(header(title,null,true)+'<div class="scroll"><div class="stack">'+head+fields+'</div></div>'+
   '<div class="foot"><div id="addhint" class="note" style="margin-bottom:8px">'+(missing.length?'Il manque : '+missing.join(', ')+'.':'')+'</div><button id="addbtn" class="btn primary" data-a="addsubmit"'+(missing.length||a.saving?' disabled':'')+'>'+(a.saving?'Envoi…':'Ajouter')+'</button></div>');
@@ -715,27 +775,59 @@ async function loadReviewState(pid){
  try{var mine=await DB.myReviewFor(pid);S.rev={pid:pid,mine:mine||null,rating:0,comment:''};}catch(e){S.rev=null;}
 }
 function startAdd(kind){
- S.add={kind:kind,type:'loose',q:'',setId:'',results:null,loading:false,err:'',picked:null,price:null,saving:false,
-  f:{condition:'Near Mint',company:'PSA',grade:'',cert:'',notes:'',sealedKind:TK.SEALED_KINDS[0],custom:'',name:'',number:'',setName:''},photos:{front:null,back:null}};
+ S.add={kind:kind,type:'loose',q:'',setId:'',results:null,hint:'',shown:60,sel:{},busy:null,tok:0,loading:false,err:'',picked:null,price:null,saving:false,
+  f:{variant:'',condition:'Near Mint',company:'PSA',grade:'',cert:'',notes:'',sealedKind:TK.SEALED_KINDS[0],custom:'',name:'',number:'',setName:''},photos:{front:null,back:null}};
  nav({name:'add'});
  TK.catalog.sets().then(function(s){S.sets=s;if(top()&&top().name==='add'){render();}}).catch(function(e){S.add.err=TK.frError(e);render();});
 }
-async function runSearch(){
- var a=S.add;if(!a.q.trim()&&!a.setId){a.err='Entre un nom de carte ou choisis une série.';a.results=null;render();return;}
- a.loading=true;a.err='';render();
- try{a.results=await TK.catalog.search(a.q.trim(),a.setId);}catch(e){a.err=TK.frError(e);a.results=null;}
+async function runSearch(live){
+ var a=S.add,qq=a.q.trim();
+ if(!qq&&!a.setId){if(!live){a.err='Entre un nom de carte ou choisis une série.';}a.results=null;a.hint='';a.loading=false;render();return;}
+ var tok=a.tok=(a.tok||0)+1;
+ a.err='';a.loading=true;if(!live||a.results==null){render();}
+ try{
+  var r=await TK.catalog.search(qq,a.setId);
+  if(a.tok!==tok||S.add!==a){return;}
+  a.results=r.list;a.hint=r.hint||'';a.shown=60;
+ }catch(e){if(a.tok!==tok||S.add!==a){return;}a.err=TK.frError(e);a.results=null;}
  a.loading=false;render();
 }
-function pickCard(c){
- var a=S.add;a.picked=c;a.price=null;
+var liveSearch=debounce(function(){var a=S.add;if(!a||a.type==='sealed'||a.picked){return;}if(a.q.trim().length>=2||a.setId){runSearch(true);}else if(!a.q.trim()&&!a.setId){a.results=null;a.hint='';render();}},350);
+function pickCard(c,d){
+ var a=S.add;a.picked=c;a.price=null;a.f.variant='';
+ function apply(x){a.price=x;if(x&&x.variants&&x.variants.length&&!a.f.variant){a.f.variant=x.variants[0];}}
+ if(d){apply(d);render();return;}
  render();
  if(!c.manual&&c.card_id&&c.card_id.indexOf('d')!==0){
-  TK.catalog.detail(c.card_id).then(function(d){
-   if(!d||S.add!==a||a.picked!==c){return;}
-   a.price=d;
-   render();
+  TK.catalog.detail(c.card_id).then(function(x){
+   if(!x||S.add!==a||a.picked!==c){return;}
+   apply(x);render();
   });
- }else if(!c.manual&&c.val){a.price={price:c.val,updated:new Date().toISOString(),image:null};render();}
+ }else if(!c.manual&&c.val){apply({price:c.val,priceFoil:c.val,updated:new Date().toISOString(),image:null,variants:['Normale','Reverse'],low:false});render();}
+}
+function foilVariant(v){return /reverse|holo/i.test(String(v||''));}
+async function submitMulti(){
+ var a=S.add,offer=a.kind==='offer',ids=Object.keys(a.sel);
+ if(a.saving||!ids.length){return;}
+ a.saving=true;render();
+ var done=0;
+ try{
+  for(var i=0;i<ids.length;i++){
+   var t=a.sel[ids[i]],c=t.card,d=t.detail,vs=t.picked.length?t.picked:[null];
+   for(var j=0;j<vs.length;j++){for(var q=0;q<(t.qty||1);q++){
+    var v=vs[j],pr=foilVariant(v)?(d.priceFoil||d.price):(d.price||d.priceFoil);
+    var row={kind:a.kind,type:'loose',name:c.name,number:c.number||null,set_id:c.set_id||null,set_name:c.set_name||null,set_abbr:c.set_abbr||TK.catalog.abbr(c.set_id)||null,
+     card_id:c.card_id,catalog_image:c.image||null,variant:v,condition:offer?a.f.condition:null,grade_company:null,grade:null,cert:null,
+     value_eur:pr>0?pr:null,value_source:pr>0?'cardmarket':null,value_at:pr>0?d.updated:null,notes:null,photo_front:null,photo_back:null,photo_optional:offer};
+    row.match_key=TK.matchKey(row);
+    await DB.addItem(row);done++;
+   }}
+  }
+  await loadMine();
+  S.add=null;S.stack=[];S.tab='listes';S.listTab=offer?'offers':'wants';
+  ids.forEach(function(k){var sn=a.sel[k].card.set_name||'Autres';S.open['me-'+S.listTab+'|'+sn]=true;});
+  render();toast(done+' item'+(done>1?'s ajoutés':' ajouté'));
+ }catch(e){a.saving=false;render();toast((done?done+' ajouté(s), puis erreur : ':'')+TK.frError(e));}
 }
 async function submitAdd(){
  var a=S.add,f=a.f,p=a.picked,type=a.type,offer=a.kind==='offer';
@@ -743,19 +835,22 @@ async function submitAdd(){
  a.saving=true;refreshAddBtn();$('#addbtn').textContent='Envoi…';
  try{
   var front=null,back=null;
-  if(offer){
+  if(offer&&a.photos.front&&a.photos.back){
    var urls=await Promise.all([DB.uploadPhoto(a.photos.front.blob,'front'),DB.uploadPhoto(a.photos.back.blob,'back')]);
    front=urls[0];back=urls[1];
   }
-  var auto=type==='loose'&&a.price&&a.price.price>0;
+  var vsel=type==='loose'&&f.variant?f.variant:null;
+  var pr=a.price?(foilVariant(vsel)?(a.price.priceFoil||a.price.price):a.price.price):null;
+  var auto=type==='loose'&&pr>0;
   var row={
    kind:a.kind,type:type,
    name:p.manual?f.name.trim():p.name,number:p.manual?(f.number.trim()||null):(p.number||null),
    set_id:p.set_id||null,set_name:p.manual?(f.setName.trim()||null):(p.set_name||null),
    card_id:(p.manual||type==='sealed')?null:p.card_id,catalog_image:p.image||null,
    condition:type==='loose'?f.condition:null,grade_company:type==='graded'?f.company:null,grade:type==='graded'?(f.grade.trim()||null):null,cert:type==='graded'?(f.cert.trim()||null):null,
-   value_eur:auto?a.price.price:null,value_source:auto?'cardmarket':null,value_at:auto?a.price.updated:null,
-   notes:f.notes.trim()||null,photo_front:front,photo_back:back
+   value_eur:auto?pr:null,value_source:auto?'cardmarket':null,value_at:auto?a.price.updated:null,
+   notes:f.notes.trim()||null,photo_front:front,photo_back:back,
+   set_abbr:p.manual?null:(p.set_abbr||TK.catalog.abbr(p.set_id)||null),variant:vsel,photo_optional:offer&&type==='loose'&&!front&&!back
   };
   row.match_key=TK.matchKey(row);
   await DB.addItem(row);
@@ -831,9 +926,30 @@ var ACT={
  closelight:function(){S.light=null;render();},
  ltab:function(v){S.listTab=v;render();},
  add:function(v){startAdd(v);},
- atype:function(v){var a=S.add;a.type=v;a.results=null;a.err='';render();},
- asearch:function(){runSearch();},
- pickcard:function(v){pickCard(S.add.results[+v]);},
+ atype:function(v){var a=S.add;a.type=v;a.results=null;a.hint='';a.err='';render();},
+ asearch:function(){runSearch(false);},
+ more:function(){S.add.shown+=60;render();},
+ pickcard:async function(v){
+  var a=S.add,c=a.results&&a.results[+v];if(!c){return;}
+  if(a.type==='graded'){pickCard(c);return;}
+  if(a.sel[c.card_id]){delete a.sel[c.card_id];render();return;}
+  var offer=a.kind==='offer';
+  a.busy=c.card_id;render();
+  var d=await TK.catalog.detail(c.card_id);
+  a.busy=null;if(S.add!==a){return;}
+  if(offer&&(!d||!d.low)){toast('Cette carte demande des photos : on l\'ajoute seule.');pickCard(c,d||null);return;}
+  var dd=d||{price:null,priceFoil:null,updated:new Date().toISOString(),variants:['Normale','Reverse'],low:true};
+  a.sel[c.card_id]={card:c,detail:dd,picked:offer?[dd.variants[0]]:[],qty:1};
+  render();
+ },
+ tqty:function(v){var i=v.lastIndexOf('|'),id=v.slice(0,i),d=+v.slice(i+1),t=S.add.sel[id];if(!t){return;}t.qty=Math.min(9,Math.max(1,(t.qty||1)+d));render();},
+ tdel:function(v){delete S.add.sel[v];render();},
+ tvar:function(v){
+  var i=v.indexOf('|'),id=v.slice(0,i),lab=v.slice(i+1),t=S.add.sel[id];if(!t){return;}
+  var k=t.picked.indexOf(lab);if(k>-1){t.picked.splice(k,1);}else{t.picked.push(lab);}render();
+ },
+ svar:function(v){S.add.f.variant=(S.add.f.variant===v&&S.add.kind==='want')?'':v;render();},
+ addmulti:function(){submitMulti();},
  picksealed:function(){
   var a=S.add,f=a.f;
   if(!a.setId){toast('Choisis une série.');return;}
@@ -945,7 +1061,7 @@ document.addEventListener('submit',async function(e){
 document.addEventListener('toggle',function(e){var d=e.target;if(d&&d.classList&&d.classList.contains('grp')){S.open[d.getAttribute('data-gk')]=d.open;}},true);
 document.addEventListener('input',function(e){
  var t=e.target;
- if(t.id==='aq'){S.add.q=t.value;}
+ if(t.id==='aq'){S.add.q=t.value;liveSearch();}
  if(t.id==='zq'){S.zoneQ=t.value;zoneSearch(t.value);}
  if(t.id==='msearch'){mapSearch(t.value);}
  if(t.getAttribute&&t.getAttribute('data-f')&&S.add){S.add.f[t.getAttribute('data-f')]=t.value;refreshAddBtn();}
@@ -968,7 +1084,7 @@ var mapSearch=debounce(async function(q){
 },300);
 document.addEventListener('change',function(e){
  var t=e.target;
- if(t.id==='aset'){S.add.setId=t.value;if(S.add.type!=='sealed'&&(S.add.q.trim()||t.value)){runSearch();}}
+ if(t.id==='aset'){S.add.setId=t.value;if(S.add.type!=='sealed'){if(S.add.q.trim()||t.value){runSearch(true);}else{S.add.results=null;S.add.hint='';render();}}}
  if(t.id==='skind'){S.add.f.sealedKind=t.value;render();}
  else if(t.getAttribute&&t.getAttribute('data-f')&&S.add){S.add.f[t.getAttribute('data-f')]=t.value;refreshAddBtn();}
  if(t.id==='photofile'||t.id==='photofile2'){var file=t.files&&t.files[0];if(file){setAvatar(file);}}
@@ -987,7 +1103,7 @@ document.addEventListener('keydown',function(e){
   if(S.sheet){S.sheet=null;render();return;}
  }
  if(e.key==='Enter'){
-  if(e.target.id==='aq'){e.preventDefault();runSearch();}
+  if(e.target.id==='aq'){e.preventDefault();runSearch(false);}
   if(e.target.id==='msearch'){
    e.preventDefault();
    var qq=e.target.value.trim();

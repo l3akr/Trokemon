@@ -105,3 +105,13 @@ Les utilisateurs ne peuvent plus saisir de valeur. Cartes loose : cote Cardmarke
 **Supabase** : crée un projet gratuit (région Paris ou Francfort), colle `supabase/schema.sql` dans SQL Editor > Run, puis Authentication > URL Configuration : Site URL = l'adresse GitHub Pages, et ajoute-la aussi dans Redirect URLs. Dans Project Settings > API, copie `Project URL` et la clé `anon public`, puis colle-les dans `config.js` (`SUPABASE_URL`, `SUPABASE_ANON_KEY`).
 **Ne mets jamais** la clé `service_role`, un mot de passe SMTP ou une clé d'API secrète dans le dépôt : tout ce qui est dans GitHub Pages est public. Les clés `anon` et CARTO sont faites pour être publiques (la sécurité vient des règles RLS du schéma ; pense à restreindre la clé CARTO à ton domaine si l'option existe).
 **Limites du palier gratuit Supabase** (à vérifier sur supabase.com/pricing) : base de 500 Mo, 1 Go de stockage de fichiers, 50 000 utilisateurs actifs par mois, et mise en pause du projet après environ une semaine sans activité. Les photos sont réduites à environ 1400 px côté navigateur pour économiser le stockage.
+
+
+## v3 : recherche de cartes, versions, accueil
+
+- **Re-exécute tout `supabase/schema.sql`** dans le SQL Editor (il est rejouable). Il ajoute : colonnes `set_abbr`, `variant`, `photo_optional` ; fonctions `search_items` (recherche par nom, sigle, numéro) et `showcase` (cartes proposées affichées sur l'accueil, ville uniquement, sans données personnelles).
+- **Remplace aussi `config.js`** par ta version complète.
+- Ajout de cartes : recherche en direct (sans bouton), sélection de plusieurs cartes, une ligne par version (Normale, Reverse, Holo, tampon, etc. selon ce que fournit TCGdex), séries rangées par génération (Méga-Évolution, Écarlate et Violet…), plus de limite à 80 cartes.
+- Photos : facultatives pour les cartes courantes (commune, peu commune, rare, holo rare) ; obligatoires pour les cartes ex/GX/V, gradées, scellées et manuelles.
+- Libellés `Nom (SIGLE - 110/84)` ; le sigle est pris en compte dans les recherches.
+- À vérifier sur ton site : le champ `abbreviation` de TCGdex, les versions Masterball/Cosmos/tampon et les images de secours dépendent de l'API réelle et n'ont pas pu être testés d'ici.
