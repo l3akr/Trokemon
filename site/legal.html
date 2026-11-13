@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Mentions légales · Trokémon</title>
+<link rel="icon" href="icon.svg">
+<style>
+:root{color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:#0f1216;color:#e8ebf0;font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{max-width:760px;margin:0 auto;padding:20px 20px 80px}
+a{color:#5CC27A}
+h1{font-size:28px;margin:8px 0 4px}
+h2{font-size:20px;margin:36px 0 8px;padding-top:8px;border-top:1px solid #262c36}
+h3{font-size:16px;margin:20px 0 4px}
+nav.top{display:flex;gap:16px;flex-wrap:wrap;padding:16px 0;border-bottom:1px solid #262c36;font-size:15px}
+.muted{color:#9aa4b2}
+.todo{background:#3a2d12;color:#ffd58a;border-radius:6px;padding:0 6px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+td,th{border:1px solid #262c36;padding:8px;text-align:left;vertical-align:top}
+.box{background:#171b22;border:1px solid #262c36;border-radius:12px;padding:12px 16px}
+</style>
+</head>
+<body>
+<main>
+<nav class="top" aria-label="Pages légales">
+ <a href="./">← Retour à Trokémon</a>
+ <a href="#mentions">Mentions légales</a>
+ <a href="#confidentialite">Confidentialité</a>
+ <a href="#cgu">Conditions d'utilisation</a>
+</nav>
+<h1>Informations légales</h1>
+<p class="muted">Dernière mise à jour : <span id="maj"></span> · Version bêta</p>
+
+<h2 id="mentions">Mentions légales</h2>
+<h3>Éditeur du site</h3>
+<div class="box" id="editeur"></div>
+<h3>Directeur de la publication</h3>
+<p id="directeur"></p>
+<h3>Hébergement</h3>
+<p><b>Site (pages web)</b> : GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis (GitHub Pages).<br>
+<b>Comptes, données et photos</b> : Supabase Inc. (base de données, authentification et stockage). Région d'hébergement des données : <span id="region"></span>.</p>
+<h3>Propriété intellectuelle et marques</h3>
+<p>Trokémon est un service indépendant de mise en relation entre collectionneurs. Il n'est ni affilié, ni approuvé, ni sponsorisé par The Pokémon Company, Nintendo, Game Freak, Creatures ou The Pokémon Company International. Pokémon et les noms de personnages sont des marques de leurs propriétaires respectifs ; ils sont cités uniquement pour désigner les cartes échangées. Les images de cartes du catalogue proviennent de TCGdex. Les photos publiées par les membres restent leur propriété.</p>
+<h3>Sources de données et services tiers</h3>
+<ul>
+ <li>Catalogue et cotes : <a href="https://tcgdex.dev" rel="noopener">TCGdex</a> (cotes Cardmarket en euros, indicatives).</li>
+ <li>Fonds de carte : © <a href="https://www.openstreetmap.org/copyright" rel="noopener">contributeurs OpenStreetMap</a>, tuiles © <a href="https://carto.com/attributions" rel="noopener">CARTO</a>.</li>
+ <li>Recherche de lieux : API Géo (geo.api.gouv.fr) et Géocodeur de la Géoplateforme (IGN).</li>
+ <li>Polices : Google Fonts.</li>
+</ul>
+<h3>Liens d'affiliation</h3>
+<p>Certains liens d'achat de produits neufs peuvent être des liens affiliés (eBay, Amazon). Ils sont signalés « affilié » et peuvent rapporter une commission à l'éditeur, sans surcoût pour l'acheteur.</p>
+<h3>Responsabilité</h3>
+<p>Les estimations de valeur sont automatiques, indicatives et peuvent être inexactes ou en retard : elles ne constituent pas un prix garanti ni un conseil. L'éditeur n'intervient pas dans les échanges entre membres (voir les conditions d'utilisation).</p>
+<h3>Contact</h3>
+<p id="contact"></p>
+
+<h2 id="confidentialite">Politique de confidentialité</h2>
+<p>Cette page explique quelles données Trokémon traite, pourquoi, et comment exercer tes droits (règlement européen RGPD et loi Informatique et Libertés).</p>
+<h3>Responsable du traitement</h3>
+<p>L'éditeur indiqué plus haut.</p>
+<h3>Données traitées</h3>
+<table>
+ <tr><th>Donnée</th><th>Finalité</th><th>Base légale</th><th>Durée</th></tr>
+ <tr><td>Email, mot de passe (stocké chiffré/haché par Supabase), pseudo</td><td>Créer et sécuriser ton compte</td><td>Exécution du service</td><td>Tant que le compte existe</td></tr>
+ <tr><td>Photo de profil, énergie choisie</td><td>Personnaliser ton profil (visibles des membres connectés)</td><td>Exécution du service</td><td>Tant que le compte existe</td></tr>
+ <tr><td>Zone approximative (nom de lieu + coordonnées arrondies à environ 2 km)</td><td>T'afficher sur la carte et trouver des échanges proches. Ta position précise n'est jamais enregistrée.</td><td>Exécution du service ; ton choix de la renseigner</td><td>Jusqu'à modification ou suppression du compte</td></tr>
+ <tr><td>Cartes proposées/recherchées, photos recto/verso, notes</td><td>Permettre les échanges. Les photos sont accessibles par lien public.</td><td>Exécution du service</td><td>Jusqu'au retrait de l'item ou de ton compte</td></tr>
+ <tr><td>Propositions, messages, avis et notes</td><td>Organiser les échanges et établir la confiance entre membres (avis visibles des membres connectés)</td><td>Exécution du service ; intérêt légitime</td><td>Tant que le compte existe</td></tr>
+ <tr><td>Position de ton appareil (si tu cliques « Autour de moi »)</td><td>Centrer la carte. Utilisée dans ton navigateur uniquement, non envoyée à nos serveurs.</td><td>Ton consentement (autorisation du navigateur)</td><td>Non conservée</td></tr>
+</table>
+<h3>Destinataires et sous-traitants</h3>
+<p>Supabase Inc. (hébergement de la base, de l'authentification et des photos) et GitHub (hébergement des pages). Le fournisseur d'envoi d'emails configuré par l'éditeur transmet les emails de confirmation et de réinitialisation. Pour afficher la carte, la recherche de cartes et de lieux, ton navigateur contacte directement CARTO, TCGdex, geo.api.gouv.fr / data.geopf.fr et Google Fonts, qui peuvent voir ton adresse IP. Ces services sont situés en partie hors de l'Union européenne, notamment aux États-Unis ; les transferts s'appuient sur les garanties prévues par les fournisseurs (clauses contractuelles types ou cadre de protection des données UE-États-Unis).</p>
+<h3>Cookies et stockage local</h3>
+<p>Trokémon n'utilise aucun cookie de suivi ni outil de mesure d'audience ou de publicité. Ton navigateur conserve seulement, en stockage local, ta session de connexion et le style de carte choisi : ces éléments sont strictement nécessaires au service et ne demandent pas de consentement.</p>
+<h3>Tes droits</h3>
+<p>Tu peux demander l'accès, la rectification, l'effacement, la limitation, l'opposition et la portabilité de tes données en écrivant à l'adresse de contact ci-dessus. Tu peux aussi modifier ta photo, ta zone et retirer tes cartes depuis l'application. Pour supprimer ton compte, écris-nous : nous supprimons le compte et les données associées dans un délai d'un mois. Tu peux introduire une réclamation auprès de la <a href="https://www.cnil.fr/fr/plaintes" rel="noopener">CNIL</a>.</p>
+<h3>Mineurs</h3>
+<p>Trokémon s'adresse aux personnes de 15 ans et plus. Les mineurs sont invités à utiliser le service avec l'accord de leurs parents et à ne jamais organiser de rendez-vous seuls.</p>
+<h3>Sécurité</h3>
+<p>Accès aux données protégé par des règles de sécurité au niveau de la base (RLS), connexion chiffrée (HTTPS). Aucun système n'est infaillible : en cas de violation de données, les personnes concernées et la CNIL seront informées dans les conditions prévues par la loi.</p>
+
+<h2 id="cgu">Conditions d'utilisation</h2>
+<h3>1. Objet</h3>
+<p>Trokémon met en relation des collectionneurs de cartes et produits Pokémon pour qu'ils s'échangent des items. Le service est gratuit, sans abonnement, et fourni en version bêta : il peut changer, être interrompu ou contenir des erreurs.</p>
+<h3>2. Le rôle de Trokémon</h3>
+<p>Trokémon n'est pas partie aux échanges. Il n'achète ni ne vend rien, ne détient ni cartes ni argent, n'expertise pas les items et ne garantit ni l'état, ni l'authenticité, ni la valeur, ni la bonne exécution d'un échange. Les échanges se font entre membres, à leurs risques, de préférence en main propre dans un lieu public ou une boutique partenaire. En cas d'envoi postal, aucune garantie n'est apportée par Trokémon.</p>
+<h3>3. Ton compte</h3>
+<p>Tu fournis des informations exactes, tu gardes ton mot de passe secret et tu es responsable de l'activité de ton compte. Un compte par personne.</p>
+<h3>4. Ce que tu publies</h3>
+<ul>
+ <li>Tu ne publies que des items que tu possèdes ou recherches réellement, avec des photos recto/verso réelles et à jour de l'item proposé.</li>
+ <li>Interdits : contrefaçons (« proxies » présentés comme originaux), fausses photos, usurpation d'identité, contenu illégal, haineux, harcelant ou sexuel, démarchage commercial, et toute tentative de contourner la sécurité du service.</li>
+ <li>Tu garantis avoir le droit de publier tes photos et tu autorises Trokémon à les afficher dans le service.</li>
+ <li>Les messages sont réservés à l'organisation des échanges.</li>
+</ul>
+<h3>5. Estimations de valeur</h3>
+<p>Les valeurs affichées sont calculées automatiquement à partir de sources tierces (par exemple Cardmarket via TCGdex), pour un état « Near Mint » ; elles sont indicatives, peuvent être en retard et ne tiennent pas compte de l'état réel, de l'édition ou du grade. Elles ne sont pas modifiables par les membres. Pour certains types d'items (cartes gradées, produits scellés), aucune estimation automatique n'est disponible en bêta.</p>
+<h3>6. Avis et notes</h3>
+<p>Après un échange marqué « effectué », chaque participant peut noter l'autre (1 à 5) et laisser un commentaire. Les avis doivent refléter une expérience réelle, rester respectueux et ne contenir aucune donnée personnelle. Un avis est définitif ; un avis contraire aux présentes conditions peut être supprimé sur signalement.</p>
+<h3>7. Signalement et modération</h3>
+<p>Pour signaler un profil, un item ou un avis, écris à l'adresse de contact. L'éditeur peut retirer un contenu ou suspendre un compte qui ne respecte pas ces conditions, avec ou sans préavis en cas d'abus grave.</p>
+<h3>8. Conseils de prudence</h3>
+<p>Vérifie le certificat des cartes gradées auprès de la société de gradation. Contrôle l'état de l'item devant l'autre personne. Choisis un lieu public. Méfie-toi des demandes de paiement à l'avance ou de sortie de la plateforme. Les mineurs doivent être accompagnés.</p>
+<h3>9. Responsabilité</h3>
+<p>Dans les limites permises par la loi, l'éditeur n'est pas responsable des litiges entre membres, des pertes, vols, dommages ou fraudes liés à un échange, ni des interruptions du service. Rien dans ces conditions n'exclut une responsabilité qui ne peut l'être légalement.</p>
+<h3>10. Droit applicable</h3>
+<p>Ces conditions sont régies par le droit français. Si tu es consommateur, tu peux recourir gratuitement à un médiateur de la consommation ; les coordonnées du médiateur retenu par l'éditeur seront indiquées ici lorsque le service sera ouvert au public.</p>
+<h3>11. Évolution</h3>
+<p>Ces textes peuvent évoluer ; la date de mise à jour figure en haut de la page.</p>
+</main>
+<script src="config.js"></script>
+<script>
+(function(){
+ var L=(window.TK_CONFIG&&window.TK_CONFIG.LEGAL)||{};
+ function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+ function v(x,label){return x?esc(x):'<span class="todo">['+label+' à compléter dans config.js]</span>';}
+ document.getElementById('maj').textContent='11 novembre 2026';
+ document.getElementById('editeur').innerHTML=
+  '<b>'+v(L.nom,'Nom')+'</b><br>'+v(L.statut,'Statut')+(L.siret?'<br>SIRET : '+esc(L.siret):'')+'<br>'+v(L.adresse,'Adresse')+'<br>Email : '+v(L.email,'Email');
+ document.getElementById('directeur').innerHTML=v(L.directeur||L.nom,'Directeur de la publication');
+ document.getElementById('region').innerHTML=v(L.supabaseRegion,'Région');
+ document.getElementById('contact').innerHTML=L.email?'Écris-nous à <a href="mailto:'+esc(L.email)+'">'+esc(L.email)+'</a>.':v('','Email de contact');
+})();
+</script>
+</body>
+</html>
