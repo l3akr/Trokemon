@@ -9,8 +9,8 @@ window.TK_CONFIG = {
   /* Fond de carte. Les tuiles CARTO conviennent pour une bêta ; vérifie leurs conditions
      avant un lancement public, ou remplace par un autre fournisseur (une seule ligne à changer). */
   /* Clé gratuite CARTO (https://carto.com/basemaps/apikey/) : sans elle, un filigrane « API KEY REQUIRED » s'affiche sur la carte. */
-  CARTO_KEY: 'https://carto.com/basemaps/apikey/',
-  TILE_URL: 'https://basemaps.cartocdn.com/rastertiles/{style}/{z}/{x}/{y}{r}.png',
+  CARTO_KEY: 'cb1_58mv_1_bb2184a7a1195c632098bbe4',
+  TILE_URL: 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png?key=cb1_58mv_1_bb2184a7a1195c632098bbe4',
   TILE_ATTRIBUTION: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
 
   /* Liens d'achat neuf pour les produits scellés. Laisse vide tant que tu n'as pas de compte affilié.
@@ -24,12 +24,12 @@ window.TK_CONFIG = {
      conditions, ne donner au public que les coordonnées de l'hébergeur, mais il doit alors avoir
      communiqué son identité à l'hébergeur. En cas de doute, demande conseil à un juriste. */
   LEGAL: {
-    nom: '',            // Prénom NOM (ou raison sociale)
-    statut: '',         // ex. « Entrepreneur individuel (micro-entreprise) » ou « Particulier »
-    siret: '',          // si applicable
-    adresse: '',        // adresse postale (ou siège)
-    email: '',          // adresse de contact (aussi utilisée pour exercer les droits RGPD)
-    directeur: '',      // directeur de la publication (souvent la même personne)
-    supabaseRegion: ''  // région choisie à la création du projet Supabase, ex. « Paris (eu-west-3) »
+    nom: 'L3AKR',            // Prénom NOM (ou raison sociale)
+    statut: 'Particulier',         // ex. « Entrepreneur individuel (micro-entreprise) » ou « Particulier »
+    siret: 'N/A',          // si applicable
+    adresse: 'FRANCE',        // adresse postale (ou siège)
+    email: 'l3akr@proton.me',          // adresse de contact (aussi utilisée pour exercer les droits RGPD)
+    directeur: 'L3AKR',      // directeur de la publication (souvent la même personne)
+    supabaseRegion: 'London (eu-west-2)'  // région choisie à la création du projet Supabase, ex. « Paris (eu-west-3) »
   }
 };
