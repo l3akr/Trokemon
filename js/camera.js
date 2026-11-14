@@ -13,13 +13,13 @@ function detect(img){
  for(y=m;y<h-m;y++){for(x=0;x<m;x++){acc(x,y);acc(w-1-x,y);}}
  r/=n;g/=n;b/=n;
  var rows=new Float32Array(h),cols=new Float32Array(w);
- for(y=0;y<h;y++){for(x=0;x<w;x++){i=(y*w+x)*4;var dr=d[i]-r,dg=d[i+1]-g,db=d[i+2]-b;if(dr*dr+dg*dg+db*db>2400){rows[y]++;cols[x]++;}}}
+ for(y=0;y<h;y++){for(x=0;x<w;x++){i=(y*w+x)*4;var dr=d[i]-r,dg=d[i+1]-g,db=d[i+2]-b;if(dr*dr+dg*dg+db*db>1500){rows[y]++;cols[x]++;}}}
  var y0=-1,y1=-1,x0=-1,x1=-1;
- for(y=0;y<h;y++){if(rows[y]/w>0.35){if(y0<0){y0=y;}y1=y;}}
- for(x=0;x<w;x++){if(cols[x]/h>0.35){if(x0<0){x0=x;}x1=x;}}
+ for(y=0;y<h;y++){if(rows[y]/w>0.3){if(y0<0){y0=y;}y1=y;}}
+ for(x=0;x<w;x++){if(cols[x]/h>0.3){if(x0<0){x0=x;}x1=x;}}
  if(y0<0||x0<0||y1<=y0||x1<=x0){return {ok:false};}
  var bw=x1-x0+1,bh=y1-y0+1,ratio=bw/bh,area=(bw*bh)/(w*h);
- return {ok:ratio>0.6&&ratio<0.84&&area>0.5&&area<0.97,x0:x0,y0:y0,x1:x1+1,y1:y1+1,ratio:ratio,area:area};
+ return {ok:ratio>0.55&&ratio<0.9&&area>0.38&&area<1.01,x0:x0,y0:y0,x1:x1+1,y1:y1+1,ratio:ratio,area:area};
 }
 TK.camera={
  detect:detect,
@@ -34,7 +34,7 @@ TK.camera={
   var hint=ov.querySelector('.camhint'),base=opt.hint||'Place la carte dans le cadre, bien à plat';
   hint.textContent=base;
   document.body.appendChild(ov);
-  var v=ov.querySelector('video'),fr=ov.querySelector('.camframe'),stream=null,track=null,torch=false,closed=false,auto=true,still=0,prev=null,timer=null,busy=false;
+  var v=ov.querySelector('video'),fr=ov.querySelector('.camframe'),stream=null,track=null,torch=false,closed=false,auto=true,still=0,weak=0,prev=null,timer=null,busy=false;
   function size(){
    var fh=Math.min(window.innerHeight*0.6,window.innerWidth*0.8/RATIO),fw=fh*RATIO;
    fr.style.width=fw+'px';fr.style.height=fh+'px';
@@ -65,9 +65,15 @@ TK.camera={
    if(prev&&prev.length===img.data.length){for(var i=0;i<img.data.length;i+=16){motion+=Math.abs(img.data[i]-prev[i]);}motion/=img.data.length/16;}else{motion=99;}
    prev=new Uint8ClampedArray(img.data);
    if(det.ok){fr.classList.add('ok');}else{fr.classList.remove('ok');}
-   if(!auto){hint.textContent=base;still=0;return;}
-   if(det.ok&&motion<7){still++;hint.textContent=still>=2?'Ne bouge plus…':base;if(still>=4){still=0;shot();}}
-   else{still=0;hint.textContent=base;}
+   if(!auto){hint.textContent=base;still=0;weak=0;return;}
+   /* contraste du centre : sert de secours si le fond ressemble trop à la carte pour la détourer */
+   var sum=0,sq=0,cnt=0,cw=img.width,ch=img.height;
+   for(var yy=Math.round(ch*0.3);yy<ch*0.7;yy+=2){for(var xx=Math.round(cw*0.3);xx<cw*0.7;xx+=2){var ii=(yy*cw+xx)*4,gv=(img.data[ii]+img.data[ii+1]+img.data[ii+2])/3;sum+=gv;sq+=gv*gv;cnt++;}}
+   var sd=cnt?Math.sqrt(Math.max(0,sq/cnt-(sum/cnt)*(sum/cnt))):0;
+   var calm=motion<14;
+   if(det.ok&&calm){still++;hint.textContent='Carte détectée, ne bouge plus…';if(still>=3){still=0;weak=0;shot();}}
+   else if(!det.ok&&calm&&sd>28){weak++;still=0;hint.textContent='Ne bouge plus…';if(weak>=7){weak=0;shot();}}
+   else{still=0;weak=0;hint.textContent=det.ok?'Carte détectée : stabilise le téléphone':'Cherche la carte… place-la dans le cadre';}
   }
   timer=setInterval(look,260);
   navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false}).then(function(s){
@@ -86,10 +92,11 @@ TK.camera={
    var sx=sm.getContext('2d',{willReadFrequently:true});sx.drawImage(big,0,0,W,H);
    var det=detect(sx.getImageData(0,0,W,H)),x0,y0,x1,y1;
    if(det.ok){
-    var px=cw/W,py=ch/H,pad=0.012*cw;
-    x0=Math.max(0,det.x0*px-pad);x1=Math.min(cw,det.x1*px+pad);y0=Math.max(0,det.y0*py-pad);y1=Math.min(ch,det.y1*py+pad);
+    /* marge généreuse : mieux vaut un peu de fond que des coins coupés (dos de carte sombre, coins arrondis) */
+    var px=cw/W,py=ch/H,pad=0.035*cw;
+    x0=Math.max(0,det.x0*px-pad);x1=Math.min(cw,det.x1*px+pad);y0=Math.max(0,det.y0*py-pad*1.1);y1=Math.min(ch,det.y1*py+pad*1.1);
    }else{
-    var fw=cw/EXPAND,fh=ch/EXPAND;x0=(cw-fw)/2;x1=x0+fw;y0=(ch-fh)/2;y1=y0+fh;
+    var fw=cw/EXPAND*1.06,fh=ch/EXPAND*1.06;x0=Math.max(0,(cw-fw)/2);x1=Math.min(cw,x0+fw);y0=Math.max(0,(ch-fh)/2);y1=Math.min(ch,y0+fh);
    }
    var ow=x1-x0,oh=y1-y0,m=Math.min(1,1400/Math.max(ow,oh)),out=document.createElement('canvas');
    out.width=Math.round(ow*m);out.height=Math.round(oh*m);

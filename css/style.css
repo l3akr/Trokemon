@@ -249,7 +249,7 @@ details.sub .cgrid{padding-bottom:6px}
 :root{--glow:rgba(245,200,66,.1);--glow2:rgba(245,200,66,.05);--tile:none;}
 #decor{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(900px 520px at 85% -12%,var(--glow),transparent 70%),var(--bg);transition:background .4s}
 /* un seul grand symbole d'énergie, très discret, dans un coin */
-#decor::after{content:"";position:absolute;right:-70px;bottom:-70px;width:420px;height:420px;background:var(--tile) no-repeat center/contain;opacity:1}
+#decor::after{content:"";position:absolute;right:-50px;bottom:12vh;width:420px;height:420px;background:var(--tile) no-repeat center/contain;opacity:1}
 /* la lueur change simplement de place selon l'énergie */
 #decor[data-e=feu]{background:radial-gradient(900px 480px at 50% 120%,var(--glow),transparent 70%),var(--bg)}
 #decor[data-e=eau]{background:radial-gradient(900px 520px at 10% -12%,var(--glow),transparent 70%),var(--bg)}
@@ -326,3 +326,8 @@ details.sub .cgrid{padding-bottom:6px}
 .gbtn{width:min(100%,380px,calc(52vh*0.716))}
 .gmain{aspect-ratio:63/88;max-height:none;object-fit:cover;background:none;border:0}
 .cph.gmain{width:min(100%,380px,calc(52vh*0.716))}
+
+.cgrid{grid-template-columns:repeat(auto-fill,minmax(130px,165px));justify-content:start}
+.cat .cthumb,.cat .ph.cph{width:100%;height:auto;aspect-ratio:63/88;min-height:0;object-fit:cover}
+.cat .cthumb[src*="/fr/"]{min-height:0}
+.cat .ph.cph{border-radius:0}

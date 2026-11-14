@@ -64,7 +64,7 @@ function dist(p){
 function applyTheme(){
  var e=energyObj(),r=document.documentElement.style;
  r.setProperty('--accent',e.color);r.setProperty('--accent-soft',hexA(e.color,0.16));r.setProperty('--glow',hexA(e.color,0.1));r.setProperty('--glow2',hexA(e.color,0.05));
- var svg='<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><g fill="'+e.color+'" opacity=".05"><path d="'+e.path+'" transform="scale(4.6) translate(.4 .4)"/></g></svg>';
+ var svg='<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><g fill="none" stroke="'+e.color+'" stroke-width=".2" stroke-linejoin="round" stroke-linecap="round" opacity=".5"><path d="'+e.path+'" transform="scale(4.6) translate(.4 .4)"/></g></svg>';
  r.setProperty('--tile','url("data:image/svg+xml,'+encodeURIComponent(svg)+'")');
  var d=document.getElementById('decor');if(d){d.setAttribute('data-e',e.id);}
  var tc=document.querySelector('meta[name=theme-color]');if(tc){tc.setAttribute('content','#0E0F11');}
@@ -623,7 +623,7 @@ function vAdd(){
    '<p style="margin-top:14px"><button class="btn sm ghost" style="color:var(--accent)" data-a="manual">Je ne trouve pas ma carte</button></p></div>';
  }
  var nsel=Object.keys(a.sel).length,cnt=selCount(),bad=isOffer&&Object.keys(a.sel).some(function(k){return !a.sel[k].picked.length;});
- return page(header(title,null,true)+'<div class="scroll">'+pills+body+'</div>'+(a.type==='loose'&&nsel?'<div class="foot">'+(bad?'<div class="note" style="margin-bottom:8px">Choisis au moins une version pour chaque carte.</div>':'')+'<button class="btn primary" data-a="addmulti"'+(bad||a.saving||!cnt?' disabled':'')+'>'+(a.saving?'Envoi…':'Ajouter '+cnt+' item'+(cnt>1?'s':''))+'</button></div>':''));
+ return page(header(title,null,true)+'<div class="scroll">'+pills+body+'</div>'+((a.type==='loose'||a.type==='sealed')&&nsel?'<div class="foot">'+(bad?'<div class="note" style="margin-bottom:8px">Choisis au moins une version pour chaque carte.</div>':'')+'<button class="btn primary" data-a="addmulti"'+(bad||a.saving||!cnt?' disabled':'')+'>'+(a.saving?'Envoi…':'Ajouter '+cnt+' item'+(cnt>1?'s':''))+'</button></div>':''));
 }
 function photoBox(side,lbl){
  var ph=S.add.photos[side];
