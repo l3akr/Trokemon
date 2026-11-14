@@ -1,9 +1,10 @@
 # Rapport prix Cardmarket
 
-Généré : 2026-11-14T14:34:51.573Z (guide du 2026-11-13T02:44:11+0100)
+Généré : 2026-11-14T14:40:25.281Z (guide du 2026-11-13T02:44:11+0100)
 
-- Cartes associées : 16697
-- Cartes sans produit : 2365
+- Cartes associées : 18758
+- Cartes sans produit : 304
+- Dont associées par approximation (produits en trop) : 2061
 - Sets TCGdex associés : 160 / 221
 
 ## Sets non associés
@@ -69,308 +70,271 @@ Généré : 2026-11-14T14:34:51.573Z (guide du 2026-11-13T02:44:11+0100)
 - B2a Paldean Wonders
 - 30th-c 30th Classic Collection
 
-## Cas ambigus (non associés)
-- base1 « Alakazam » : 1 cartes TCGdex (1) contre 2 produits Cardmarket (273696,660227)
-- base1 « Blastoise » : 1 cartes TCGdex (2) contre 2 produits Cardmarket (273697,660226)
-- base1 « Chansey » : 1 cartes TCGdex (3) contre 2 produits Cardmarket (273698,660225)
-- base1 « Charizard » : 1 cartes TCGdex (4) contre 2 produits Cardmarket (273699,660224)
-- base1 « Clefairy » : 1 cartes TCGdex (5) contre 2 produits Cardmarket (273700,660223)
-- base1 « Gyarados » : 1 cartes TCGdex (6) contre 2 produits Cardmarket (273701,660222)
-- base1 « Hitmonchan » : 1 cartes TCGdex (7) contre 2 produits Cardmarket (273702,660221)
-- base1 « Machamp » : 1 cartes TCGdex (8) contre 2 produits Cardmarket (273703,660220)
-- base1 « Magneton » : 1 cartes TCGdex (9) contre 2 produits Cardmarket (273704,660219)
-- base1 « Mewtwo » : 1 cartes TCGdex (10) contre 2 produits Cardmarket (273705,660218)
-- base1 « Nidoking » : 1 cartes TCGdex (11) contre 2 produits Cardmarket (273706,660217)
-- base1 « Ninetales » : 1 cartes TCGdex (12) contre 2 produits Cardmarket (273707,660216)
-- base1 « Poliwrath » : 1 cartes TCGdex (13) contre 2 produits Cardmarket (273708,660215)
-- base1 « Raichu » : 1 cartes TCGdex (14) contre 2 produits Cardmarket (273709,660214)
-- base1 « Venusaur » : 1 cartes TCGdex (15) contre 2 produits Cardmarket (273710,660213)
-- base1 « Zapdos » : 1 cartes TCGdex (16) contre 2 produits Cardmarket (273711,660212)
-- base1 « Beedrill » : 1 cartes TCGdex (17) contre 2 produits Cardmarket (273712,660211)
-- base1 « Dragonair » : 1 cartes TCGdex (18) contre 2 produits Cardmarket (273713,660210)
-- base1 « Dugtrio » : 1 cartes TCGdex (19) contre 2 produits Cardmarket (273714,660209)
-- base1 « Electabuzz » : 1 cartes TCGdex (20) contre 2 produits Cardmarket (273715,660208)
-- base1 « Electrode » : 1 cartes TCGdex (21) contre 2 produits Cardmarket (273716,660207)
-- base1 « Pidgeotto » : 1 cartes TCGdex (22) contre 2 produits Cardmarket (273717,660206)
-- base1 « Arcanine » : 1 cartes TCGdex (23) contre 2 produits Cardmarket (273718,660205)
-- base1 « Charmeleon » : 1 cartes TCGdex (24) contre 2 produits Cardmarket (273719,660204)
-- base1 « Dewgong » : 1 cartes TCGdex (25) contre 2 produits Cardmarket (273720,660203)
-- base1 « Dratini » : 1 cartes TCGdex (26) contre 2 produits Cardmarket (273721,660202)
-- base1 « Farfetch'd » : 1 cartes TCGdex (27) contre 2 produits Cardmarket (273722,660201)
-- base1 « Growlithe » : 1 cartes TCGdex (28) contre 2 produits Cardmarket (273723,660200)
-- base1 « Haunter » : 1 cartes TCGdex (29) contre 2 produits Cardmarket (273724,660199)
-- base1 « Ivysaur » : 1 cartes TCGdex (30) contre 2 produits Cardmarket (273725,660198)
-- base1 « Jynx » : 1 cartes TCGdex (31) contre 2 produits Cardmarket (273726,660197)
-- base1 « Kadabra » : 1 cartes TCGdex (32) contre 2 produits Cardmarket (273727,660196)
-- base1 « Kakuna » : 1 cartes TCGdex (33) contre 2 produits Cardmarket (273728,660195)
-- base1 « Machoke » : 1 cartes TCGdex (34) contre 2 produits Cardmarket (273729,660194)
-- base1 « Magikarp » : 1 cartes TCGdex (35) contre 2 produits Cardmarket (273730,660193)
-- base1 « Magmar » : 1 cartes TCGdex (36) contre 2 produits Cardmarket (273731,660192)
-- base1 « Nidorino » : 1 cartes TCGdex (37) contre 2 produits Cardmarket (273732,660191)
-- base1 « Poliwhirl » : 1 cartes TCGdex (38) contre 2 produits Cardmarket (273733,660190)
-- base1 « Porygon » : 1 cartes TCGdex (39) contre 2 produits Cardmarket (273734,660189)
-- base1 « Raticate » : 1 cartes TCGdex (40) contre 2 produits Cardmarket (273735,660188)
-- base1 « Seel » : 1 cartes TCGdex (41) contre 2 produits Cardmarket (273736,660187)
-- base1 « Wartortle » : 1 cartes TCGdex (42) contre 2 produits Cardmarket (273737,660186)
-- base1 « Abra » : 1 cartes TCGdex (43) contre 2 produits Cardmarket (273738,660185)
-- base1 « Bulbasaur » : 1 cartes TCGdex (44) contre 3 produits Cardmarket (273739,547236,660184)
-- base1 « Caterpie » : 1 cartes TCGdex (45) contre 2 produits Cardmarket (273740,660183)
-- base1 « Charmander » : 1 cartes TCGdex (46) contre 3 produits Cardmarket (273741,547241,660182)
-- base1 « Diglett » : 1 cartes TCGdex (47) contre 2 produits Cardmarket (273742,660181)
-- base1 « Doduo » : 1 cartes TCGdex (48) contre 2 produits Cardmarket (273743,660180)
-- base1 « Drowzee » : 1 cartes TCGdex (49) contre 2 produits Cardmarket (273744,660179)
-- base1 « Gastly » : 1 cartes TCGdex (50) contre 2 produits Cardmarket (273745,660178)
-- base1 « Koffing » : 1 cartes TCGdex (51) contre 2 produits Cardmarket (273746,660177)
-- base1 « Machop » : 1 cartes TCGdex (52) contre 2 produits Cardmarket (273747,660176)
-- base1 « Magnemite » : 1 cartes TCGdex (53) contre 2 produits Cardmarket (273748,660175)
-- base1 « Metapod » : 1 cartes TCGdex (54) contre 2 produits Cardmarket (273749,660174)
-- base1 « Nidoran♂ » : 1 cartes TCGdex (55) contre 2 produits Cardmarket (273750,660173)
-- base1 « Onix » : 1 cartes TCGdex (56) contre 2 produits Cardmarket (273751,660172)
-- base1 « Pidgey » : 1 cartes TCGdex (57) contre 2 produits Cardmarket (273752,660171)
-- base1 « Pikachu » : 1 cartes TCGdex (58) contre 6 produits Cardmarket (273753,275568,275586,362859,660169,660170)
-- base1 « Poliwag » : 1 cartes TCGdex (59) contre 2 produits Cardmarket (273754,660168)
-- base1 « Ponyta » : 1 cartes TCGdex (60) contre 2 produits Cardmarket (273755,660167)
-- base1 « Rattata » : 1 cartes TCGdex (61) contre 2 produits Cardmarket (273756,660166)
-- base1 « Sandshrew » : 1 cartes TCGdex (62) contre 2 produits Cardmarket (273757,660165)
-- base1 « Squirtle » : 1 cartes TCGdex (63) contre 3 produits Cardmarket (273758,547246,660164)
-- base1 « Starmie » : 1 cartes TCGdex (64) contre 2 produits Cardmarket (273759,660163)
-- base1 « Staryu » : 1 cartes TCGdex (65) contre 2 produits Cardmarket (273760,660162)
-- base1 « Tangela » : 1 cartes TCGdex (66) contre 2 produits Cardmarket (273761,660161)
-- base1 « Voltorb » : 1 cartes TCGdex (67) contre 2 produits Cardmarket (273762,660160)
-- base1 « Vulpix » : 1 cartes TCGdex (68) contre 2 produits Cardmarket (273763,660159)
-- base1 « Weedle » : 1 cartes TCGdex (69) contre 2 produits Cardmarket (273764,660158)
-- base1 « Clefairy Doll » : 1 cartes TCGdex (70) contre 2 produits Cardmarket (273765,660150)
-- base1 « Computer Search » : 1 cartes TCGdex (71) contre 2 produits Cardmarket (273766,660149)
-- base1 « Devolution Spray » : 1 cartes TCGdex (72) contre 2 produits Cardmarket (273767,660147)
-- base1 « Item Finder » : 1 cartes TCGdex (74) contre 2 produits Cardmarket (273769,660144)
-- base1 « Lass » : 1 cartes TCGdex (75) contre 2 produits Cardmarket (273770,660143)
-- base1 « Pokémon Breeder » : 1 cartes TCGdex (76) contre 2 produits Cardmarket (273771,660142)
-- base1 « Pokémon Trader » : 1 cartes TCGdex (77) contre 2 produits Cardmarket (273772,660140)
-- base1 « Scoop Up » : 1 cartes TCGdex (78) contre 2 produits Cardmarket (273773,660138)
-- base1 « Super Energy Removal » : 1 cartes TCGdex (79) contre 2 produits Cardmarket (273774,660137)
-- base1 « Defender » : 1 cartes TCGdex (80) contre 2 produits Cardmarket (273775,660135)
-- base1 « Energy Retrieval » : 1 cartes TCGdex (81) contre 2 produits Cardmarket (273776,660134)
-- base1 « Full Heal » : 1 cartes TCGdex (82) contre 2 produits Cardmarket (273777,660132)
-- base1 « Maintenance » : 1 cartes TCGdex (83) contre 2 produits Cardmarket (273778,660123)
-- base1 « PlusPower » : 1 cartes TCGdex (84) contre 2 produits Cardmarket (273779,660122)
-- base1 « Pokémon Center » : 1 cartes TCGdex (85) contre 2 produits Cardmarket (273780,660121)
-- base1 « Pokémon Flute » : 1 cartes TCGdex (86) contre 2 produits Cardmarket (273781,660120)
-- base1 « Pokédex » : 1 cartes TCGdex (87) contre 2 produits Cardmarket (273782,660119)
-- base1 « Professor Oak » : 1 cartes TCGdex (88) contre 2 produits Cardmarket (273783,660118)
-- base1 « Revive » : 1 cartes TCGdex (89) contre 2 produits Cardmarket (273784,660116)
-- base1 « Super Potion » : 1 cartes TCGdex (90) contre 2 produits Cardmarket (273785,660115)
-- base1 « Bill » : 1 cartes TCGdex (91) contre 2 produits Cardmarket (273786,660113)
-- base1 « Energy Removal » : 1 cartes TCGdex (92) contre 2 produits Cardmarket (273787,660112)
-- base1 « Gust of Wind » : 1 cartes TCGdex (93) contre 2 produits Cardmarket (273788,660110)
-- base1 « Potion » : 1 cartes TCGdex (94) contre 2 produits Cardmarket (273789,660109)
-- base1 « Switch » : 1 cartes TCGdex (95) contre 2 produits Cardmarket (273790,660107)
-- base1 « Double Colorless Energy » : 1 cartes TCGdex (96) contre 2 produits Cardmarket (273791,660106)
-- base1 « Fighting Energy » : 1 cartes TCGdex (97) contre 2 produits Cardmarket (273792,660105)
-- base1 « Fire Energy » : 1 cartes TCGdex (98) contre 2 produits Cardmarket (273793,660103)
-- base1 « Grass Energy » : 1 cartes TCGdex (99) contre 2 produits Cardmarket (273794,660102)
-- base1 « Lightning Energy » : 1 cartes TCGdex (100) contre 2 produits Cardmarket (273795,660101)
-- base1 « Psychic Energy » : 1 cartes TCGdex (101) contre 2 produits Cardmarket (273796,660098)
-- base1 « Water Energy » : 1 cartes TCGdex (102) contre 2 produits Cardmarket (273797,660096)
-- base2 « Clefable » : 2 cartes TCGdex (1,17) contre 3 produits Cardmarket (273798,273814,275572)
-- base2 « Meowth » : 1 cartes TCGdex (56) contre 2 produits Cardmarket (273853,275571)
-- basep « Meowth » : 1 cartes TCGdex (10) contre 2 produits Cardmarket (275429,576707)
-- basep « Eevee » : 1 cartes TCGdex (11) contre 2 produits Cardmarket (275430,576708)
-- base3 « Aerodactyl » : 2 cartes TCGdex (1,16) contre 3 produits Cardmarket (273862,273877,275573)
-- base5 « Dark Gyarados » : 2 cartes TCGdex (8,25) contre 3 produits Cardmarket (274061,274078,275574)
-- gym1 « Misty's Seadra » : 1 cartes TCGdex (9) contre 2 produits Cardmarket (274145,275575)
-- neo1 « Chikorita » : 2 cartes TCGdex (53,54) contre 3 produits Cardmarket (274453,274454,547251)
-- neo1 « Cyndaquil » : 2 cartes TCGdex (56,57) contre 3 produits Cardmarket (274456,274457,547256)
-- neo1 « Totodile » : 2 cartes TCGdex (80,81) contre 3 produits Cardmarket (274480,274481,547261)
-- lc « Charizard » : 1 cartes TCGdex (3) contre 3 produits Cardmarket (274768,362871,855023)
-- lc « Dark Blastoise » : 1 cartes TCGdex (4) contre 3 produits Cardmarket (274769,362872,901315)
-- lc « Dark Raichu » : 1 cartes TCGdex (7) contre 3 produits Cardmarket (274772,362873,901316)
-- lc « Mewtwo » : 1 cartes TCGdex (29) contre 2 produits Cardmarket (274794,362874)
-- ecard1 « Alakazam » : 2 cartes TCGdex (1,33) contre 3 produits Cardmarket (274876,274908,362878)
-- ecard1 « Feraligatr » : 3 cartes TCGdex (12,46,47) contre 4 produits Cardmarket (274887,274921,274922,362884)
-- ecard1 « Tyranitar » : 2 cartes TCGdex (29,66) contre 3 produits Cardmarket (274904,274941,362890)
-- ecard1 « Venusaur » : 3 cartes TCGdex (30,67,68) contre 4 produits Cardmarket (274905,274942,274943,362896)
-- bog « Electabuzz » : 1 cartes TCGdex (1) contre 3 produits Cardmarket (275411,283081,362860)
-- bog « Hitmonchan » : 1 cartes TCGdex (2) contre 3 produits Cardmarket (275412,283082,362861)
-- bog « Rocket’s Scizor » : 1 cartes TCGdex (4) contre 3 produits Cardmarket (275414,280570,362862)
-- bog « Rocket’s Sneasel » : 1 cartes TCGdex (5) contre 3 produits Cardmarket (275415,280571,362863)
-- bog « Dark Ivysaur » : 1 cartes TCGdex (6) contre 3 produits Cardmarket (275416,283084,362864)
-- bog « Dark Venusaur » : 1 cartes TCGdex (7) contre 3 produits Cardmarket (275417,283085,362865)
-- bog « Rocket’s Mewtwo » : 1 cartes TCGdex (8) contre 3 produits Cardmarket (275418,280574,362866)
-- bog « Rocket’s Hitmonchan » : 1 cartes TCGdex (9) contre 3 produits Cardmarket (275419,280575,362867)
-- ecard2 « Entei » : 2 cartes TCGdex (10,H08) contre 3 produits Cardmarket (275065,275082,362901)
-- ecard2 « Espeon » : 2 cartes TCGdex (11,H09) contre 3 produits Cardmarket (275064,275083,362902)
-- ecard2 « Scizor » : 2 cartes TCGdex (32,H21) contre 3 produits Cardmarket (275045,275104,362903)
-- ecard2 « Suicune » : 2 cartes TCGdex (37,H25) contre 3 produits Cardmarket (275057,275109,362904)
-- ecard3 « Crobat » : 3 cartes TCGdex (6,147,H05) contre 4 produits Cardmarket (275245,275264,275405,362906)
-- ecard3 « Kabutops » : 3 cartes TCGdex (14,150,H13) contre 4 produits Cardmarket (275240,275272,275408,362908)
-- ecard3 « Charizard » : 1 cartes TCGdex (146) contre 2 produits Cardmarket (275404,362905)
-- ecard3 « Ho-oh » : 1 cartes TCGdex (149) contre 2 produits Cardmarket (275407,362907)
-- ex1 « Mudkip » : 2 cartes TCGdex (59,60) contre 3 produits Cardmarket (275707,275708,547276)
-- ex1 « Torchic » : 2 cartes TCGdex (73,74) contre 3 produits Cardmarket (275721,275722,547271)
-- ex1 « Treecko » : 2 cartes TCGdex (75,76) contre 3 produits Cardmarket (275723,275724,547266)
-- ex1 « Oran Berry » : 1 cartes TCGdex (85) contre 3 produits Cardmarket (275733,280582,911406)
-- ex1 « Darkness Energy » : 1 cartes TCGdex (93) contre 2 produits Cardmarket (275741,280579)
-- ex1 « Metal Energy » : 1 cartes TCGdex (94) contre 4 produits Cardmarket (275742,280580,362909,901915)
-- ex2 « Armaldo » : 1 cartes TCGdex (1) contre 2 produits Cardmarket (275778,881759)
-- ex2 « Multi Energy » : 1 cartes TCGdex (93) contre 3 produits Cardmarket (275870,280581,362910)
-- np « Grovyle » : 1 cartes TCGdex (4) contre 2 produits Cardmarket (275477,362869)
-- np « Combusken » : 1 cartes TCGdex (9) contre 2 produits Cardmarket (275482,362868)
-- np « Marshtomp » : 1 cartes TCGdex (11) contre 2 produits Cardmarket (275484,362870)
-- np « Beldum » : 1 cartes TCGdex (22) contre 2 produits Cardmarket (275495,921281)
-- np « Chimecho » : 1 cartes TCGdex (24) contre 2 produits Cardmarket (275497,280586)
-- np « Flygon » : 1 cartes TCGdex (25) contre 2 produits Cardmarket (275498,280587)
-- ex3 « Flygon » : 2 cartes TCGdex (4,15) contre 3 produits Cardmarket (275881,275892,280583)
-- ex3 « Salamence » : 2 cartes TCGdex (10,19) contre 3 produits Cardmarket (275887,275896,280584)
-- ex3 « Gyarados » : 1 cartes TCGdex (32) contre 2 produits Cardmarket (275909,881760)
-- ex3 « Charmander » : 1 cartes TCGdex (98) contre 2 produits Cardmarket (275975,449328)
-- ex3 « Charmeleon » : 1 cartes TCGdex (99) contre 2 produits Cardmarket (275976,449333)
-- ex3 « Charizard » : 1 cartes TCGdex (100) contre 2 produits Cardmarket (275977,449323)
-- ex4 « Team Aqua's Cacnea » : 1 cartes TCGdex (24) contre 2 produits Cardmarket (276001,881780)
-- ex5 « Machamp » : 1 cartes TCGdex (9) contre 2 produits Cardmarket (276083,449903)
-- ex5 « Beldum » : 3 cartes TCGdex (28,29,54) contre 4 produits Cardmarket (276102,276103,276128,280585)
-- ex5 « Machoke » : 1 cartes TCGdex (41) contre 2 produits Cardmarket (276115,449908)
-- ex5 « Swalot » : 1 cartes TCGdex (50) contre 2 produits Cardmarket (276124,881785)
-- ex5 « Machop » : 1 cartes TCGdex (64) contre 2 produits Cardmarket (276138,449913)
-- tk-ex-latio « Potion » : 1 cartes TCGdex (8) contre 2 produits Cardmarket (275765,275774)
-- tk-ex-latio « Energy Search » : 1 cartes TCGdex (9) contre 2 produits Cardmarket (275764,275768)
-- ex6 « Wartortle » : 1 cartes TCGdex (50) contre 2 produits Cardmarket (276226,881786)
-- ex7 « Dark Houndoom » : 2 cartes TCGdex (5,37) contre 3 produits Cardmarket (276297,276329,881787)
-- ex8 « Deoxys » : 3 cartes TCGdex (16,17,18) contre 5 produits Cardmarket (276419,276420,276421,449433,901210)
-- ex8 « Manectric » : 1 cartes TCGdex (38) contre 2 produits Cardmarket (276441,882854)
-- ex8 « Space Center » : 1 cartes TCGdex (91) contre 2 produits Cardmarket (276494,901173)
-- ex9 « Exploud » : 1 cartes TCGdex (3) contre 2 produits Cardmarket (276514,449503)
-- ex9 « Grumpig » : 2 cartes TCGdex (29,30) contre 3 produits Cardmarket (276540,276541,882855)
-- ex9 « Loudred » : 1 cartes TCGdex (35) contre 3 produits Cardmarket (276546,449698,449703)
-- ex9 « Whismur » : 1 cartes TCGdex (73) contre 2 produits Cardmarket (276584,450533)
-- ex10 « Meganium » : 1 cartes TCGdex (9) contre 2 produits Cardmarket (276655,921235)
-- ex10 « Ho-Oh » : 1 cartes TCGdex (27) contre 2 produits Cardmarket (276673,901195)
-- ex10 « Bayleef » : 1 cartes TCGdex (35) contre 2 produits Cardmarket (276681,882856)
-- ex11 « Azumarill δ » : 2 cartes TCGdex (19,114) contre 1 produits Cardmarket (276877)
-- ex11 « Eevee δ » : 2 cartes TCGdex (68,69) contre 1 produits Cardmarket (276832)
-- ex12 « Golem » : 1 cartes TCGdex (6) contre 2 produits Cardmarket (276883,449578)
-- ex12 « Tentacruel » : 1 cartes TCGdex (45) contre 2 produits Cardmarket (276922,882858)
-- ex12 « Skitty » : 1 cartes TCGdex (64) contre 2 produits Cardmarket (276941,679290)
-- tk-ex-p « Energy Search » : 1 cartes TCGdex (8) contre 2 produits Cardmarket (277190,277194)
-- tk-ex-p « Potion » : 1 cartes TCGdex (9) contre 2 produits Cardmarket (277189,277198)
-- tk-ex-p « Lightning Energy » : 1 cartes TCGdex (11) contre 2 produits Cardmarket (277185,277196)
-- ex14 « Blastoise δ » : 2 cartes TCGdex (2,14) contre 1 produits Cardmarket (277095)
-- ex14 « Grovyle δ » : 2 cartes TCGdex (19,32) contre 1 produits Cardmarket (277113)
-- ex14 « Venusaur » : 1 cartes TCGdex (28) contre 2 produits Cardmarket (277109,450458)
-- ex14 « Charmeleon » : 2 cartes TCGdex (29,30) contre 1 produits Cardmarket (277110)
-- ex14 « Ivysaur » : 2 cartes TCGdex (34,35) contre 3 produits Cardmarket (277115,277116,882878)
-- ex14 « Wartortle » : 2 cartes TCGdex (42,43) contre 3 produits Cardmarket (277123,277124,450513)
-- ex14 « Charmander » : 2 cartes TCGdex (48,49) contre 1 produits Cardmarket (277129)
-- ex14 « Squirtle » : 2 cartes TCGdex (63,64) contre 3 produits Cardmarket (277144,277145,450418)
-- ex14 « Treecko » : 2 cartes TCGdex (67,68) contre 1 produits Cardmarket (277148)
-- ex16 « Cacturne » : 1 cartes TCGdex (27) contre 2 produits Cardmarket (277333,882889)
-- hgss1 « Pichu » : 1 cartes TCGdex (28) contre 2 produits Cardmarket (279000,882912)
-- hgss1 « Corsola » : 1 cartes TCGdex (37) contre 2 produits Cardmarket (279009,902371)
-- hgss1 « Delibird » : 1 cartes TCGdex (39) contre 3 produits Cardmarket (279011,371563,902372)
-- hgss1 « Donphan » : 2 cartes TCGdex (40,107) contre 3 produits Cardmarket (279012,279079,371559)
-- hgss1 « Miltank » : 1 cartes TCGdex (47) contre 2 produits Cardmarket (279019,902373)
-- hgss1 « Chikorita » : 1 cartes TCGdex (59) contre 2 produits Cardmarket (279031,902374)
-- hgss1 « Clefairy » : 1 cartes TCGdex (60) contre 2 produits Cardmarket (279032,902375)
-- hgss1 « Cyndaquil » : 1 cartes TCGdex (61) contre 2 produits Cardmarket (279033,902376)
-- hgss1 « Growlithe » : 1 cartes TCGdex (65) contre 2 produits Cardmarket (279037,902377)
-- hgss1 « Hoothoot » : 1 cartes TCGdex (66) contre 2 produits Cardmarket (279038,902378)
-- hgss1 « Koffing » : 1 cartes TCGdex (70) contre 2 produits Cardmarket (279042,902379)
-- hgss1 « Magikarp » : 1 cartes TCGdex (72) contre 2 produits Cardmarket (279044,902380)
-- hgss1 « Mareep » : 1 cartes TCGdex (73) contre 2 produits Cardmarket (279045,902381)
-- hgss1 « Marill » : 1 cartes TCGdex (74) contre 2 produits Cardmarket (279046,902382)
-- hgss1 « Meowth » : 1 cartes TCGdex (75) contre 2 produits Cardmarket (279047,902383)
-- hgss1 « Paras » : 1 cartes TCGdex (76) contre 2 produits Cardmarket (279048,902384)
-- hgss1 « Pikachu » : 1 cartes TCGdex (78) contre 3 produits Cardmarket (279050,573477,902385)
-- hgss1 « Staryu » : 1 cartes TCGdex (84) contre 2 produits Cardmarket (279056,902386)
-- hgss1 « Totodile » : 1 cartes TCGdex (86) contre 2 produits Cardmarket (279058,902387)
-- hgss1 « Copycat » : 1 cartes TCGdex (90) contre 2 produits Cardmarket (279062,371572)
-- hgss1 « Pokémon Collector » : 1 cartes TCGdex (97) contre 2 produits Cardmarket (279069,450098)
-- hgss1 « Pokémon Communication » : 1 cartes TCGdex (98) contre 2 produits Cardmarket (279070,450103)
-- hgss1 « Double Colorless Energy » : 1 cartes TCGdex (103) contre 2 produits Cardmarket (279075,371574)
-- hgss1 « Rainbow Energy » : 1 cartes TCGdex (104) contre 2 produits Cardmarket (279076,450228)
-- tk-hs-r « Switch » : 1 cartes TCGdex (24) contre 2 produits Cardmarket (279111,279154)
-- tk-hs-r « Poké Ball » : 1 cartes TCGdex (25) contre 2 produits Cardmarket (279121,279141)
-- tk-hs-r « Energy Switch » : 1 cartes TCGdex (29) contre 2 produits Cardmarket (279124,279131)
-- hgss2 « Politoed » : 1 cartes TCGdex (7) contre 2 produits Cardmarket (279163,450113)
-- hgss2 « Blastoise » : 1 cartes TCGdex (13) contre 2 produits Cardmarket (279169,882913)
-- hgss2 « Crobat » : 2 cartes TCGdex (14,84) contre 3 produits Cardmarket (279170,279240,371561)
-- hgss2 « Poliwrath » : 1 cartes TCGdex (21) contre 2 produits Cardmarket (279177,450138)
-- hgss2 « Steelix » : 2 cartes TCGdex (24,87) contre 3 produits Cardmarket (279180,279243,371565)
-- hgss2 « Poliwhirl » : 1 cartes TCGdex (37) contre 2 produits Cardmarket (279193,450133)
-- hgss2 « Aipom » : 1 cartes TCGdex (43) contre 2 produits Cardmarket (279199,902388)
-- hgss2 « Chinchou » : 1 cartes TCGdex (48) contre 2 produits Cardmarket (279204,902389)
-- hgss2 « Horsea » : 1 cartes TCGdex (49) contre 2 produits Cardmarket (279205,902390)
-- hgss2 « Larvitar » : 2 cartes TCGdex (50,51) contre 3 produits Cardmarket (279206,279207,902391)
-- hgss2 « Natu » : 1 cartes TCGdex (55) contre 2 produits Cardmarket (279211,902392)
-- hgss2 « Onix » : 2 cartes TCGdex (56,57) contre 3 produits Cardmarket (279212,279213,902393)
-- hgss2 « Poliwag » : 1 cartes TCGdex (58) contre 2 produits Cardmarket (279214,450128)
-- hgss2 « Riolu » : 1 cartes TCGdex (60) contre 2 produits Cardmarket (279216,902394)
-- hgss2 « Judge » : 1 cartes TCGdex (78) contre 2 produits Cardmarket (279234,449093)
-- hgss2 « Rare Candy » : 1 cartes TCGdex (82) contre 2 produits Cardmarket (279238,450263)
-- hgss2 « Super Scoop Up » : 1 cartes TCGdex (83) contre 2 produits Cardmarket (279239,450423)
-- hgss3 « Houndoom » : 2 cartes TCGdex (5,82) contre 3 produits Cardmarket (279258,279335,371567)
-- hgss3 « Leafeon » : 1 cartes TCGdex (17) contre 2 produits Cardmarket (279270,882914)
-- hgss3 « Darkness Energy » : 1 cartes TCGdex (79) contre 2 produits Cardmarket (279332,371568)
-- hgss3 « Metal Energy » : 1 cartes TCGdex (80) contre 2 produits Cardmarket (279333,371566)
-- hgss4 « Electivire » : 1 cartes TCGdex (20) contre 2 produits Cardmarket (279550,882915)
-- hgss4 « Black Belt » : 1 cartes TCGdex (85) contre 2 produits Cardmarket (279615,449293)
-- hgss4 « Junk Arm » : 1 cartes TCGdex (87) contre 2 produits Cardmarket (279617,449648)
-- hgss4 « Seeker » : 1 cartes TCGdex (88) contre 2 produits Cardmarket (279618,450348)
-- hgss4 « Darkrai & Cresselia LEGEND » : 2 cartes TCGdex (99,100) contre 3 produits Cardmarket (279629,279630,363455)
-- hgss4 « Palkia & Dialga LEGEND » : 2 cartes TCGdex (101,102) contre 3 produits Cardmarket (279631,279632,363456)
-- col1 « Snorlax » : 1 cartes TCGdex (33) contre 2 produits Cardmarket (279676,882916)
-- col1 « Darkness Energy » : 2 cartes TCGdex (86,94) contre 3 produits Cardmarket (279729,279737,449378)
-- col1 « Metal Energy » : 2 cartes TCGdex (87,95) contre 3 produits Cardmarket (279730,279738,450028)
-- col1 « Grass Energy » : 1 cartes TCGdex (88) contre 2 produits Cardmarket (279731,449588)
-- col1 « Fire Energy » : 1 cartes TCGdex (89) contre 2 produits Cardmarket (279732,449538)
-- col1 « Water Energy » : 1 cartes TCGdex (90) contre 2 produits Cardmarket (279733,450523)
-- col1 « Lightning Energy » : 1 cartes TCGdex (91) contre 2 produits Cardmarket (279734,449683)
-- col1 « Psychic Energy » : 1 cartes TCGdex (92) contre 2 produits Cardmarket (279735,450173)
-- col1 « Fighting Energy » : 1 cartes TCGdex (93) contre 2 produits Cardmarket (279736,449523)
-- bw1 « Snivy » : 2 cartes TCGdex (1,2) contre 3 produits Cardmarket (279739,279740,371569)
-- bw1 « Tepig » : 2 cartes TCGdex (15,16) contre 3 produits Cardmarket (279753,279754,371571)
-- bw1 « Darmanitan » : 1 cartes TCGdex (25) contre 2 produits Cardmarket (279763,576682)
-- bw1 « Oshawott » : 2 cartes TCGdex (27,28) contre 3 produits Cardmarket (279765,279766,371573)
-- bw1 « Zebstrika » : 2 cartes TCGdex (42,43) contre 3 produits Cardmarket (279780,279781,371590)
-- bw1 « Whirlipede » : 1 cartes TCGdex (53) contre 2 produits Cardmarket (279791,371585)
-- bw1 « Krokorok » : 1 cartes TCGdex (64) contre 2 produits Cardmarket (279802,371586)
-- bw1 « Watchog » : 1 cartes TCGdex (79) contre 2 produits Cardmarket (279817,371584)
-- bw1 « Lillipup » : 2 cartes TCGdex (80,81) contre 3 produits Cardmarket (279818,279819,371575)
-- bw1 « Grass Energy » : 1 cartes TCGdex (105) contre 3 produits Cardmarket (279843,371576,449593)
-- bw1 « Fire Energy » : 1 cartes TCGdex (106) contre 3 produits Cardmarket (279844,371577,449543)
-- bw1 « Water Energy » : 1 cartes TCGdex (107) contre 3 produits Cardmarket (279845,371582,450528)
-- bw1 « Lightning Energy » : 1 cartes TCGdex (108) contre 3 produits Cardmarket (279846,371579,449688)
-- bw1 « Psychic Energy » : 1 cartes TCGdex (109) contre 3 produits Cardmarket (279847,371578,450178)
-- bw1 « Fighting Energy » : 1 cartes TCGdex (110) contre 3 produits Cardmarket (279848,371580,449528)
-- bw1 « Darkness Energy » : 1 cartes TCGdex (111) contre 3 produits Cardmarket (279849,371583,449383)
-- bw1 « Metal Energy » : 1 cartes TCGdex (112) contre 3 produits Cardmarket (279850,371581,450033)
-- bwp « Snivy » : 2 cartes TCGdex (BW01,BW06) contre 3 produits Cardmarket (279925,279927,547296)
-- bwp « Tepig » : 2 cartes TCGdex (BW02,BW07) contre 3 produits Cardmarket (279924,279930,547301)
-- bwp « Oshawott » : 2 cartes TCGdex (BW03,BW08) contre 3 produits Cardmarket (279923,279929,547306)
-- bwp « Zoroark » : 2 cartes TCGdex (BW09,BW19) contre 3 produits Cardmarket (279917,279928,363651)
-- bwp « N » : 1 cartes TCGdex (BW100) contre 2 produits Cardmarket (279920,371592)
-- bwp « Victini » : 1 cartes TCGdex (BW32) contre 2 produits Cardmarket (279936,398039)
+## Cas ambigus (non associés, sets récents d'abord ; liste complète dans data/ambiguous.md)
+- swshp « Greninja ☆ » : 2 cartes TCGdex (SWSH144,SWSH305) contre 1 produits Cardmarket (690367)
+- swshp « Zacian » : 2 cartes TCGdex (SWSH033,SWSH135) contre 1 produits Cardmarket (491179)
+- sm1 « Metal Energy » : 2 cartes TCGdex (163,171) contre 1 produits Cardmarket (295476)
+- tk-xy-latia « Lotad » : 2 cartes TCGdex (11,23) contre 1 produits Cardmarket (289742)
 - bwp « Pikachu » : 2 cartes TCGdex (BW54,BW77) contre 1 produits Cardmarket (279876)
-- bwp « Darkrai » : 1 cartes TCGdex (BW73) contre 2 produits Cardmarket (279901,363655)
-- bw2 « Scolipede » : 1 cartes TCGdex (40) contre 2 produits Cardmarket (280005,750082)
-- bw2 « Unfezant » : 1 cartes TCGdex (82) contre 2 produits Cardmarket (280047,371587)
-- bw2 « Pokémon Catcher » : 1 cartes TCGdex (95) contre 2 produits Cardmarket (280060,450093)
-- tk-bw-z « PlusPower » : 1 cartes TCGdex (11) contre 2 produits Cardmarket (280072,280101)
-- tk-bw-z « Pokémon Communication » : 1 cartes TCGdex (18) contre 2 produits Cardmarket (280065,280119)
-- tk-bw-z « Energy Search » : 1 cartes TCGdex (27) contre 2 produits Cardmarket (280090,280099)
-- bw3 « Karrablast » : 1 cartes TCGdex (8) contre 2 produits Cardmarket (280131,449653)
-- bw3 « Shelmet » : 1 cartes TCGdex (11) contre 2 produits Cardmarket (280134,450378)
-- bw3 « Accelgor » : 1 cartes TCGdex (12) contre 2 produits Cardmarket (280135,449238)
-- bw3 « Victini » : 4 cartes TCGdex (14,15,43,98) contre 5 produits Cardmarket (280137,280138,280166,280221,363652)
-- bw3 « Cryogonal » : 2 cartes TCGdex (32,33) contre 3 produits Cardmarket (280155,280156,371588)
-- bw3 « Escavalier » : 1 cartes TCGdex (80) contre 2 produits Cardmarket (280203,449488)
-- bw3 « Fraxure » : 1 cartes TCGdex (87) contre 2 produits Cardmarket (280210,371589)
-- bw3 « Eviolite » : 1 cartes TCGdex (91) contre 2 produits Cardmarket (280214,449498)
-- bw4 « Mewtwo-EX » : 2 cartes TCGdex (54,98) contre 3 produits Cardmarket (280279,280323,363653)
-- bw5 « Bulbasaur » : 1 cartes TCGdex (1) contre 2 produits Cardmarket (280329,886900)
-- bw5 « Scyther » : 1 cartes TCGdex (4) contre 5 produits Cardmarket (280332,450328,450333,450338,450343)
-- bw5 « Flareon » : 1 cartes TCGdex (12) contre 2 produits Cardmarket (280340,449548)
-- bw5 « Vaporeon » : 1 cartes TCGdex (25) contre 2 produits Cardmarket (280353,449318)
-- … (+1156)
+- ex14 « Treecko » : 2 cartes TCGdex (67,68) contre 1 produits Cardmarket (277148)
+- ex14 « Charmander » : 2 cartes TCGdex (48,49) contre 1 produits Cardmarket (277129)
+- ex14 « Charmeleon » : 2 cartes TCGdex (29,30) contre 1 produits Cardmarket (277110)
+- ex14 « Grovyle δ » : 2 cartes TCGdex (19,32) contre 1 produits Cardmarket (277113)
+- ex14 « Blastoise δ » : 2 cartes TCGdex (2,14) contre 1 produits Cardmarket (277095)
+- ex11 « Eevee δ » : 2 cartes TCGdex (68,69) contre 1 produits Cardmarket (276832)
+- ex11 « Azumarill δ » : 2 cartes TCGdex (19,114) contre 1 produits Cardmarket (276877)
+
+## Doublons de nom associés par ordre (sets récents en dernier)
+- me01 Mega Manectric ex : 050→851121, 158→851229
+- me01 Helioptile : 052→851123, 143→851214
+- me01 Mega Gardevoir ex : 060→851131, 159→851230, 178→851249, 187→851258
+- me01 Shedinja : 061→851132, 144→851215
+- me01 Houndstone : 066→851137, 145→851216
+- me01 Mega Lucario ex : 077→851148, 160→851231, 179→851250, 188→851259
+- me01 Marshadow : 080→851151, 146→851217
+- me01 Garganacl : 084→851155, 147→851218
+- me01 Mega Absol ex : 086→851157, 161→851232, 180→851251
+- me01 Spiritomb : 087→851158, 148→851219
+- me01 Shroodle : 091→851162, 149→851220
+- me01 Steelix : 093→851164, 150→851221
+- me01 Mega Mawile ex : 094→851165, 162→851233
+- me01 Mega Latias ex : 100→851171, 163→851234, 181→851252
+- me01 Spearow : 102→851173, 151→851222
+- me01 Mega Kangaskhan ex : 104→851175, 164→851235, 182→851253
+- me01 Delibird : 105→851176, 152→851223
+- me01 Gumshoos : 110→851181, 153→851224
+- me01 Stufful : 111→851182, 154→851225
+- me01 Acerola's Mischief : 113→851184, 165→851236, 183→851254
+- me01 Fighting Gong : 116→851187, 168→851239
+- me01 Lillie's Determination : 119→851190, 169→851240, 184→851255
+- me01 Lt. Surge's Bargain : 120→851191, 170→851241, 185→851256
+- me01 Mega Signal : 121→851192, 171→851242
+- me01 Mystery Garden : 122→851193, 172→851243
+- me01 Premium Power Pro : 124→851195, 174→851245
+- me01 Rare Candy : 125→851196, 175→851246
+- me01 Wally's Compassion : 132→851203, 176→851247, 186→851257
+- me02 Mega Heracross ex : 004→857579, 108→857683
+- me02 Ludicolo : 007→857582, 095→857670
+- me02 Nymble : 009→857584, 096→857671
+- me02 Mega Charizard X ex : 013→857588, 109→857684, 125→857700, 130→857705
+- me02 Oricorio ex : 018→857593, 110→857685
+- me02 Dewgong : 022→857597, 097→857672
+- me02 Piplup : 027→857602, 098→857673
+- me02 Rotom ex : 029→857604, 111→857686, 126→857701
+- me02 Yamper : 030→857605, 099→857674
+- me02 Mismagius ex : 036→857611, 112→857687
+- me02 Zacian : 045→857620, 100→857675
+- me02 Flygon : 053→857628, 101→857676
+- me02 Mega Sharpedo ex : 061→857636, 113→857688, 127→857702
+- me02 Toxtricity : 068→857643, 103→857678
+- me02 Empoleon ex : 070→857645, 114→857689
+- me02 Togedemaru : 073→857648, 104→857679
+- me02 Wigglytuff : 077→857652, 105→857680
+- me02 Ambipom : 079→857654, 107→857682
+- me02 Mega Lopunny ex : 084→857659, 115→857690, 128→857703
+- me02 Battle Cage : 085→857660, 116→857691
+- me02 Blowtorch : 086→857661, 117→857692
+- me02 Dawn : 087→857662, 118→857693, 129→857704
+- me02 Firebreather : 089→857664, 119→857694
+- me02 Grimsley's Move : 090→857665, 120→857695
+- me02 Punk Helmet : 092→857667, 121→857696
+- me02 Sacred Charm : 093→857668, 122→857697
+- me02.5 Erika's Tangela : 007→869618, 218→869829
+- me02.5 Mega Meganium ex : 010→869621, 272→869883
+- me02.5 Beautifly : 013→869624, 219→869830
+- me02.5 Dustox : 015→869626, 220→869831
+- me02.5 Budew : 016→869627, 221→869832
+- me02.5 Mega Charizard Y ex : 022→869633, 294→869905
+- me02.5 Ethan's Magcargo : 024→869635, 222→869833
+- me02.5 Numel : 027→869638, 223→869834
+- me02.5 Mega Emboar ex : 031→869642, 273→869884
+- me02.5 Salazzle : 035→869646, 224→869835
+- me02.5 Scorbunny : 036→869647, 225→869836
+- me02.5 Psyduck : 039→869650, 226→869837
+- me02.5 Mega Feraligatr ex : 043→869654, 274→869885
+- me02.5 Weavile : 045→869656, 228→869839
+- me02.5 Snorunt : 046→869657, 227→869838
+- me02.5 Mega Froslass ex : 047→869658, 265→869876, 275→869886
+- me02.5 Pikachu ex : 057→869668, 276→869887, 277→869888
+- me02.5 Mega Eelektross ex : 061→869672, 266→869877, 278→869889
+- me02.5 Heliolisk : 064→869675, 229→869840
+- me02.5 Vikavolt : 066→869677, 230→869841
+- me02.5 Iono's Bellibolt ex : 070→869681, 279→869890
+- me02.5 Iono's Wattrel : 071→869682, 231→869842
+- me02.5 Lillie's Clefairy ex : 076→869687, 280→869891
+- me02.5 Team Rocket's Mewtwo ex : 079→869690, 281→869892
+- me02.5 Togekiss : 082→869693, 235→869846
+- me02.5 Marill : 083→869694, 232→869843
+- me02.5 Misdreavus : 085→869696, 233→869844
+- me02.5 Banette : 091→869702, 234→869845
+- me02.5 Slurpuff : 094→869705, 236→869847
+- me02.5 Hop's Trevenant : 096→869707, 237→869848
+- me02.5 Team Rocket's Mimikyu : 097→869708, 238→869849
+- me02.5 Team Rocket's Dugtrio : 101→869712, 239→869850
+- me02.5 Hitmontop : 102→869713, 240→869851
+- me02.5 Medicham : 104→869715, 241→869852
+- me02.5 Stunfisk ex : 114→869725, 252→869863
+- me02.5 Mega Hawlucha ex : 116→869727, 268→869879, 283→869894
+- me02.5 Carbink : 117→869728, 242→869853
+- me02.5 Mega Gengar ex : 125→869736, 269→869880, 284→869895
+- me02.5 Mightyena : 129→869740, 243→869854
+- me02.5 Galarian Obstagoon : 132→869743, 245→869856
+- me02.5 Cynthia's Spiritomb : 133→869744, 244→869855
+- me02.5 Mega Scrafty ex : 135→869746, 270→869881, 285→869896
+- me02.5 N's Zoroark ex : 137→869748, 286→869897
+- me02.5 Fezandipiti ex : 142→869753, 288→869899
+- me02.5 Mawile : 144→869755, 246→869857
+- me02.5 Mega Dragonite ex : 152→869763, 271→869882, 290→869901, 295→869906
+- me02.5 Dreepy : 158→869769, 247→869858
+- me02.5 Drakloak : 159→869770, 248→869859
+- me02.5 Larry's Staraptor : 170→869781, 249→869860
+- me02.5 Fan Rotom : 171→869782, 250→869861
+- me02.5 Mega Audino ex : 172→869783, 253→869864
+- me02.5 Anthea & Concordia : 182→869793, 254→869865
+- me02.5 Canari : 185→869796, 257→869868, 291→869903
+- me02.5 Counter Gain : 186→869797, 259→869870
+- me02.5 Glass Trumpet : 189→869800, 260→869871
+- me02.5 Iris's Fighting Spirit : 190→869801, 292→869902
+- me02.5 N's PP Up : 195→869806, 262→869873
+- me02.5 Surfer : 200→869811, 293→869904
+- me02.5 Team Rocket's Transceiver : 209→869820, 263→869874
+- me02.5 Ultra Ball : 213→869824, 264→869875
+- me02.5 Mega Diancie ex : 267→869878, 282→869893
+- me03 Spewpa : 008→877420, 089→877506
+- me03 Rowlet : 010→877422, 090→877507
+- me03 Decidueye ex : 012→877424, 100→877517
+- me03 Talonflame : 014→877426, 091→877508
+- me03 Salazzle ex : 016→877428, 101→877518
+- me03 Mega Starmie ex : 021→877433, 102→877519, 118→877535
+- me03 Aurorus : 024→877437, 092→877509
+- me03 Dedenne : 029→877442, 093→877510
+- me03 Clefairy : 030→877444, 094→877511
+- me03 Mega Clefable ex : 031→877445, 103→877520, 119→877536
+- me03 Espurr : 033→877447, 095→877512
+- me03 Probopass : 038→877452, 096→877513
+- me03 Mega Zygarde ex : 047→877461, 104→877521, 120→877537, 124→877541
+- me03 Drapion : 052→877468, 097→877514
+- me03 Yveltal ex : 053→877469, 105→877522
+- me03 Mega Skarmory ex : 055→877471, 106→877523
+- me03 Doublade : 057→877473, 098→877515
+- me03 Raticate : 061→877477, 099→877516
+- me03 Meowth ex : 062→877478, 107→877524, 121→877538
+- me03 Jacinthe : 075→877492, 110→877527, 122→877539
+- me03 Lumiose City : 077→877494, 111→877528
+- me03 Naveen : 079→877496, 112→877529
+- me03 Poké Pad : 081→877498, 113→877530
+- me03 Rosa's Encouragement : 084→877501, 114→877531, 123→877540
+- me03 Tarragon : 085→877502, 116→877533
+- me04 Beedrill ex : 003→886395, 098→886490
+- me04 Chespin : 005→886397, 087→886479
+- me04 Mega Pyroar ex : 015→886407, 099→886491
+- me04 Froakie : 020→886412, 088→886480
+- me04 Frogadier : 021→886413, 089→886481
+- me04 Mega Greninja ex : 022→886414, 100→886492, 116→886509, 122→886515
+- me04 Ampharos : 029→886421, 090→886482
+- me04 Deoxys : 031→886423, 032→886424, 033→886425, 034→886426
+- me04 Mega Floette ex : 035→886427, 101→886493, 117→886510
+- me04 Gourgeist ex : 041→886433, 102→886494
+- me04 Xerneas : 042→886434, 091→886483
+- me04 Claydol : 047→886439, 092→886484
+- me04 Crobat : 051→886443, 093→886485
+- me04 Metang : 060→886452, 094→886487
+- me04 Cobalion ex : 064→886456, 103→886495
+- me04 Mega Dragalge ex : 065→886457, 104→886496, 118→886511
+- me04 Sliggoo : 067→886459, 095→886486
+- me04 Tauros : 069→886461, 096→886488
+- me04 Watchog : 071→886463, 097→886489
+- me04 Cinccino ex : 073→886465, 105→886497, 119→886512
+- me04 AZ's Tranquility : 076→886468, 106→886500, 120→886513
+- me04 Emma : 077→886470, 107→886501
+- me04 Philippe : 079→886471, 110→886502
+- me04 Prism Tower : 080→886472, 111→886504
+- me04 Roxie's Performance : 081→886473, 112→886505, 121→886514
+- me04 Special Red Card : 082→886474, 113→886506
+- me05 Fomantis : 003→895791, 085→895869
+- me05 Lurantis ex : 004→895792, 096→895881
+- me05 Armarouge : 012→895800, 086→895870
+- me05 Goldeen : 013→895801, 087→895871
+- me05 Wailord ex : 016→895804, 097→895882
+- me05 Primarina : 020→895808, 088→895872
+- me05 Manectric : 024→895812, 089→895873
+- me05 Mega Zeraora ex : 027→895787, 098→895883, 114→895899
+- me05 Slowbro : 030→895817, 090→895874
+- me05 Mega Chandelure ex : 038→895786, 099→895884, 115→895900
+- me05 Dhelmise : 039→895825, 091→895875
+- me05 Rampardos ex : 045→895831, 100→895885
+- me05 Mega Darkrai ex : 048→895788, 101→895886, 116→895901, 120→895905
+- me05 Thievul : 054→895839, 092→895876
+- me05 Morpeko ex : 055→895840, 102→895887, 117→895902
+- me05 Bastiodon : 062→895847, 093→895878
+- me05 Mega Excadrill ex : 065→895785, 103→895888
+- me05 Toucannon : 068→895852, 094→895879
+- me05 Silvally : 070→895854, 095→895880
+- me05 Dark Bell : 075→895859, 106→895891
+- me05 Gladion's Final Battle : 077→895861, 108→895893, 118→895903
+- me05 Gwynn : 078→895862, 109→895894, 119→895904
+- me05 Misty's Vitality : 080→895864, 111→895896
+- me05 Rust Syndicate Grunt : 081→895865, 112→895897
+- me05 Tremendous Bomb : 082→895866, 113→895898
+- 30th Alolan Exeggutor : 002→907608, 129→907737
+- 30th Moltres : 011→907617, 130→907738
+- 30th Fuecoco ex : 015→907621, 147→907754
+- 30th Lapras : 017→907623, 131→907739
+- 30th Articuno : 018→907624, 132→907740
+- 30th Greninja ex : 021→907628, 148→907755
+- 30th Pikachu [approx, 31 produits] : 023→907630, 024→907631, 025→907632, 026→907633, 027→907634, 028→907635, 029→907636, 030→907637, 031→907638, 032→907639, 033→907640, 034→907641, 035→907642, 036→907643, 037→907644, 038→907645, 039→907646, 040→907647, 041→907648, 042→907649, 043→907650, 044→907651, 045→907652, 046→907653, 047→907654, 048→907655, 049→907656, 050→907657, 051→907658, 052→907659
+- 30th Pikachu ex : 053→907660, 054→907661, 149→907756, 150→907757
+- 30th Zapdos : 055→907662, 133→907741
+- 30th Toxtricity : 059→907666, 060→907667, 134→907742
+- 30th Morpeko : 061→907668, 135→907743
+- 30th Mewtwo ex : 064→907671, 151→907761, 157→908353
+- 30th Mew : 065→907672, B→909509, G→909510, R→909511
+- 30th Mew ex : 066→907673, 152→907762, 158→908354
+- 30th Sylveon ex : 071→907678, 153→907758
+- 30th Drifloon : 073→907680, 136→907744
+- 30th Chandelure : 075→907682, 137→907745
+- 30th Lycanroc : 085→907692, 138→907746
+- 30th Alolan Meowth : 089→907696, 139→907747
+- 30th Gengar ex : 090→907697, 154→908355
+- 30th Scraggy : 094→907701, 140→907748
+- 30th Galarian Meowth : 101→907708, 141→907749
+- 30th Jirachi ex : 102→907709, 155→907759
+- 30th Gholdengo : 108→907715, 142→907750
+- 30th Salamence ex : 109→907716, 156→907760
+- 30th Kommo-o : 112→907719, 143→908352
+- 30th Meowth : 113→907720, 144→907751
+- 30th Eevee : 116→907723, 117→907724, 118→907725
+- 30th Lugia [approx, 2 produits] : 121→907728
+- 30th Hisuian Zorua : 122→907729, 145→907752
+- 30th Maushold : 125→907732, 146→907753
+- me06 Masquerain : 003→918812, 104→918940
+- me06 Mega Golisopod ex : 011→918820, 118→918957, 135→918979
+- me06 Sprigatito : 012→918821, 105→918941
+- me06 Growlithe : 018→918832, 106→918943
+- me06 Magmortar : 021→918836, 107→918944
+- me06 Heat Rotom ex : 023→918838, 119→918958
+- me06 Wishiwashi ex : 029→918845, 120→918959
+- me06 Electivire : 031→918847, 108→918945
+- me06 Raikou ex : 033→918849, 121→918960, 136→918980
+- me06 Pincurchin : 036→918853, 109→918947
+- me06 Mega Golurk ex : 047→918868, 122→918961, 137→918981
+- me06 Enamorus : 048→918869, 110→918948
+- me06 Groudon : 053→918876, 111→918949
+- me06 Zorua : 066→918891, 112→918950
+- me06 Inkay : 068→918893, 113→918952
+- me06 Mega Malamar ex : 069→918895, 123→918962
+- me06 Eevee : 078→918906, 114→918953
+- me06 Azurill : 080→918908, 115→918954
+- me06 Altaria : 082→918910, 116→918955
+- me06 Kecleon : 083→918911, 117→918956
+- me06 Mega Rayquaza ex : 084→918912, 138→918982, 141→918985
+- me06 Talonflame ex : 088→918916, 124→918963
+- me06 Aarune : 089→918917, 125→918964, 139→918983
+- me06 Custom Vest : 091→918919, 127→918966
+- me06 Emcee's Hype : 092→918920, 128→918967
+- me06 Legendary Summit : 096→918926, 097→918927
+- me06 Tate & Liza's Training : 102→918934, 130→918969
+- me06 Zinnia's Trust : 103→918935, 131→918970, 140→918984
 
 ## Associations de sets
 - base1 Base Set ← expansion 1523 (score 0.98)
