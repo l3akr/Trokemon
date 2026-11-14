@@ -93,6 +93,7 @@ TK.shrink=async function(file,max){
 };
 
 /* ---------- produits scellés ---------- */
+TK.SEALED_SHORT={'Display':'DISPLAY','Booster':'BOOSTER','Coffret Dresseur d\'élite (ETB)':'ETB','Tripack':'TRIPACK','Bundle de boosters':'BUNDLE','Coffret / Collection':'COFFRET'};
 TK.SEALED_KINDS=['Display','Booster','Coffret Dresseur d\'élite (ETB)','Tripack','Bundle de boosters','Coffret / Collection','Autre'];
 
 /* ---------- liens d'achat neuf ---------- */
@@ -169,10 +170,11 @@ window.TK_imgFallback=function(el){
 };
 
 var abbrMap={},abbrIdx={},setCache={},nameCache={};
-try{var ab=JSON.parse(localStorage.getItem('tk_abbr')||'null');if(ab&&ab.m&&Date.now()-ab.t<7*864e5){abbrMap=ab.m;}}catch(e){}
+var abbrDone=false;
+try{var ab=JSON.parse(localStorage.getItem('tk_abbr')||'null');if(ab&&ab.m&&Date.now()-ab.t<7*864e5){abbrMap=ab.m;abbrDone=!!ab.d;}}catch(e){}
 function indexAbbr(){abbrIdx={};Object.keys(abbrMap).forEach(function(id){abbrIdx[String(abbrMap[id]).toUpperCase()]=id;});}
 indexAbbr();
-function saveAbbr(){try{localStorage.setItem('tk_abbr',JSON.stringify({t:Date.now(),m:abbrMap}));}catch(e){}}
+function saveAbbr(done){try{localStorage.setItem('tk_abbr',JSON.stringify({t:Date.now(),m:abbrMap,d:done||abbrDone?1:0}));}catch(e){}}
 function setAbbr(id,v){if(v&&abbrMap[id]!==v){abbrMap[id]=v;indexAbbr();saveAbbr();}}
 function lowRarity(r,name){
  var n=norm(r||'');
@@ -213,6 +215,11 @@ async function fetchSet(id){
  setCache[id]=j;return j;
 }
 
+var cardIdx=null,idxLoading=false;
+function buildIdx(slim){return slim.map(function(x){var k=x[0].lastIndexOf('-');return {id:x[0],localId:x[1],name:x[2],image:x[3]||undefined,sid:x[0].slice(0,k),n:norm(x[2])};});}
+function idbOpen(){return new Promise(function(res,rej){try{var q=indexedDB.open('trokemon',1);q.onupgradeneeded=function(){q.result.createObjectStore('kv');};q.onsuccess=function(){res(q.result);};q.onerror=function(){rej(q.error);};}catch(e){rej(e);}});}
+async function idbGet(k){try{var db=await idbOpen();return await new Promise(function(res){var r=db.transaction('kv').objectStore('kv').get(k);r.onsuccess=function(){res(r.result);};r.onerror=function(){res(null);};});}catch(e){return null;}}
+async function idbSet(k,v){try{var db=await idbOpen();db.transaction('kv','readwrite').objectStore('kv').put(v,k);}catch(e){}}
 TK.catalog={
  abbr:function(id){return abbrMap[id]||null;},
  setAbbrs:function(m){Object.keys(m).forEach(function(k){abbrMap[k]=m[k];});indexAbbr();},
@@ -228,21 +235,57 @@ TK.catalog={
    setsCache=TK.DEMO_SETS.slice();TK.catalog.setAbbrs({'demo-nn':'PBL','demo-151':'MEW','demo-pe':'PRE','demo-base':'BS'});
   }
   setsCache.forEach(function(s){setIdx[s.id]=s;});
-  TK.catalog.loadAbbr();
+  TK.catalog.loadAbbr();TK.catalog.loadIndex();
   return setsCache;
  },
- /* Sigles des séries (PBL, MEW…) : une seule requête GraphQL, sinon appris au fil des séries ouvertes. */
+ /* Sigles des séries (PBL, MEW…) : une requête GraphQL, sinon lecture en tâche de fond de chaque série (mise en cache 7 jours). */
  loadAbbr:async function(){
   if(TK.catalog._abbrTried||TK.demo){return;}
   TK.catalog._abbrTried=true;
-  if(Object.keys(abbrMap).length>20){return;}
+  if(abbrDone){return;}
+  var notify=function(){if(TK.catalog.onAbbr){TK.catalog.onAbbr();}};
   try{
    var r=await fetch('https://api.tcgdex.net/v2/graphql',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({query:'{ sets(filters:{}) { id abbreviation { official normal } } }'})});
-   if(!r.ok){return;}
-   var j=await r.json(),arr=(j.data&&j.data.sets)||[];
-   arr.forEach(function(x){var v=x.abbreviation&&(x.abbreviation.official||x.abbreviation.normal);if(v){abbrMap[x.id]=v;}});
-   indexAbbr();saveAbbr();
+   if(r.ok){
+    var j=await r.json(),arr=(j.data&&j.data.sets)||[];
+    arr.forEach(function(x){var v=x.abbreviation&&(x.abbreviation.official||x.abbreviation.normal);if(v){abbrMap[x.id]=v;}});
+    if(Object.keys(abbrMap).length>20){abbrDone=true;indexAbbr();saveAbbr(true);notify();return;}
+   }
   }catch(e){}
+  var ids=(setsCache||[]).map(function(s){return s.id;}).filter(function(id){return !abbrMap[id]&&id.indexOf('demo-')!==0;}),pos=0,n=0,fails=0;
+  async function worker(){
+   while(pos<ids.length){
+    var id=ids[pos++];
+    try{
+     var rr=await fetch(API+'/sets/'+encodeURIComponent(id));
+     if(rr.ok){var s=await rr.json(),v=s.abbreviation&&(s.abbreviation.official||s.abbreviation.normal);if(v){abbrMap[id]=v;}}else{fails++;}
+    }catch(e){fails++;}
+    if(++n%20===0){indexAbbr();saveAbbr();notify();}
+   }
+  }
+  await Promise.all([worker(),worker(),worker(),worker(),worker(),worker()]);
+  indexAbbr();abbrDone=fails<ids.length/4;saveAbbr();notify();
+ },
+ /* Index local de toutes les cartes (nom, numéro) pour une recherche sans accents ni majuscules. Mis en cache dans IndexedDB. */
+ loadIndex:async function(){
+  if(cardIdx||idxLoading||TK.demo){return;}
+  idxLoading=true;
+  try{
+   var cached=await idbGet('cards');
+   if(cached&&cached.list&&Date.now()-cached.t<3*864e5){cardIdx=buildIdx(cached.list);}
+   else{
+    var r=await fetch(API+'/cards');
+    if(r.ok){
+     var j=await r.json();
+     if(Array.isArray(j)&&j.length>2000){
+      var slim=j.map(function(x){return [x.id,x.localId,x.name,x.image||''];});
+      idbSet('cards',{t:Date.now(),list:slim});cardIdx=buildIdx(slim);
+     }
+    }
+   }
+  }catch(e){}
+  idxLoading=false;
+  if(cardIdx&&TK.catalog.onIndex){TK.catalog.onIndex();}
  },
  /* Recherche : nom, sigle de série, numéro, dans n'importe quel ordre. Renvoie {list, hint}. */
  search:async function(q,setId){
@@ -262,13 +305,20 @@ TK.catalog={
     var set=await fetchSet(sid);
     list=matchLocal((set.cards||[]).map(function(c){return {id:c.id,localId:c.localId,name:c.name,image:c.image};}),p).map(function(c){return cardOut(c,sid);});
    }else{
+    if(!cardIdx){TK.catalog.loadIndex();}
     var key=norm(p.words.slice().sort(function(a,b){return b.length-a.length;})[0]);
+    if(cardIdx){
+     var ws=p.words.map(norm);
+     list=cardIdx.filter(function(c){for(var i=0;i<ws.length;i++){if(c.n.indexOf(ws[i])<0){return false;}}return true;});
+     list=matchLocal(list,{words:[],num:p.num}).map(function(c){return cardOut(c,c.sid);});
+    }else{
     if(!nameCache[key]){
      var r=await fetch(API+'/cards?name='+encodeURIComponent(key));
      if(!r.ok){throw new Error('catalogue');}
      nameCache[key]=await r.json();
     }
     list=matchLocal(nameCache[key].map(function(c){var i=c.id.lastIndexOf('-');return {id:c.id,localId:c.localId,name:c.name,image:c.image,sid:c.id.slice(0,i)};}),p).map(function(c){return cardOut(c,c.sid);});
+    }
    }
   }catch(e){
    if(!TK.demo){throw new Error('Catalogue indisponible pour le moment. Réessaie dans un instant.');}

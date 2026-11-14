@@ -279,3 +279,16 @@ details.sub .cgrid{padding-bottom:6px}
 .edot[aria-pressed=true]{border-color:var(--bg);box-shadow:0 0 0 2px var(--text)}
 
 #app{position:relative;z-index:1}
+
+.sealedph{display:flex;align-items:center;justify-content:center;background:var(--surface2)!important;color:var(--accent);font-family:var(--font-display);font-size:11px;letter-spacing:.04em;text-align:center;padding:4px;aspect-ratio:63/88;width:100%;border-radius:8px}
+
+.cat .cph.sealedph,.cat .cph.sealedph span{font-size:12px!important;line-height:1.2;font-weight:600;word-break:break-word}
+.cat .cph.sealedph{height:auto!important;aspect-ratio:63/88}
+.cat .cph.sealedph{aspect-ratio:5/3!important}
+
+.srange{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}
+.setpick{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:6px 8px;margin:2px 0;border:1px solid var(--line);border-radius:12px;background:var(--surface);text-align:left;font-weight:600}
+.setpick.sel{border-color:var(--accent);background:var(--accent-soft)}
+.ownbadge.inl,.selbadge.inl{position:static}
+.selbadge.inl{color:var(--accent);font-weight:800}
+.pcheck{display:flex;justify-content:center;margin:12px 0 4px 0}.pcheck img{max-width:100%;max-height:38vh;border-radius:12px;border:1px solid var(--line);object-fit:contain}

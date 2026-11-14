@@ -2,7 +2,7 @@
 (function(){
 'use strict';
 var TK=window.TK=window.TK||{},C=window.TK_CONFIG||{},L=window.L;
-var st={radiusKm:0,radiusLayer:null,map:null,layer:null,ro:null,entries:[],sel:null,me:null,meLayer:null,cb:{}};
+var st={radiusLayer:null,map:null,layer:null,ro:null,entries:[],sel:null,me:null,meLayer:null,cb:{}};
 var CLUSTER_MAX_Z=9,ZONE_RADIUS_M=1500;
 
 function accent(){return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#F5C842';}
@@ -33,7 +33,7 @@ TK.map={
   }
   map.on('moveend zoomend',moved);
   map.on('zoomend',function(){if(st.cb.onZoom){st.cb.onZoom(map.getZoom());}});
-  map.on('move',function(){if(st.radiusKm){TK.map.drawRadius();}});
+  map.on('move zoom resize',function(){TK.map.drawRadius();});
   map.on('click',function(){if(st.cb.onSelect){st.cb.onSelect(null);}});
   if(window.ResizeObserver){st.ro=new ResizeObserver(function(){if(st.map){st.map.invalidateSize();}});st.ro.observe(el);}
   TK.map.setMe(st.me);
@@ -57,17 +57,18 @@ TK.map={
  },
  getZoom:function(){return st.map?st.map.getZoom():null;},
  setZoom:function(z){if(st.map){st.map.setZoom(z,{animate:!reduced()});}},
- /* Rayon de recherche (km) autour du centre de la carte ; 0 = pas de limite. */
- setRadius:function(km,fit){
-  st.radiusKm=km||0;TK.map.drawRadius();
-  if(fit&&km&&st.map){var c=st.map.getCenter();st.map.fitBounds(L.latLng(c.lat,c.lng).toBounds(km*2000),{animate:!reduced(),padding:[10,10]});}
+ /* Zone de recherche = disque centré sur la carte, dont la taille suit le zoom (plus on zoome, plus la zone est petite). */
+ radiusKm:function(z){
+  var m=st.map;if(!m){return 0;}
+  var s=m.getSize(),c=m.getCenter(),zz=z==null?m.getZoom():z;
+  var mpp=156543.03392*Math.cos(c.lat*Math.PI/180)/Math.pow(2,zz);
+  return Math.max(1,Math.round(Math.min(s.x,s.y)*0.4*mpp/1000));
  },
  drawRadius:function(){
   if(!st.map){return;}
   if(st.radiusLayer){st.radiusLayer.remove();st.radiusLayer=null;}
-  if(!st.radiusKm){return;}
-  var c=st.map.getCenter();
-  st.radiusLayer=L.circle(c,{radius:st.radiusKm*1000,color:accent(),weight:2,dashArray:'6 6',fillColor:accent(),fillOpacity:.05,interactive:false}).addTo(st.map);
+  var km=TK.map.radiusKm();if(!km){return;}
+  st.radiusLayer=L.circle(st.map.getCenter(),{radius:km*1000,color:accent(),weight:2,dashArray:'6 6',fillColor:accent(),fillOpacity:.05,interactive:false}).addTo(st.map);
  },
  flyTo:function(lat,lng,z){
   if(!st.map){return;}
