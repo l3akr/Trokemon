@@ -79,7 +79,7 @@ function toast(t){var el=$('#toast');el.textContent=t;el.hidden=false;clearTimeo
 function phColor(s){var h=0;for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))%360;}return 'hsl('+h+' 28% 22%)';}
 function cardImg(it){
  var src=it.photo_front||it.catalog_image;
- return src?'<img class="cimg" loading="lazy" alt="" data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(src)+'">':'<span class="cph" aria-hidden="true" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</span>';
+ return src?'<img class="cimg" loading="lazy" decoding="async" alt="" data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(src)+'">':'<span class="cph" aria-hidden="true" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</span>';
 }
 var PRESETS=[
  ['#F5C842','#2B2410','M50 22l8 20 22 2-17 14 6 22-19-12-19 12 6-22-17-14 22-2z'],
@@ -164,7 +164,7 @@ function loadShowcase(){
  try{DB.showcase().then(function(l){S.showcase=l||[];if(S.phase==='landing'){render();}}).catch(function(){S.showcase=[];});}catch(e){S.showcase=[];}
 }
 function showcaseCard(it){
- return '<div class="stile"><div class="simg">'+(it.image?'<img class="cimg" loading="lazy" alt="" data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(it.image)+'">':'<span class="cph" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</span>')+'</div><div class="name" style="font-size:13px;margin-top:6px">'+label(it)+'</div><div class="muted" style="font-size:12px">'+esc(it.zone_label||'')+(it.variant?' · '+esc(it.variant):'')+'</div></div>';
+ return '<div class="stile"><div class="simg">'+(it.image?'<img class="cimg" loading="lazy" decoding="async" alt="" data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(it.image)+'">':'<span class="cph" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</span>')+'</div><div class="name" style="font-size:13px;margin-top:6px">'+label(it)+'</div><div class="muted" style="font-size:12px">'+esc(it.zone_label||'')+(it.variant?' · '+esc(it.variant):'')+'</div></div>';
 }
 function vLanding(){
  loadShowcase();
@@ -355,7 +355,7 @@ async function loadMapData(b){
  if(!b||S.itemFilter){return;}
  var tok=++S.mapTok;
  try{
-  var d=await DB.mapData(b);
+  var d=await DB.mapData(b);try{await TK.catalog.enrich(d.items);}catch(e){}
   if(tok!==S.mapTok||!$('#lmap')){return;}
   S.mapProfiles=d.profiles;S.mapIdx={};
   d.items.forEach(function(i){(S.mapIdx[i.user_id]=S.mapIdx[i.user_id]||[]).push(i);});
@@ -825,7 +825,7 @@ function render(){
 
 /* ---------- chargement ---------- */
 async function loadMine(){
- var items=await DB.listMine();
+ var items=await DB.listMine();try{await TK.catalog.enrich(items);}catch(e){}
  S.my.offers=items.filter(function(i){return i.kind==='offer';});
  S.my.wants=items.filter(function(i){return i.kind==='want';});
 }
@@ -900,6 +900,7 @@ async function openProfile(id){
  try{
   var r=await Promise.all([DB.getProfile(id),DB.listOfUser(id),DB.getStats(id).catch(function(){return null;}),DB.listReviews(id).catch(function(){return [];})]);
   if(!r[0]){throw new Error('Profil introuvable.');}
+  try{await TK.catalog.enrich(r[1]);}catch(e){}
   t.data={profile:r[0],items:r[1],stats:r[2],reviews:r[3]};
  }catch(e){t.err=TK.frError(e);}
  if(top()===t){render();}
@@ -908,6 +909,7 @@ async function openPropose(toId,preItem){
  var t={name:'propose',id:toId,loaded:false,to:null,theirs:[],give:[],get:[],handover:'main',sending:false};nav(t);
  try{
   var r=await Promise.all([DB.getProfile(toId),DB.listOfUser(toId)]);
+  try{await TK.catalog.enrich(r[1]);}catch(e){}
   t.to=r[0];t.theirs=r[1];
   var m=matchFor(t.theirs);
   t.give=m.gives.map(function(w){return S.my.offers.filter(function(o){return o.match_key===w.match_key;})[0];}).filter(Boolean).map(function(i){return i.id;});
