@@ -120,3 +120,6 @@ Les utilisateurs ne peuvent plus saisir de valeur. Cartes loose : cote Cardmarke
 Le titre « Supabase » vient du tableau de bord, pas du code :
 1. Authentication > Email Templates > « Confirm signup » : objet `Confirmez votre email Trokémon`, corps = `supabase/email-templates/confirm.html`. Idem « Reset password » avec `recovery.html`.
 2. Nom d'expéditeur « Trokémon » : Authentication > SMTP Settings, activer un SMTP personnalisé (Resend, Brevo…) et renseigner Sender name = Trokémon. Avec l'expéditeur par défaut de Supabase, il n'est pas modifiable.
+
+## Prix Cardmarket (data/prices.json)
+Le workflow `.github/workflows/prices.yml` télécharge chaque nuit le guide des prix et le catalogue Cardmarket (fichiers publics), les associe aux cartes TCGdex et écrit `data/prices.json` + `data/report.md`. Lancement manuel : onglet Actions > « Prix Cardmarket » > Run workflow. Le site lit `data/prices.json` quand il existe (sinon cote TCGdex). Dans Settings > Actions > General, autorise « Read and write permissions » pour le workflow.

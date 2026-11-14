@@ -177,6 +177,12 @@ try{var ab=JSON.parse(localStorage.getItem('tk_abbr')||'null');if(ab&&ab.m&&Date
 function indexAbbr(){abbrIdx={};Object.keys(abbrMap).forEach(function(id){abbrIdx[String(abbrMap[id]).toUpperCase()]=id;});}
 indexAbbr();
 function saveAbbr(done){try{localStorage.setItem('tk_abbr',JSON.stringify({t:Date.now(),m:abbrMap,d:done||abbrDone?1:0}));}catch(e){}}
+var PF=null;
+async function priceFile(){
+ if(PF!==null){return PF||null;}
+ try{var r=await fetch('data/prices.json',{cache:'no-cache'});PF=r.ok?await r.json():false;}catch(e){PF=false;}
+ return PF||null;
+}
 function setAbbr(id,v){if(v&&abbrMap[id]!==v){abbrMap[id]=v;indexAbbr();saveAbbr();}}
 function lowRarity(r,name){
  var n=norm(r||'');
@@ -359,10 +365,12 @@ TK.catalog={
    if(!out.length){out.push('Normale');}
    if(c.set&&c.set.id&&c.set.abbreviation){setAbbr(c.set.id,c.set.abbreviation.official||c.set.abbreviation.normal);}
    var idp=cm.idProduct||cm.productId||null,doubt=false;
+   var pf=await priceFile(),pe=pf&&pf.c&&pf.c[c.id];
+   if(pe){idp=pe[0];price=pe[1]||pe[2]||pe[3]||null;foil=pe[4]||null;if(pf.createdAt){var d0=new Date(String(pf.createdAt).replace(/([+-]\d\d)(\d\d)$/,'$1:$2'));if(!isNaN(d0)){at=d0;}}}
    /* TCGdex associe parfois plusieurs versions d'une même carte (ex. 084 et 138 dans le même set) au même produit Cardmarket.
       Si une carte de même nom et de numéro inférieur dans ce set a le même produit ou la même cote, on n'a aucune cote fiable pour celle-ci. */
    try{
-    if((idp||price)&&c.set&&c.set.id){
+    if(!pe&&(idp||price)&&c.set&&c.set.id){
      var sr=await fetch(API+'/sets/'+encodeURIComponent(c.set.id));
      if(sr.ok){
       var sj=await sr.json(),mine=Number(c.localId),sib=(sj.cards||[]).filter(function(x){return x.name===c.name&&x.id!==c.id&&Number(x.localId)<mine;}).slice(0,4);
@@ -376,7 +384,22 @@ TK.catalog={
     }
    }catch(e5){}
    if(doubt){idp=null;price=null;foil=null;}
-   return {doubt:doubt,url:TK.cmUrl({name:c.name,number:c.localId,set_abbr:abbrMap[(c.set&&c.set.id)||'']},idp),idProduct:idp,price:price||foil,priceFoil:foil||price,updated:at?at.toISOString():new Date().toISOString(),image:c.image?c.image+'/high.webp':null,rarity:c.rarity||null,low:lowRarity(c.rarity,c.name),variants:out};
+   /* Fiche directe Cardmarket : /Singles/{Set-en}/{Nom-en}[-Vn]-{ABR}{NNN} (nom anglais ; Vn = rang parmi les cartes de même nom du set). Déduit, non vérifié. */
+   var direct=null;
+   try{
+    var API_EN='https://api.tcgdex.net/v2/en',ab0=abbrMap[(c.set&&c.set.id)||''];
+    if(!idp&&ab0&&c.set&&c.set.id){
+     var er=await fetch(API_EN+'/cards/'+encodeURIComponent(c.id)),esr=await fetch(API_EN+'/sets/'+encodeURIComponent(c.set.id));
+     if(er.ok&&esr.ok){
+      var ec=await er.json(),es=await esr.json();
+      var same=(es.cards||[]).filter(function(x){return x.name===ec.name;}).sort(function(x,y){return Number(x.localId)-Number(y.localId);});
+      var rank=same.map(function(x){return x.id;}).indexOf(ec.id)+1;
+      function slug(t){return String(t||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/['’.:]/g,'').replace(/&/g,'').replace(/[^A-Za-z0-9]+/g,'-').replace(/^-+|-+$/g,'');}
+      if(rank>0){direct='https://www.cardmarket.com/fr/Pokemon/Products/Singles/'+slug(es.name||(ec.set&&ec.set.name))+'/'+slug(ec.name)+(rank>1?'-V'+rank:'')+'-'+ab0+('000'+Number(c.localId)).slice(-3)+'?language=2';}
+     }
+    }
+   }catch(e6){}
+   return {doubt:doubt,direct:!!direct,url:direct||TK.cmUrl({name:c.name,number:c.localId,set_abbr:abbrMap[(c.set&&c.set.id)||'']},idp),idProduct:idp,price:price||foil,priceFoil:foil||price,updated:at?at.toISOString():new Date().toISOString(),image:c.image?c.image+'/high.webp':null,rarity:c.rarity||null,low:lowRarity(c.rarity,c.name),variants:out};
   }catch(e){return null;}
  }
 };
