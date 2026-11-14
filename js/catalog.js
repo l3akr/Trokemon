@@ -162,15 +162,26 @@ TK.eraOf=function(setId){
  return {k:'autres',n:'Autres séries et promos',o:98,serie:pre};
 };
 /* Image de secours : si l'image française manque, essaie la version anglaise ; sinon pastille. */
-window.TK_imgFallback=function(el){
- var src=el.getAttribute('src')||'';
- var fb=el.getAttribute('data-fb')||'';
- if(!fb&&src.indexOf('/fr/')>-1){el.setAttribute('data-fb','1');el.src=src.replace('/fr/','/en/');return;}
- if(fb==='1'&&src.indexOf('/en/')>-1){el.setAttribute('data-fb','2');el.src=src.replace('/en/','/ja/');return;}
+var UPH={},UQ=[],UT=null;
+function userPhotos(ids){
+ var need=ids.filter(function(i){return i&&!(i in UPH);});
+ if(!need.length||!TK.db||!TK.db.cardPhotos){return Promise.resolve();}
+ return TK.db.cardPhotos(need.slice(0,200)).then(function(m){need.forEach(function(i){UPH[i]=(m&&m[i])||null;});}).catch(function(){need.forEach(function(i){UPH[i]=null;});});
+}
+function imgPh(el){
  var n=(el.getAttribute('data-n')||'?').charAt(0).toUpperCase(),sp=document.createElement('span');
  sp.className=el.className.replace('cimg','cph').replace('cthumb','cph')+' cph';sp.setAttribute('aria-hidden','true');sp.textContent=n;
  sp.style.background='var(--surface2)';
  if(el.parentNode){el.parentNode.replaceChild(sp,el);}
+}
+window.TK_imgFallback=function(el){
+ var src=el.getAttribute('src')||'',fb=el.getAttribute('data-fb')||'';
+ if(!fb&&src.indexOf('/fr/')>-1){el.setAttribute('data-fb','1');el.src=src.replace('/fr/','/en/');return;}
+ if(fb==='1'&&src.indexOf('/en/')>-1){el.setAttribute('data-fb','2');el.src=src.replace('/en/','/ja/');return;}
+ var cid=el.getAttribute('data-cid');
+ /* dernier recours : photo d'une carte identique postée par un utilisateur */
+ if(cid&&fb!=='u'){el.setAttribute('data-fb','u');userPhotos([cid]).then(function(){if(UPH[cid]){el.src=UPH[cid];}else{imgPh(el);}});return;}
+ imgPh(el);
 };
 
 var abbrMap={},abbrIdx={},setCache={},nameCache={};
@@ -200,7 +211,7 @@ function setAbbr(id,v){if(v&&abbrMap[id]!==v){abbrMap[id]=v;indexAbbr();saveAbbr
 function lowRarity(r,name){
  var n=norm(r||'');
  if(/(^| )(ex|gx|v|vmax|vstar|vunion|break|prime|legend)( |$)/i.test(String(name||''))){return false;}
- return ['commune','peu commune','rare','holo rare','rare holo','common','uncommon'].indexOf(n)>-1;
+ return ['commune','peu commune','peu courante','rare','holo rare','rare holo','common','uncommon'].indexOf(n)>-1;
 }
 function numCmp(a,b){var x=parseInt(a,10),y=parseInt(b,10);if(isNaN(x)||isNaN(y)){return String(a).localeCompare(String(b));}return x-y;}
 function stripZ(x){return String(x==null?'':x).replace(/^0+(?=\d)/,'');}
@@ -354,6 +365,13 @@ TK.catalog={
   }
   var order={};(setsCache||[]).forEach(function(s,i){order[s.id]=i;});
   list.sort(function(a,b){var d=(order[a.set_id]==null?9999:order[a.set_id])-(order[b.set_id]==null?9999:order[b.set_id]);return d||numCmp(a.localId,b.localId);});
+  try{
+   var miss=list.filter(function(c){return !c.image&&c.card_id;});
+   if(miss.length){
+    await Promise.race([userPhotos(miss.map(function(c){return c.card_id;})),new Promise(function(r){setTimeout(r,1500);})]);
+    miss.forEach(function(c){if(UPH[c.card_id]){c.image=UPH[c.card_id];}});
+   }
+  }catch(e7){}
   return {list:list,hint:''};
  },
  /* Détail d'une carte : prix Cardmarket (EUR), image HD, rareté, versions disponibles. */

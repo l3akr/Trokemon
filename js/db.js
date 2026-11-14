@@ -58,6 +58,7 @@ function makeSupabase(){
    if(r.error){throw r.error;}
   },
   updatePassword:async function(pw){var r=await sb.auth.updateUser({password:pw});if(r.error){throw r.error;}},
+  cardPhotos:async function(ids){var r=await sb.rpc('card_photos',{ids:ids});if(r.error){throw r.error;}var m={};(r.data||[]).forEach(function(x){m[x.card_id]=x.photo;});return m;},
 
   getProfile:async function(id){return chk(await sb.from('profiles').select('*').eq('id',id).maybeSingle());},
   updateProfile:async function(patch){
@@ -191,6 +192,7 @@ function makeDemo(){
   signOut:async function(){me=null;},
   resetPassword:async function(){},
   updatePassword:async function(){},
+  cardPhotos:async function(ids){var m={};DB.items.forEach(function(i){if(i.card_id&&i.photo_front&&ids.indexOf(i.card_id)>-1&&!m[i.card_id]){m[i.card_id]=i.photo_front;}});return m;},
   getProfile:async function(id){return copy(prof(id));},
   updateProfile:async function(patch){
    if(patch.zone_lat!=null){patch.zone_lat=TK.zoneRound(patch.zone_lat);patch.zone_lng=TK.zoneRound(patch.zone_lng);}
