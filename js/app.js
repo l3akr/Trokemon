@@ -815,8 +815,12 @@ function render(){
  if(S.light){html+='<div class="lightbox" data-a="closelight" role="dialog" aria-label="Photo agrandie"><img alt="" data-n="?" onerror="TK_imgFallback(this)" src="'+esc(S.light)+'"></div>';}
  var fo=document.activeElement,fid=fo&&fo.id&&/^(aq|zq|msearch|msgin|scustom|f-)/.test(fo.id)?fo.id:null,fpos=fid&&fo.selectionStart!=null?fo.selectionStart:null;
  var key=viewKey(),prev=$('.scroll'),pos=(prev&&key===S.lastKey)?prev.scrollTop:0;
+ var anc=null;
+ if(prev&&key===S.lastKey){var pr0=prev.getBoundingClientRect(),els0=prev.querySelectorAll('[data-a=pickcard]');for(var ai=0;ai<els0.length;ai++){var r0=els0[ai].getBoundingClientRect();if(r0.bottom>pr0.top+10){anc={v:els0[ai].getAttribute('data-v'),top:r0.top};break;}}}
  app.innerHTML=html;S.lastKey=key;
  var sc=$('.scroll');if(sc&&pos){sc.scrollTop=pos;}
+ /* garde la carte visible au même endroit quand la sélection s'insère au-dessus de la liste */
+ if(sc&&anc){var els1=sc.querySelectorAll('[data-a=pickcard]');for(var bi=0;bi<els1.length;bi++){if(els1[bi].getAttribute('data-v')===anc.v){sc.scrollTop+=els1[bi].getBoundingClientRect().top-anc.top;break;}}}
  if(fid){var n=document.getElementById(fid);if(n){n.focus();if(fpos!=null&&n.setSelectionRange){try{n.setSelectionRange(fpos,fpos);}catch(e){}}}}
  if(p==='app'){
   var tt=top();
