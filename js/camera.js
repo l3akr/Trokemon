@@ -83,25 +83,13 @@ TK.camera={
   }).catch(function(){close();if(opt.onFail){opt.onFail('refusé');}});
   function shot(){
    if(busy){return;}
-   var rg=region(EXPAND);if(!rg){return;}
+   var rg=region(1);if(!rg){return;}
    busy=true;
-   var k=Math.min(1,1800/Math.max(rg.sw,rg.sh)),cw=Math.round(rg.sw*k),ch=Math.round(rg.sh*k);
-   var big=document.createElement('canvas');big.width=cw;big.height=ch;big.getContext('2d').drawImage(v,rg.sx,rg.sy,rg.sw,rg.sh,0,0,cw,ch);
-   /* recadrage intelligent : sur la carte détectée, sinon sur le cadre exact */
-   var W=96,H=Math.max(10,Math.round(W*ch/cw)),sm=document.createElement('canvas');sm.width=W;sm.height=H;
-   var sx=sm.getContext('2d',{willReadFrequently:true});sx.drawImage(big,0,0,W,H);
-   var det=detect(sx.getImageData(0,0,W,H)),x0,y0,x1,y1;
-   if(det.ok){
-    /* marge généreuse : mieux vaut un peu de fond que des coins coupés (dos de carte sombre, coins arrondis) */
-    var px=cw/W,py=ch/H,pad=0.035*cw;
-    x0=Math.max(0,det.x0*px-pad);x1=Math.min(cw,det.x1*px+pad);y0=Math.max(0,det.y0*py-pad*1.1);y1=Math.min(ch,det.y1*py+pad*1.1);
-   }else{
-    var fw=cw/EXPAND*1.06,fh=ch/EXPAND*1.06;x0=Math.max(0,(cw-fw)/2);x1=Math.min(cw,x0+fw);y0=Math.max(0,(ch-fh)/2);y1=Math.min(ch,y0+fh);
-   }
-   var ow=x1-x0,oh=y1-y0,m=Math.min(1,1400/Math.max(ow,oh)),out=document.createElement('canvas');
-   out.width=Math.round(ow*m);out.height=Math.round(oh*m);
-   out.getContext('2d').drawImage(big,x0,y0,ow,oh,0,0,out.width,out.height);
-   out.toBlob(function(b){busy=false;if(!b){return;}close();if(opt.onShot){opt.onShot(b,{smart:det.ok});}},'image/jpeg',0.86);
+   /* recadrage exact : la photo = ce qui est dans le cadre à l'écran, sans détection ni décalage */
+   var m=Math.min(1,1400/Math.max(rg.sw,rg.sh)),out=document.createElement('canvas');
+   out.width=Math.round(rg.sw*m);out.height=Math.round(rg.sh*m);
+   out.getContext('2d').drawImage(v,rg.sx,rg.sy,rg.sw,rg.sh,0,0,out.width,out.height);
+   out.toBlob(function(b){busy=false;if(!b){return;}close();if(opt.onShot){opt.onShot(b,{smart:false});}},'image/jpeg',0.86);
   }
   ov.addEventListener('click',function(e){
    var b=e.target.closest&&e.target.closest('[data-c]');if(!b){return;}
