@@ -115,3 +115,8 @@ Les utilisateurs ne peuvent plus saisir de valeur. Cartes loose : cote Cardmarke
 - Photos : facultatives pour les cartes courantes (commune, peu commune, rare, holo rare) ; obligatoires pour les cartes ex/GX/V, gradées, scellées et manuelles.
 - Libellés `Nom (SIGLE - 110/84)` ; le sigle est pris en compte dans les recherches.
 - À vérifier sur ton site : le champ `abbreviation` de TCGdex, les versions Masterball/Cosmos/tampon et les images de secours dépendent de l'API réelle et n'ont pas pu être testés d'ici.
+
+## E-mails Trokémon (objet et expéditeur)
+Le titre « Supabase » vient du tableau de bord, pas du code :
+1. Authentication > Email Templates > « Confirm signup » : objet `Confirmez votre email Trokémon`, corps = `supabase/email-templates/confirm.html`. Idem « Reset password » avec `recovery.html`.
+2. Nom d'expéditeur « Trokémon » : Authentication > SMTP Settings, activer un SMTP personnalisé (Resend, Brevo…) et renseigner Sender name = Trokémon. Avec l'expéditeur par défaut de Supabase, il n'est pas modifiable.

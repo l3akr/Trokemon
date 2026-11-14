@@ -81,8 +81,28 @@ function cardImg(it){
  var src=it.photo_front||it.catalog_image;
  return src?'<img class="cimg" loading="lazy" alt="" data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(src)+'">':'<span class="cph" aria-hidden="true" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</span>';
 }
+var PRESETS=[
+ ['#F5C842','#2B2410','M50 22l8 20 22 2-17 14 6 22-19-12-19 12 6-22-17-14 22-2z'],
+ ['#4FA3E3','#0E2A40','M50 18C50 18 28 44 28 60a22 22 0 0 0 44 0C72 44 50 18 50 18z'],
+ ['#E8603C','#3A140A','M50 16c4 14 22 22 22 42a22 22 0 0 1-44 0c0-10 6-14 10-20 2 8 6 10 8 8-2-12 0-22 4-30z'],
+ ['#5CB85C','#10300F','M24 70C24 40 44 24 76 24 76 56 56 76 24 70z'],
+ ['#A66BD6','#26103A','M50 20a30 30 0 1 0 0 60 22 22 0 0 1 0-60z'],
+ ['#8A8F98','#1B1D21','M22 62l28-40 28 40-28 16z'],
+ ['#E86FA8','#3A1026','M50 78C20 56 22 30 38 30c8 0 12 6 12 10 0-4 4-10 12-10 16 0 18 26-12 48z'],
+ ['#3FC1B0','#0A2F2A','M24 50a26 26 0 0 1 52 0M24 50a26 26 0 0 0 52 0M50 24v52']
+];
+function presetIdx(u){var m=/^preset:(\d+)$/.exec(u||'');return m&&PRESETS[+m[1]]?+m[1]:-1;}
+function presetSvg(n,sz,st){
+ var d=PRESETS[n];
+ return '<svg class="av" viewBox="0 0 100 100" width="'+sz+'" height="'+sz+'" style="'+st+'" aria-hidden="true"><rect width="100" height="100" fill="'+d[0]+'"/><circle cx="82" cy="18" r="30" fill="#fff" opacity=".14"/><path d="'+d[2]+'" fill="'+(n===7?'none':d[1])+'" stroke="'+d[1]+'" stroke-width="'+(n===7?7:0)+'" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+function presetGrid(action){
+ var cur=presetIdx(S.user&&S.user.avatar_url);
+ return '<div class="pgrid">'+PRESETS.map(function(d,i){return '<button class="pbtn" data-a="'+action+'" data-v="'+i+'" aria-label="Avatar '+(i+1)+'" aria-pressed="'+(cur===i)+'">'+presetSvg(i,56,'width:100%;height:100%')+'</button>';}).join('')+'</div>';
+}
 function avatar(p,sz,ring){
  var st='width:'+sz+'px;height:'+sz+'px;'+(ring?'box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--accent);':'');
+ if(p&&presetIdx(p.avatar_url)>=0){return presetSvg(presetIdx(p.avatar_url),sz,st);}
  if(p&&p.avatar_url){return '<img class="av" src="'+esc(p.avatar_url)+'" alt="" style="'+st+'">';}
  return '<span class="av ph" aria-hidden="true" style="'+st+'font-size:'+Math.round(sz/2.4)+'px">'+esc(((p&&p.pseudo)||'?').charAt(0).toUpperCase())+'</span>';
 }
@@ -190,9 +210,10 @@ function vPhoto(){
  return '<div class="outer">'+onav('')+'<div class="authwrap" style="text-align:center"><div class="steps">Étape 2 sur 4</div><h1>Ajoute une photo de profil</h1>'+
  '<p class="muted" style="margin:0 0 24px 0">Elle apparaît sur ton profil auprès des autres dresseurs. Tu pourras la changer plus tard.</p>'+
  '<div style="padding:8px 0 0 0;display:flex;justify-content:center;margin-bottom:20px">'+avatar(S.user,136,true)+'</div>'+
+ '<div class="muted" style="margin-bottom:8px">Choisis un avatar</div>'+presetGrid('setpreset')+
  '<input type="file" accept="image/*" id="photofile" hidden>'+
- '<button class="btn" data-a="pickphoto" style="display:flex;align-items:center;justify-content:center;gap:8px">'+ico(I.camera,20)+(has?'Changer de photo':'Choisir une photo')+'</button>'+
- '<button class="btn primary" style="margin-top:10px" data-a="goto" data-v="energy">'+(has?'Continuer':'Passer pour l\'instant')+'</button></div></div>';
+ '<button class="btn" data-a="pickphoto" style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px">'+ico(I.camera,20)+'Ou envoyer ma propre photo</button>'+
+ '<button class="btn primary" style="margin-top:10px" data-a="photonext">'+(has?'Continuer':'Passer (avatar au hasard)')+'</button></div></div>';
 }
 function energyTiles(){
  return '<div class="egrid">'+ENERGIES.map(function(e){
@@ -200,7 +221,7 @@ function energyTiles(){
  }).join('')+'</div>';
 }
 function vEnergy(){
- return '<div class="outer">'+onav('')+'<div class="authwrap" style="max-width:640px;text-align:center"><div class="steps">Étape 3 sur 4</div><h1>Choisis ton énergie</h1>'+
+ return '<div class="outer">'+onav('<button class="btn sm ghost" data-a="goto" data-v="photo">‹ Retour</button>')+'<div class="authwrap" style="max-width:640px;text-align:center"><div class="steps">Étape 3 sur 4</div><h1>Choisis ton énergie</h1>'+
  '<p class="muted" style="margin:0 0 20px 0">Elle donne sa couleur à ton profil et à ta zone sur la carte. Tu pourras la changer plus tard.</p>'+
  '<div style="padding:8px 0 0 0;display:flex;justify-content:center;margin-bottom:24px">'+avatar(S.user,88,true)+'</div>'+energyTiles()+
  '<button class="btn primary" style="margin-top:20px" data-a="saveenergy">Continuer</button></div></div>';
@@ -221,7 +242,7 @@ function zonePicker(){
  '<p class="note" style="margin-top:12px">Seule une zone approximative (environ 2 km) est visible par les autres, jamais ton adresse.</p>';
 }
 function vZone(){
- return '<div class="outer">'+onav('')+'<div class="authwrap"><div class="steps">Étape 4 sur 4</div><h1>Où échanges-tu ?</h1>'+
+ return '<div class="outer">'+onav('<button class="btn sm ghost" data-a="goto" data-v="energy">‹ Retour</button>')+'<div class="authwrap"><div class="steps">Étape 4 sur 4</div><h1>Où échanges-tu ?</h1>'+
  '<p class="muted" style="margin:0 0 20px 0">Pour apparaître sur la carte et voir les échanges autour de toi.</p>'+zonePicker()+
  '<button class="btn primary" style="margin-top:16px" data-a="savezone"'+(S.zonePick?'':' disabled')+'>Terminer</button>'+
  '<button class="btn ghost" style="margin-top:6px" data-a="skipzone">Plus tard</button></div></div>';
@@ -446,7 +467,7 @@ function vProfileOther(t){
   '<div style="font-size:20px;font-weight:800;margin-top:10px">'+esc(p.pseudo)+'</div><div class="muted">Zone '+esc(p.zone_label||'')+(dist(p)?' · '+dist(p):'')+'</div>'+
   '<div style="margin-top:6px">'+statsLine(t.data.stats)+'</div>'+
   (m.gets.length&&m.gives.length?'<div style="margin-top:8px"><span class="chip acc">Échange mutuel possible</span></div>':'')+'</div>'+
-  '<div class="seg" style="margin:16px 0 4px 0" role="group"><button data-a="ptab" data-v="offers" aria-pressed="'+(tab==='offers')+'">Je propose</button><button data-a="ptab" data-v="wants" aria-pressed="'+(tab==='wants')+'">Je recherche</button><button data-a="ptab" data-v="reviews" aria-pressed="'+(tab==='reviews')+'">Avis</button></div>'+
+  '<div class="seg" style="margin:16px 0 4px 0" role="group"><button data-a="ptab" data-v="offers" aria-pressed="'+(tab==='offers')+'">Propose</button><button data-a="ptab" data-v="wants" aria-pressed="'+(tab==='wants')+'">Recherche</button><button data-a="ptab" data-v="reviews" aria-pressed="'+(tab==='reviews')+'">Avis</button></div>'+
   (tab==='reviews'?reviewList(t.data.reviews):list.length?setGroups(list,'u-'+p.id+'-'+tab,function(i){return itemRow(i,false);}):'<p class="muted" style="padding:20px 0">Rien ici pour l\'instant.</p>')+'</div>'+
   '<div class="foot"><button class="btn primary" data-a="propose" data-v="'+esc(p.id)+'">Proposer un échange</button></div>');
 }
@@ -709,12 +730,11 @@ function vProposal(t){
 function vProfil(){
  var u=S.user;
  return page('<div class="top"><div style="padding-left:8px"><h1 style="font-size:24px">Profil</h1></div></div><div class="scroll">'+
- '<div class="card" style="display:flex;align-items:center;gap:14px">'+avatar(u,72,true)+'<div class="grow"><div class="name" style="font-size:17px">'+esc(u.pseudo)+'</div><div class="muted">'+S.my.offers.length+' à proposer · '+S.my.wants.length+' recherchées</div><div style="font-size:13px;margin-top:4px">'+statsLine(S.myStats)+'</div></div></div>'+
- '<div class="name" style="margin:20px 0 4px 0">Tes avis reçus</div>'+reviewList(S.myReviews)+
- '<input type="file" accept="image/*" id="photofile2" hidden><button class="btn" style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px" data-a="pickphoto">'+ico(I.camera,20)+'Changer la photo de profil</button>'+
+ '<div class="card" style="display:flex;align-items:center;gap:14px"><button class="avedit" data-a="editavatar" aria-label="Changer la photo de profil">'+avatar(u,72,true)+'<span class="avbadge">'+ico(I.camera,13,'#0A0B0D')+'</span></button>'+'<div class="grow"><div class="name" style="font-size:17px">'+esc(u.pseudo)+'</div><div class="muted">'+S.my.offers.length+' à proposer · '+S.my.wants.length+' recherchées</div><div style="font-size:13px;margin-top:4px">'+statsLine(S.myStats)+'</div></div></div>'+
+ '<details class="grp" style="margin-top:20px" data-gk="prof|avis"'+(S.open['prof|avis']?' open':'')+'><summary><span class="grow">Tes avis reçus</span><span class="chip">'+S.myReviews.length+'</span></summary>'+reviewList(S.myReviews)+'</details>'+
  '<div class="name" style="margin:20px 0 4px 0">Ta zone</div><div class="muted" style="margin-bottom:8px">'+(u.zone_label?esc(u.zone_label)+' (zone approximative, environ 2 km)':'Non définie : tu n\'apparais pas sur la carte.')+'</div>'+
  '<button class="btn" data-a="editzone">Modifier ma zone</button>'+
- '<div class="name" style="margin:20px 0 8px 0">Ton énergie</div>'+energyTiles()+
+ '<details class="grp" style="margin-top:20px" data-gk="prof|nrj"'+(S.open['prof|nrj']?' open':'')+'><summary><span class="grow">Ton énergie</span></summary><div style="padding-top:6px">'+energyTiles()+'</div></details>'+
  (TK.demo?'<p class="note" style="margin-top:16px">Mode démo : profils, cartes et valeurs fictifs, rien n\'est enregistré.</p>':'')+
  '<button class="btn" style="margin-top:16px" data-a="logout">Se déconnecter</button>'+
  '<p class="note" style="margin-top:16px;text-align:center"><a href="legal.html#mentions" target="_blank" rel="noopener">Mentions légales</a> · <a href="legal.html#confidentialite" target="_blank" rel="noopener">Confidentialité</a> · <a href="legal.html#cgu" target="_blank" rel="noopener">Conditions</a></p></div>');
@@ -724,6 +744,10 @@ function vProfil(){
 function sideLabel(side){return side==='front'?'Recto':'Verso';}
 function vSheet(){
  var s=S.sheet;if(!s){return '';}
+ if(s.kind==='avatar'){
+  return '<div class="sheet-bg" data-a="backdrop"><div class="sheet" role="dialog" aria-modal="true" aria-label="Photo de profil"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div class="name" style="font-size:17px">Photo de profil</div><button class="icon-btn" data-a="closesheet" aria-label="Fermer">✕</button></div>'+
+   presetGrid('setpreset')+'<input type="file" accept="image/*" id="photofile2" hidden><button class="btn primary" data-a="pickphoto" style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px">'+ico(I.camera,20)+'Envoyer ma propre photo</button></div></div>';
+ }
  if(s.kind==='photo'){
   var lb=sideLabel(s.side);
   return '<div class="sheet-bg" data-a="backdrop"><div class="sheet" role="dialog" aria-modal="true" aria-label="Photo '+lb.toLowerCase()+'"><div class="name" style="font-size:17px">Photo du '+lb.toLowerCase()+'</div>'+
@@ -839,7 +863,7 @@ async function setAvatar(file){
  try{
   toast('Envoi de la photo…');
   var blob=await TK.shrink(file,480),url=await DB.uploadPhoto(blob,'avatar');
-  if(await saveProfile({avatar_url:url})){render();}
+  if(await saveProfile({avatar_url:url})){if(S.sheet&&S.sheet.kind==='avatar'){S.sheet=null;}render();}
  }catch(e){toast(TK.frError(e));}
 }
 function goto(phase){S.phase=phase;S.err='';render();}
@@ -984,7 +1008,13 @@ var ACT={
   render();
  },
  saveenergy:async function(){if(await saveProfile({energy:S.energy})){S.zonePick=null;S.zoneRes=[];S.zoneQ='';goto('zone');}},
- pickphoto:function(){var i=$('input[type=file]');if(i){i.click();}},
+ pickphoto:function(){var i=$('#photofile2')||$('#photofile');if(i){i.click();}},
+ editavatar:function(){S.sheet={kind:'avatar'};render();},
+ setpreset:async function(v){if(await saveProfile({avatar_url:'preset:'+(+v)})){if(S.sheet&&S.sheet.kind==='avatar'){S.sheet=null;}render();}},
+ photonext:async function(){
+  if(!S.user.avatar_url){if(!(await saveProfile({avatar_url:'preset:'+Math.floor(Math.random()*PRESETS.length)}))){return;}}
+  goto('energy');
+ },
  logout:async function(){
   try{await DB.signOut();}catch(e){}
   S.user=null;S.stack=[];S.sheet=null;S.my={offers:[],wants:[]};S.props=[];S.energy=null;S.geo=null;S.mapProfiles=[];S.recover=false;
@@ -1139,14 +1169,14 @@ var ACT={
  savezone:async function(){
   if(!S.zonePick){return;}
   var onboarding=S.phase==='zone',patch={zone_label:S.zonePick.label,zone_lat:S.zonePick.lat,zone_lng:S.zonePick.lng};
-  if(onboarding){patch.onboarded=true;}
+  if(onboarding){patch.onboarded=true;if(!S.user.avatar_url){patch.avatar_url='preset:'+Math.floor(Math.random()*PRESETS.length);}}
   if(await saveProfile(patch)){
    S.mv={lat:S.user.zone_lat,lng:S.user.zone_lng,z:11};S.sheet=null;S.zonePick=null;
    if(onboarding){S.phase='app';S.tab='carte';}
    render();toast('Zone enregistrée');
   }
  },
- skipzone:async function(){if(await saveProfile({onboarded:true})){S.phase='app';S.tab='carte';render();}},
+ skipzone:async function(){var pt={onboarded:true};if(!S.user.avatar_url){pt.avatar_url='preset:'+Math.floor(Math.random()*PRESETS.length);}if(await saveProfile(pt)){S.phase='app';S.tab='carte';render();}},
  editzone:function(){S.zonePick=null;S.zoneRes=[];S.zoneQ='';S.sheet={kind:'zone'};render();}
 };
 
