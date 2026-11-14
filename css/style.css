@@ -319,3 +319,10 @@ details.sub .cgrid{padding-bottom:6px}
 .camgal{position:absolute;right:16px;top:calc(env(safe-area-inset-top) + 56px);background:rgba(255,255,255,.18);color:#fff;border:0;border-radius:999px;padding:8px 14px;font-weight:600;cursor:pointer}
 .lref{display:block;font-size:12px;font-weight:500;color:var(--muted)}
 .editph{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+
+.camframe.ok{border-color:#3DDC84}
+.camauto{position:absolute;left:16px;top:calc(env(safe-area-inset-top) + 56px);background:rgba(255,255,255,.18);color:#fff;border:0;border-radius:999px;padding:8px 14px;font-weight:600;cursor:pointer}
+.camauto[aria-pressed=true]{background:var(--accent);color:var(--on-accent)}
+.gbtn{width:min(100%,380px,calc(52vh*0.716))}
+.gmain{aspect-ratio:63/88;max-height:none;object-fit:cover;background:none;border:0}
+.cph.gmain{width:min(100%,380px,calc(52vh*0.716))}

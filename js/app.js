@@ -392,8 +392,18 @@ function setLogo(m){
  return '<img class="slogo" src="'+esc(m.logo||m.symbol)+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">';
 }
 function setGroups(list,key,rowFn){
+ var cnt=function(arr){return arr.reduce(function(t,i){return t+(i._n||1);},0);};
  var g={},names=[];
  list=list.slice().sort(function(a,b){var x=parseInt(String(a.number||'').split('/')[0],10),y=parseInt(String(b.number||'').split('/')[0],10);if(isNaN(x)&&isNaN(y)){return String(a.name).localeCompare(String(b.name),'fr');}if(isNaN(x)){return 1;}if(isNaN(y)){return -1;}return x-y||String(a.name).localeCompare(String(b.name),'fr');});
+ /* exemplaires identiques (même carte, version, état, sans photos propres) : une seule ligne ×N */
+ var seen={},merged=[];
+ list.forEach(function(i){
+  if(i.type==='graded'||i.photo_front||i.photo_back){merged.push(i);return;}
+  var k=[i.kind,i.type,i.match_key||(i.name+'|'+i.number+'|'+i.set_name),i.variant||'',i.condition||''].join('|');
+  if(seen[k]){seen[k]._n++;return;}
+  var c=Object.assign({},i,{_n:1});seen[k]=c;merged.push(c);
+ });
+ list=merged;
  list.forEach(function(i){var n=i.set_name||'Autres';if(!g[n]){g[n]=[];names.push(n);}g[n].push(i);});
  var era={};names.forEach(function(n){era[n]=g[n][0].set_id?TK.eraOf(g[n][0].set_id):{k:'autres',n:'Autres',o:99};});
  names.sort(function(a,b){return (era[a].o-era[b].o)||(a==='Autres'?1:b==='Autres'?-1:a.localeCompare(b,'fr'));});
@@ -404,16 +414,16 @@ function setGroups(list,key,rowFn){
  var head=names.length>1?'<div style="display:flex;justify-content:flex-end;gap:8px;margin:4px 0"><button class="btn sm ghost" data-a="grpall" data-v="'+key+'|1">Tout déplier</button><button class="btn sm ghost" data-a="grpall" data-v="'+key+'|0">Tout replier</button></div>':'';
  return head+names.map(function(n){
   var eh='';if(era[n].k!==lastEra){lastEra=era[n].k;eh='<div class="era">'+esc(era[n].n)+'</div>';}
-  var gk=key+'|'+n,open=S.open[gk]!==undefined?S.open[gk]:one,tot=g[n].reduce(function(t,i){return t+(i.value_eur>0?Number(i.value_eur):0);},0);
-  return eh+'<details class="grp" data-gk="'+esc(gk)+'"'+(open?' open':'')+'><summary>'+setLogo(meta[g[n][0].set_id])+'<span class="grow">'+esc(n)+'</span><span class="chip">'+g[n].length+'</span>'+(tot>0?'<span class="muted" style="font-size:12px">'+eur(tot)+'</span>':'')+'</summary>'+g[n].map(rowFn).join('')+'</details>';
+  var gk=key+'|'+n,open=S.open[gk]!==undefined?S.open[gk]:false,tot=g[n].reduce(function(t,i){return t+(i.value_eur>0?Number(i.value_eur)*(i._n||1):0);},0);
+  return eh+'<details class="grp" data-gk="'+esc(gk)+'"'+(open?' open':'')+'><summary>'+setLogo(meta[g[n][0].set_id])+'<span class="grow">'+esc(n)+'</span><span class="chip">'+cnt(g[n])+'</span>'+(tot>0?'<span class="muted" style="font-size:12px">'+eur(tot)+'</span>':'')+'</summary>'+g[n].map(rowFn).join('')+'</details>';
  }).join('');
 }
 function itemRow(it,del){
  return '<div class="row"><button class="rowmain" data-a="item" data-v="'+esc(it.id)+'">'+cardImg(it)+
  '<span class="grow"><span class="name" style="display:block">'+label(it)+'</span><span class="muted" style="display:block">'+esc(it.set_name||'')+'</span>'+
- '<span style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">'+typeChip(it)+(it.variant?'<span class="chip">'+esc(it.variant)+'</span>':'')+(it.kind==='offer'&&it.photo_front?'<span class="chip">Recto · verso</span>':'')+'</span></span>'+
+ '<span style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">'+typeChip(it)+(it.variant?'<span class="chip">'+esc(it.variant)+'</span>':'')+(it._n>1?'<span class="chip acc">×'+it._n+'</span>':'')+'</span></span>'+
  '<span class="val">'+eur(it.value_eur)+'</span></button>'+
- (del?'<button class="icon-btn" data-a="del" data-v="'+esc(it.id)+'" aria-label="Retirer '+esc(it.name)+'">'+ico(I.trash,20)+'</button>':'')+'</div>';
+ (del?'<button class="icon-btn" data-a="del" data-v="'+esc(it.id)+'" aria-label="'+(it._n>1?'Retirer un exemplaire de ':'Retirer ')+esc(it.name)+'">'+ico(I.trash,20)+'</button>':'')+'</div>';
 }
 function vListes(){
  var tab=S.listTab,list=S.my[tab];
