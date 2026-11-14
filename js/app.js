@@ -391,7 +391,7 @@ function setLogo(m){
  if(!m||!(m.logo||m.symbol)){return '';}
  return '<img class="slogo" src="'+esc(m.logo||m.symbol)+'" alt="" loading="lazy" onerror="this.style.display=\'none\'">';
 }
-function setGroups(list,key,rowFn){
+function setGroups(list,key,rowFn,hitFn){
  var cnt=function(arr){return arr.reduce(function(t,i){return t+(i._n||1);},0);};
  var g={},names=[];
  list=list.slice().sort(function(a,b){var x=parseInt(String(a.number||'').split('/')[0],10),y=parseInt(String(b.number||'').split('/')[0],10);if(isNaN(x)&&isNaN(y)){return String(a.name).localeCompare(String(b.name),'fr');}if(isNaN(x)){return 1;}if(isNaN(y)){return -1;}return x-y||String(a.name).localeCompare(String(b.name),'fr');});
@@ -415,14 +415,15 @@ function setGroups(list,key,rowFn){
  return head+names.map(function(n){
   var eh='';if(era[n].k!==lastEra){lastEra=era[n].k;eh='<div class="era">'+esc(era[n].n)+'</div>';}
   var gk=key+'|'+n,open=S.open[gk]!==undefined?S.open[gk]:false,tot=g[n].reduce(function(t,i){return t+(i.value_eur>0?Number(i.value_eur)*(i._n||1):0);},0);
-  return eh+'<details class="grp" data-gk="'+esc(gk)+'"'+(open?' open':'')+'><summary>'+setLogo(meta[g[n][0].set_id])+'<span class="grow">'+esc(n)+'</span><span class="chip">'+cnt(g[n])+'</span>'+(tot>0?'<span class="muted" style="font-size:12px">'+eur(tot)+'</span>':'')+'</summary>'+g[n].map(rowFn).join('')+'</details>';
+  return eh+'<details class="grp" data-gk="'+esc(gk)+'"'+(open?' open':'')+'><summary>'+setLogo(meta[g[n][0].set_id])+'<span class="grow">'+esc(n)+'</span>'+(hitFn&&g[n].some(hitFn)?'<span class="snp" title="Correspondances">'+sniper(16)+'<b>'+g[n].filter(hitFn).length+'</b></span>':'')+'<span class="chip">'+cnt(g[n])+'</span>'+(tot>0?'<span class="muted" style="font-size:12px">'+eur(tot)+'</span>':'')+'</summary>'+g[n].map(rowFn).join('')+'</details>';
  }).join('');
 }
-function itemRow(it,del){
- return '<div class="row"><button class="rowmain" data-a="item" data-v="'+esc(it.id)+'">'+cardImg(it)+
+function sniper(sz){return '<svg class="snpi" viewBox="0 0 24 24" width="'+sz+'" height="'+sz+'" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="6.5"/><path d="M12 2v5M12 17v5M2 12h5M17 12h5"/><circle cx="12" cy="12" r="1.3" fill="var(--accent)"/></svg>';}
+function itemRow(it,del,hit){
+ return '<div class="row'+(hit?' match':'')+'"><button class="rowmain" data-a="item" data-v="'+esc(it.id)+'">'+cardImg(it)+
  '<span class="grow"><span class="name" style="display:block">'+label(it)+'</span><span class="muted" style="display:block">'+esc(it.set_name||'')+'</span>'+
  '<span style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">'+typeChip(it)+(it.variant?'<span class="chip">'+esc(it.variant)+'</span>':'')+(it._n>1?'<span class="chip acc">×'+it._n+'</span>':'')+'</span></span>'+
- '<span class="val">'+eur(it.value_eur)+'</span></button>'+
+ '<span class="val">'+eur(it.value_eur)+'</span>'+(hit?'<span class="snpb" title="Correspondance">'+sniper(18)+'</span>':'')+'</button>'+
  (del?'<button class="icon-btn" data-a="del" data-v="'+esc(it.id)+'" aria-label="'+(it._n>1?'Retirer un exemplaire de ':'Retirer ')+esc(it.name)+'">'+ico(I.trash,20)+'</button>':'')+'</div>';
 }
 function vListes(){
@@ -475,13 +476,13 @@ function vProfileOther(t){
  if(!t.data){return loading('Profil');}
  var p=t.data.profile,items=t.data.items,tab=t.tab||'offers';
  var list=items.filter(function(i){return i.kind===(tab==='offers'?'offer':'want');});
- var m=matchFor(items);
+ var m=matchFor(items),mk=keysOf(tab==='offers'?S.my.wants:S.my.offers),hit=function(i){return !!mk[i.match_key];},hitN=list.filter(hit).length;
  return page(header('Profil',null,true)+'<div class="scroll"><div style="text-align:center"><div style="padding:8px 0 0 0;display:flex;justify-content:center">'+avatar(p,72,true)+'</div>'+
   '<div style="font-size:20px;font-weight:800;margin-top:10px">'+esc(p.pseudo)+'</div><div class="muted">Zone '+esc(p.zone_label||'')+(dist(p)?' · '+dist(p):'')+'</div>'+
   '<div style="margin-top:6px">'+statsLine(t.data.stats)+'</div>'+
   (m.gets.length&&m.gives.length?'<div style="margin-top:8px"><span class="chip acc">Échange mutuel possible</span></div>':'')+'</div>'+
   '<div class="seg" style="margin:16px 0 4px 0" role="group"><button data-a="ptab" data-v="offers" aria-pressed="'+(tab==='offers')+'">Propose</button><button data-a="ptab" data-v="wants" aria-pressed="'+(tab==='wants')+'">Recherche</button><button data-a="ptab" data-v="reviews" aria-pressed="'+(tab==='reviews')+'">Avis</button></div>'+
-  (tab==='reviews'?reviewList(t.data.reviews):list.length?setGroups(list,'u-'+p.id+'-'+tab,function(i){return itemRow(i,false);}):'<p class="muted" style="padding:20px 0">Rien ici pour l\'instant.</p>')+'</div>'+
+  (tab==='reviews'?reviewList(t.data.reviews):list.length?(hitN?'<p class="note" style="display:flex;align-items:center;gap:6px;margin:6px 0">'+sniper(16)+'<span>'+hitN+(tab==='offers'?' carte'+(hitN>1?'s':'')+' que tu cherches':' carte'+(hitN>1?'s':'')+' qu\'il ou elle cherche et que tu as')+'</span></p>':'')+setGroups(list,'u-'+p.id+'-'+tab,function(i){return itemRow(i,false,hit(i));},hit):'<p class="muted" style="padding:20px 0">Rien ici pour l\'instant.</p>')+'</div>'+
   '<div class="foot"><button class="btn primary" data-a="propose" data-v="'+esc(p.id)+'">Proposer un échange</button></div>');
 }
 
@@ -716,6 +717,41 @@ function vPropose(t){
 /* ---------- échanges ---------- */
 function other(pr){return pr.from_user===S.user.id?pr.to_p:pr.from_p;}
 function snapList(list){return (list||[]).map(function(i){return esc(i.name)+(i.number?' ('+esc(i.number)+')':'');}).join(', ')||'—';}
+function fmtWhen(iso){
+ var d=new Date(iso);if(isNaN(d)){return '—';}
+ var a=d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}),b=d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}).replace(':','h');
+ return a.charAt(0).toUpperCase()+a.slice(1)+' à '+b;
+}
+function snapRows(list){
+ var h=(list||[]).map(function(i){
+  return '<button class="prow" data-a="item" data-v="'+esc(i.id)+'">'+(i.img?'<img class="pimg" alt="" loading="lazy" data-n="'+esc(i.name)+'" onerror="TK_imgFallback(this)" src="'+esc(i.img)+'">':'<span class="pimg cph" style="background:'+phColor(i.name)+'">'+esc(String(i.name||'?').charAt(0))+'</span>')+
+   '<span class="grow"><span class="name" style="display:block;font-size:14px">'+esc(i.name)+(i.number?' <span class="muted">('+esc(i.number)+')</span>':'')+'</span><span class="muted" style="display:block;font-size:12px">'+esc(i.set_name||'')+'</span></span><span class="val">'+eur(i.value_eur)+'</span><span class="muted" aria-hidden="true">›</span></button>';
+ }).join('');
+ return h||'<span class="muted">—</span>';
+}
+function meetCard(pr,o){
+ if(pr.status!=='accepted'&&pr.status!=='done'){return '';}
+ var m=pr.meeting,mine=m&&m.by===S.user.id,h='<div class="card"><div class="name">Rendez-vous</div>';
+ if(!m||m.status==='declined'){
+  h+='<p class="muted" style="margin:6px 0 10px 0">'+(m?'Le dernier rendez-vous proposé a été refusé.':'Aucun rendez-vous fixé pour l\'instant.')+'</p>'+(pr.status==='accepted'?'<button class="btn primary" data-a="meetopen">Proposer un rendez-vous</button>':'');
+  if(TK.demo&&pr.status==='accepted'){h+='<button class="btn ghost" style="margin-top:6px" data-a="demomeet">Démo : l\'autre propose un rendez-vous</button>';}
+ }else{
+  h+=kv('Lieu',esc(m.place))+kv('Quand',esc(fmtWhen(m.at)));
+  if(m.status==='accepted'){h+='<div style="margin-top:8px"><span class="chip acc">Rendez-vous confirmé</span></div>'+(pr.status==='accepted'?'<button class="btn ghost" style="margin-top:8px" data-a="meetopen">Proposer un autre rendez-vous</button>':'');}
+  else if(mine){h+='<p class="note" style="margin:8px 0">En attente de la réponse de '+esc(o.pseudo||'l\'autre personne')+'.</p><button class="btn ghost" data-a="meetopen">Modifier ma proposition</button>'+(TK.demo?'<button class="btn ghost" style="margin-top:6px" data-a="demomeet">Démo : l\'autre accepte</button>':'');}
+  else{h+='<div class="row2" style="margin-top:10px"><button class="btn" data-a="meetno">Refuser</button><button class="btn primary" data-a="meetyes">Accepter</button></div><button class="btn ghost" style="margin-top:6px" data-a="meetopen">Proposer un autre rendez-vous</button>';}
+ }
+ return h+'</div>';
+}
+function confirmCard(pr,iAmFrom,o){
+ if(pr.status==='done'){return '<div class="card"><div class="name">Échange terminé</div><p class="note" style="margin:6px 0 0 0">Vous avez tous les deux confirmé. Les cartes échangées ont été retirées de vos listes.</p></div>';}
+ if(pr.status!=='accepted'){return '';}
+ var my=iAmFrom?pr.confirm_from:pr.confirm_to,th=iAmFrom?pr.confirm_to:pr.confirm_from;
+ return '<div class="card"><div class="name">Confirmer l\'échange</div><p class="note" style="margin:6px 0 8px 0">Quand l\'échange a eu lieu, vous confirmez chacun de votre côté. Les cartes sont alors retirées de vos listes et vous pouvez vous noter.</p>'+
+  kv('Toi',my?'<b style="color:var(--accent)">✓ confirmé</b>':'en attente')+kv(esc(o.pseudo||'L\'autre personne'),th?'<b style="color:var(--accent)">✓ confirmé</b>':'en attente')+
+  (my?'<p class="note" style="margin:8px 0 0 0">En attente de '+esc(o.pseudo||'l\'autre personne')+'.</p>':'<button class="btn primary" style="margin-top:10px" data-a="confirmex">Confirmer l\'échange</button>')+
+  (TK.demo&&!th?'<button class="btn ghost" style="margin-top:6px" data-a="democonfirm">Démo : l\'autre confirme</button>':'')+'</div>';
+}
 function vEchanges(){
  var rows=S.props.length?S.props.map(function(pr){
   var o=other(pr)||{},mineP=pr.from_user===S.user.id;
@@ -731,7 +767,7 @@ function vProposal(t){
  if(!pr){return loading('Échange');}
  var o=other(pr)||{},iAmFrom=pr.from_user===S.user.id,iGive=iAmFrom?pr.give:pr.get,iGet=iAmFrom?pr.get:pr.give;
  var steps=['Proposition envoyée','Proposition acceptée','Rendez-vous fixé','Échange effectué'];
- var cur=pr.status==='sent'?0:pr.status==='accepted'?2:pr.status==='done'?4:-1;
+ var cur=pr.status==='sent'?0:pr.status==='accepted'?(pr.meeting&&pr.meeting.status==='accepted'?3:2):pr.status==='done'?4:-1;
  var stepsHtml=cur<0?'<div class="card"><div class="name">'+STATUS[pr.status]+'</div></div>':steps.map(function(s,i){
   var c=i<cur?'done':i===cur?'now':'';
   return '<div class="step '+c+'"><i>'+(i<cur?ico(I.check,14,'currentColor'):'')+'</i><span>'+s+'</span></div>';
@@ -739,8 +775,7 @@ function vProposal(t){
  var act='';
  if(pr.status==='sent'&&!iAmFrom){act='<div class="row2"><button class="btn" data-a="pstatus" data-v="declined">Refuser</button><button class="btn primary" data-a="pstatus" data-v="accepted">Accepter</button></div>';}
  else if(pr.status==='sent'&&iAmFrom){act='<button class="btn" data-a="pstatus" data-v="cancelled">Annuler ma proposition</button>'+(TK.demo?'<button class="btn ghost" style="margin-top:6px" data-a="demoreply">Démo : simuler l\'acceptation</button>':'');}
- else if(pr.status==='accepted'){act='<button class="btn primary" data-a="pstatus" data-v="done">Échange effectué</button>';}
- var review='';
+  var review='';
  if(pr.status==='done'){
   var rv=S.rev&&S.rev.pid===pr.id?S.rev:null;
   if(rv&&rv.mine){review='<div class="card"><div class="name">Ton avis</div><div style="margin-top:6px">'+stars(rv.mine.rating,20)+'</div>'+(rv.mine.comment?'<p style="margin:6px 0 0 0;font-size:14px">'+esc(rv.mine.comment)+'</p>':'')+'</div>';}
@@ -755,9 +790,9 @@ function vProposal(t){
   '<div class="card"><div class="name">Messages</div><div id="chat" class="chat">'+msgHtml()+'</div><form id="msgform" class="msgform"><input id="msgin" class="field" placeholder="Écris un message" maxlength="1000" autocomplete="off" aria-label="Message"><button class="btn primary sm" type="submit">Envoyer</button></form></div>':'';
  return page(header('Échange avec '+esc(o.pseudo||''),pr.handover==='main'?'En main propre':'Par envoi',true)+'<div class="scroll"><div class="stack">'+
   '<div>'+stepsHtml+'</div>'+
-  '<div class="card"><div class="kv"><span>Tu donnes</span><span style="text-align:right">'+snapList(iGive)+'</span></div><div class="kv"><span>Tu reçois</span><span style="text-align:right">'+snapList(iGet)+'</span></div><div class="kv"><span>Valeur à l\'envoi</span><span style="text-align:right">'+eur(iAmFrom?pr.give_value:pr.get_value)+' contre '+eur(iAmFrom?pr.get_value:pr.give_value)+'</span></div></div>'+
+  '<div class="card"><div class="name" style="margin-bottom:4px">Tu donnes</div>'+snapRows(iGive)+'<div class="name" style="margin:12px 0 4px 0">Tu reçois</div>'+snapRows(iGet)+'<div class="note" style="margin-top:6px">Touche une carte pour voir ses photos et son estimation.</div><div class="kv"><span>Valeur à l\'envoi</span><span style="text-align:right">'+eur(iAmFrom?pr.give_value:pr.get_value)+' contre '+eur(iAmFrom?pr.get_value:pr.give_value)+'</span></div></div>'+
   '<div class="card" style="background:var(--surface2)"><div class="name" style="margin-bottom:6px">Avant le rendez-vous</div><div style="font-size:14px">Vérifie le certificat des cartes gradées.<br>Contrôle l\'état devant l\'autre personne.<br>Choisis un lieu public ou une boutique partenaire.</div></div>'+
-  act+review+chat+'</div></div>');
+  act+meetCard(pr,o)+confirmCard(pr,iAmFrom,o)+review+chat+'</div></div>');
 }
 
 /* ---------- profil ---------- */
@@ -787,6 +822,13 @@ function vSheet(){
   return '<div class="sheet-bg" data-a="backdrop"><div class="sheet" role="dialog" aria-modal="true" aria-label="Modifier"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div class="name" style="font-size:17px">Modifier cet item</div><button class="icon-btn" data-a="closesheet" aria-label="Fermer">✕</button></div><div class="stack">'+ff+
    (it.kind==='want'&&!it.photo_front?'':'<div><div class="name" style="font-size:14px">Photos</div><div class="note">Touche une photo pour la remplacer.</div><div class="editph">'+pbox('front','Recto',it.photo_front)+pbox('back','Verso',it.photo_back)+'</div></div>')+
    '<button class="btn primary" data-a="saveedit"'+(s.saving?' disabled':'')+'>'+(s.saving?'Enregistrement…':'Enregistrer')+'</button></div></div></div>';
+ }
+ if(s.kind==='meet'){
+  return '<div class="sheet-bg" data-a="backdrop"><div class="sheet" role="dialog" aria-modal="true" aria-label="Rendez-vous"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div class="name" style="font-size:17px">Proposer un rendez-vous</div><button class="icon-btn" data-a="closesheet" aria-label="Fermer">✕</button></div><div class="stack">'+
+   '<div><label class="muted" for="m-place">Lieu</label><input id="m-place" class="field" data-mf="place" maxlength="200" placeholder="Ex. Café des Carmes, Toulouse" autocomplete="off" value="'+esc(s.place)+'"></div>'+
+   '<div class="row2"><div><label class="muted" for="m-date">Date</label><input id="m-date" class="field" type="date" data-mf="date" min="'+esc(s.min)+'" value="'+esc(s.date)+'"></div><div><label class="muted" for="m-time">Heure</label><input id="m-time" class="field" type="time" data-mf="time" value="'+esc(s.time)+'"></div></div>'+
+   '<p class="note">Choisis un lieu public. '+esc(s.other||'L\'autre personne')+' pourra accepter, refuser ou proposer un autre moment.</p>'+
+   '<button class="btn primary" data-a="meetsave"'+(s.saving?' disabled':'')+'>'+(s.saving?'Envoi…':'Envoyer la proposition')+'</button></div></div></div>';
  }
  if(s.kind==='value'){
   return '<div class="sheet-bg" data-a="backdrop"><div class="sheet" role="dialog" aria-modal="true" aria-label="Estimation"><div class="name" style="font-size:17px">Ton estimation</div><p class="muted" style="margin:6px 0 10px 0">Montant en euros. Elle est affichée comme estimation personnelle.</p>'+
@@ -919,7 +961,7 @@ async function pollTick(){
   S.msgs=await DB.listMessages(t.id);
   var old=S.props.filter(function(x){return x.id===t.id;})[0],props=await DB.listProposals(),nw=props.filter(function(x){return x.id===t.id;})[0];
   S.props=props;
-  if(old&&nw&&old.status!==nw.status){render();return;}
+  if(old&&nw&&(old.status!==nw.status||JSON.stringify(old.meeting)!==JSON.stringify(nw.meeting)||old.confirm_from!==nw.confirm_from||old.confirm_to!==nw.confirm_to)){if(nw.status==='done'&&old.status!=='done'){await loadMine();await loadReviewState(t.id);}if(!S.sheet){render();}return;}
   var ch=$('#chat');if(ch){var atEnd=ch.scrollTop+ch.clientHeight>=ch.scrollHeight-30;ch.innerHTML=msgHtml();if(atEnd){ch.scrollTop=ch.scrollHeight;}}
  }catch(e){}
 }
@@ -1284,6 +1326,41 @@ var ACT={
   try{await DB.setProposalStatus(t.id,v);await loadProps();if(v==='done'){await loadReviewState(t.id);}render();}
   catch(e){toast(TK.frError(e));}
  },
+ meetopen:function(){
+  var t=top(),pr=S.props.filter(function(x){return x.id===t.id;})[0];if(!pr){return;}
+  var o=other(pr)||{},m=pr.meeting,d=new Date(Date.now()+2*864e5),pad=function(n){return ('0'+n).slice(-2);},ds=function(x){return x.getFullYear()+'-'+pad(x.getMonth()+1)+'-'+pad(x.getDate());};
+  S.sheet={kind:'meet',place:m&&m.by===S.user.id?m.place:'',date:ds(d),time:'14:00',min:ds(new Date()),other:o.pseudo,saving:false};
+  if(m&&m.by===S.user.id){var w=new Date(m.at);if(!isNaN(w)){S.sheet.date=ds(w);S.sheet.time=pad(w.getHours())+':'+pad(w.getMinutes());}}
+  render();
+ },
+ meetsave:async function(){
+  var sh=S.sheet,t=top();if(!sh||sh.kind!=='meet'||sh.saving){return;}
+  if(!sh.place.trim()){toast('Indique un lieu.');return;}
+  var at=new Date(sh.date+'T'+(sh.time||'12:00'));if(isNaN(at)){toast('Choisis une date et une heure.');return;}
+  if(at.getTime()<Date.now()){toast('Choisis un moment à venir.');return;}
+  sh.saving=true;render();
+  try{await DB.proposeMeeting(t.id,sh.place.trim(),at.toISOString());S.sheet=null;await loadProps();render();toast('Rendez-vous proposé');}
+  catch(e){sh.saving=false;render();toast(TK.frError(e));}
+ },
+ meetyes:async function(){var t=top();try{await DB.answerMeeting(t.id,true);await loadProps();render();toast('Rendez-vous accepté');}catch(e){toast(TK.frError(e));}},
+ meetno:async function(){var t=top();try{await DB.answerMeeting(t.id,false);await loadProps();render();}catch(e){toast(TK.frError(e));}},
+ confirmex:async function(){
+  var t=top();
+  try{
+   await DB.confirmExchange(t.id);await loadProps();
+   var pr=S.props.filter(function(x){return x.id===t.id;})[0];
+   if(pr&&pr.status==='done'){await loadMine();await loadReviewState(t.id);toast('Échange confirmé par vous deux');}
+   else{toast('Confirmé : en attente de l\'autre personne');}
+   render();
+  }catch(e){toast(TK.frError(e));}
+ },
+ demomeet:async function(){var t=top();await DB.demoReply(t.id,'meeting');await loadProps();render();},
+ democonfirm:async function(){
+  var t=top();await DB.demoReply(t.id,'confirm');await loadProps();
+  var pr=S.props.filter(function(x){return x.id===t.id;})[0];
+  if(pr&&pr.status==='done'){await loadMine();await loadReviewState(t.id);}
+  render();
+ },
  demoreply:async function(){var t=top();await DB.demoReply(t.id,'accepted');await loadProps();S.msgs=await DB.listMessages(t.id);render();},
  geoloc:function(){
   geolocate(async function(lat,lng){
@@ -1351,6 +1428,7 @@ document.addEventListener('toggle',function(e){var d=e.target;if(d&&d.classList&
 document.addEventListener('input',function(e){
  var t=e.target;
  if(t.getAttribute&&t.getAttribute('data-ef')&&S.sheet&&S.sheet.kind==='edit'){S.sheet.f[t.getAttribute('data-ef')]=t.value;}
+ if(t.getAttribute&&t.getAttribute('data-mf')&&S.sheet&&S.sheet.kind==='meet'){S.sheet[t.getAttribute('data-mf')]=t.value;}
  if(t.id==='aq'){S.add.q=t.value;liveSearch();}
  if(t.id==='zq'){S.zoneQ=t.value;zoneSearch(t.value);}
  if(t.id==='zslider'){TK.map.setZoom(+t.value);$('#rlabel').textContent=radiusLabel(TK.map.radiusKm(+t.value));}
@@ -1375,6 +1453,7 @@ var mapSearch=debounce(async function(q){
 },300);
 document.addEventListener('change',function(e){
  var t=e.target;
+ if(t.getAttribute&&t.getAttribute('data-mf')&&S.sheet&&S.sheet.kind==='meet'){S.sheet[t.getAttribute('data-mf')]=t.value;}
  if(t.id==='aset'){S.add.setId=t.value;if(S.add.type!=='sealed'){if(S.add.q.trim()||t.value){runSearch(true);}else{S.add.results=null;S.add.hint='';render();}}}
  if(t.getAttribute&&t.getAttribute('data-ef')&&S.sheet&&S.sheet.kind==='edit'){S.sheet.f[t.getAttribute('data-ef')]=t.value;}
  if(t.id==='ef-front'||t.id==='ef-back'){var es=t.id.slice(3),efl=t.files&&t.files[0];if(efl&&S.sheet&&S.sheet.kind==='edit'){TK.shrink(efl,1400).then(function(blob){if(S.sheet&&S.sheet.kind==='edit'){var o=S.sheet.photos[es];if(o){URL.revokeObjectURL(o.url);}S.sheet.photos[es]={blob:blob,url:URL.createObjectURL(blob)};render();}}).catch(function(err){toast(TK.frError(err));});}}

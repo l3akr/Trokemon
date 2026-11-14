@@ -72,11 +72,21 @@ function makeSupabase(){
    return sb.storage.from('photos').getPublicUrl(path).data.publicUrl;
   },
 
-  listMine:async function(){return chk(await sb.from('items').select('*').eq('user_id',uid).order('created_at',{ascending:false}));},
+  listMine:async function(){return chk(await sb.from('items').select('*').eq('user_id',uid).eq('status','active').order('created_at',{ascending:false}));},
   listOfUser:async function(id){return chk(await sb.from('items').select('*').eq('user_id',id).eq('status','active').order('created_at',{ascending:false}));},
-  addItem:async function(row){row.user_id=uid;return chk(await sb.from('items').insert(row).select().single());},
+  addItem:async function(row){
+   row.user_id=uid;
+   var r=await sb.from('items').insert(row).select().single();
+   /* base pas encore mise à jour (valeur saisie 'user' refusée) : on garde la valeur, sans l'étiquette */
+   if(r.error&&/value_source/i.test(r.error.message||'')&&row.value_source==='user'){row.value_source=null;r=await sb.from('items').insert(row).select().single();}
+   return chk(r);
+  },
   removeItem:async function(id){chk(await sb.from('items').delete().eq('id',id));},
-  updateItem:async function(id,patch){return chk(await sb.from('items').update(patch).eq('id',id).eq('user_id',uid).select().single());},
+  updateItem:async function(id,patch){
+   var r=await sb.from('items').update(patch).eq('id',id).eq('user_id',uid).select().single();
+   if(r.error&&/value_source/i.test(r.error.message||'')&&patch.value_source==='user'){patch.value_source=null;r=await sb.from('items').update(patch).eq('id',id).eq('user_id',uid).select().single();}
+   return chk(r);
+  },
   getItem:async function(id){
    return chk(await sb.from('items').select('*, owner:profiles(id,pseudo,avatar_url,energy,zone_label,zone_lat,zone_lng)').eq('id',id).single());
   },
@@ -97,6 +107,9 @@ function makeSupabase(){
    return chk(await sb.from('proposals').select('*, from_p:profiles!proposals_from_fkey(id,pseudo,avatar_url), to_p:profiles!proposals_to_fkey(id,pseudo,avatar_url)').order('created_at',{ascending:false}));
   },
   setProposalStatus:async function(id,status){return chk(await sb.from('proposals').update({status:status}).eq('id',id).select().single());},
+  proposeMeeting:async function(id,place,at){return chk(await sb.rpc('propose_meeting',{pid:id,place:place,at:at}));},
+  answerMeeting:async function(id,accept){return chk(await sb.rpc('answer_meeting',{pid:id,accept:accept}));},
+  confirmExchange:async function(id){return chk(await sb.rpc('confirm_exchange',{pid:id}));},
   listMessages:async function(pid){return chk(await sb.from('messages').select('*').eq('proposal_id',pid).order('created_at',{ascending:true}));},
   sendMessage:async function(pid,body){return chk(await sb.from('messages').insert({proposal_id:pid,sender:uid,body:body}).select().single());},
   showcase:async function(){return chk(await sb.rpc('showcase',{n:8}));},
@@ -127,8 +140,18 @@ function makeSupabase(){
 }
 
 /* =================== moteur démo =================== */
+function demoFinish(p){
+ if(!(p.confirm_from&&p.confirm_to)||p.status==='done'){return;}
+ var DBx=window.TK._demoDB;if(!DBx){return;}
+ p.status='done';
+ var mine={},keys=[];
+ (p.give||[]).forEach(function(g){mine[g.id]=1;});(p.get||[]).forEach(function(g){mine[g.id]=1;});
+ DBx.items.forEach(function(i){if(mine[i.id]){i.status='traded';}});
+ (p.get||[]).forEach(function(g){var it=DBx.items.filter(function(i){return i.id===g.id;})[0];if(it&&it.match_key){keys.push(it.match_key);}});
+ keys.forEach(function(k){var w=DBx.items.filter(function(i){return i.user_id==='me'&&i.kind==='want'&&i.status!=='traded'&&i.match_key===k;})[0];if(w){w.status='traded';}});
+}
 function makeDemo(){
- var DB={profiles:[],items:[],proposals:[],messages:[],reviews:[],stats:{}},me=null,seq=0;
+ var DB={profiles:[],items:[],proposals:[],messages:[],reviews:[],stats:{}},me=null,seq=0;window.TK._demoDB=DB;
  function nid(p){seq++;return p+seq;}
  function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
  function itemFrom(card,kind,uid,i){
@@ -199,7 +222,7 @@ function makeDemo(){
    Object.keys(patch).forEach(function(k){me[k]=patch[k];});return copy(me);
   },
   uploadPhoto:async function(blob){return URL.createObjectURL(blob);},
-  listMine:async function(){return copy(DB.items.filter(function(i){return i.user_id==='me';}).reverse());},
+  listMine:async function(){return copy(DB.items.filter(function(i){return i.user_id==='me'&&i.status!=='traded';}).reverse());},
   listOfUser:async function(id){return copy(DB.items.filter(function(i){return i.user_id===id&&i.status==='active';}).reverse());},
   addItem:async function(row){
    if(row.kind==='offer'&&!row.photo_optional&&!(row.photo_front&&row.photo_back)){throw new Error('offer_has_photos');}
@@ -225,9 +248,23 @@ function makeDemo(){
   setProposalStatus:async function(id,status){
    var p=DB.proposals.filter(function(x){return x.id===id;})[0];p.status=status;p.updated_at=new Date().toISOString();return copy(p);
   },
+  proposeMeeting:async function(id,place,at){
+   var p=DB.proposals.filter(function(x){return x.id===id;})[0];
+   if(!String(place||'').trim()){throw new Error('Indique un lieu');}
+   p.meeting={place:String(place).trim().slice(0,200),at:at,by:'me',status:'proposed'};return copy(p);
+  },
+  answerMeeting:async function(id,accept){
+   var p=DB.proposals.filter(function(x){return x.id===id;})[0];if(p.meeting){p.meeting.status=accept?'accepted':'declined';}return copy(p);
+  },
+  confirmExchange:async function(id){
+   var p=DB.proposals.filter(function(x){return x.id===id;})[0];p.confirm_from=true;demoFinish(p);return copy(p);
+  },
   /* Démo uniquement : simule la réponse de l'autre personne. */
   demoReply:async function(id,status){
-   var p=DB.proposals.filter(function(x){return x.id===id;})[0];p.status=status;
+   var p=DB.proposals.filter(function(x){return x.id===id;})[0];
+   if(status==='meeting'){if(p.meeting&&p.meeting.by==='me'){p.meeting.status='accepted';}else if(!p.meeting||p.meeting.status!=='proposed'){p.meeting={place:'Café des Carmes, Toulouse',at:new Date(Date.now()+3*864e5).toISOString(),by:p.to_user,status:'proposed'};}return;}
+   if(status==='confirm'){p.confirm_to=true;demoFinish(p);return;}
+   p.status=status;
    if(status==='accepted'){DB.messages.push({id:nid('m'),proposal_id:id,sender:p.to_user,body:'Ça me va ! Samedi en boutique, en début d\'après-midi ?',created_at:new Date().toISOString()});}
   },
   listMessages:async function(pid){return copy(DB.messages.filter(function(m){return m.proposal_id===pid;}));},
