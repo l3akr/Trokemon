@@ -299,3 +299,10 @@ details.sub .cgrid{padding-bottom:6px}
 .pbtn svg{display:block;width:100%;height:100%}
 .avedit{position:relative;background:none;border:0;padding:0;cursor:pointer;flex:none;border-radius:50%}
 .avbadge{position:absolute;right:-2px;bottom:-2px;width:26px;height:26px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;border:2px solid var(--bg)}
+
+.catw{position:relative;min-width:0}.catw>.cat{width:100%;height:100%}
+.qstep{position:absolute;left:6px;right:6px;top:calc(100% - 96px);display:flex;align-items:center;justify-content:space-between;background:rgba(10,11,13,.88);border:1px solid var(--accent);border-radius:999px;padding:2px;z-index:2}
+.qstep button{width:30px;height:30px;border-radius:50%;border:0;background:var(--accent);color:var(--on-accent);font-weight:800;font-size:18px;line-height:1;cursor:pointer;padding:0}
+.qstep button:disabled{opacity:.35}.qstep span{font-weight:800;min-width:20px;text-align:center}
+.pin{overflow:hidden;padding:0}.pin .av{width:30px!important;height:30px!important;box-shadow:none!important;font-size:14px!important}
+.pin .av.ph{background:var(--accent);color:var(--on-accent)}

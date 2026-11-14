@@ -348,7 +348,7 @@ function updatePreview(es){
 }
 function syncMap(){
  var es=mapEntries();
- TK.map.setEntries(es.map(function(e){return {id:e.p.id,letter:esc(e.p.pseudo.charAt(0).toUpperCase()),lat:e.p.zone_lat,lng:e.p.zone_lng,mutual:e.mutual,title:e.p.pseudo};}),S.selected);
+ TK.map.setEntries(es.map(function(e){return {id:e.p.id,letter:esc(e.p.pseudo.charAt(0).toUpperCase()),inner:avatar(e.p,30),lat:e.p.zone_lat,lng:e.p.zone_lng,mutual:e.mutual,title:e.p.pseudo};}),S.selected);
  updateList(es);updatePreview(es);
 }
 async function loadMapData(b){
@@ -496,8 +496,10 @@ function thumb(c){
 function nrm(x){return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
 function cardBtn(c){
  var a=S.add,sel=!!a.sel[c.card_id];a.byId[c.card_id]=c;
- return '<button class="cat'+(sel?' sel':'')+(a.busy===c.card_id?' busy':'')+'" data-a="pickcard" data-v="'+esc(c.card_id)+'" aria-pressed="'+sel+'">'+thumb(c)+(sel?'<span class="selbadge" aria-hidden="true">✓</span>':'')+(ownedCount(c.card_id)?'<span class="ownbadge">Déjà ×'+ownedCount(c.card_id)+'</span>':'')+
-  '<div class="bd"><div class="name" style="font-size:14px">'+label(c)+'</div><div class="muted" style="font-size:12px">'+esc(c.set_name||'')+'</div></div></button>';
+ var q=sel?(a.sel[c.card_id].qty||1):0,id=esc(c.card_id);
+ return '<div class="catw"><button class="cat'+(sel?' sel':'')+(a.busy===c.card_id?' busy':'')+'" data-a="pickcard" data-v="'+id+'" aria-pressed="'+sel+'">'+thumb(c)+(sel?'<span class="selbadge" aria-hidden="true">✓</span>':'')+(ownedCount(c.card_id)?'<span class="ownbadge">Déjà ×'+ownedCount(c.card_id)+'</span>':'')+
+  '<div class="bd"><div class="name" style="font-size:14px">'+label(c)+'</div><div class="muted" style="font-size:12px">'+esc(c.set_name||'')+'</div></div></button>'+
+  (sel?'<div class="qstep" role="group" aria-label="Quantité"><button data-a="tqty" data-v="'+id+'|-1" aria-label="Moins"'+(q<=1?' disabled':'')+'>−</button><span aria-live="polite">'+q+'</span><button data-a="tqty" data-v="'+id+'|1" aria-label="Plus"'+(q>=9?' disabled':'')+'>+</button></div>':'')+'</div>';
 }
 function loadSetCards(id){
  var a=S.add;if(!a||a.setCards[id]||a.setLoad[id]){return;}

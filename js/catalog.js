@@ -125,7 +125,7 @@ TK.buyLinks=function(it){
 
 /* ---------- catalogue TCGdex ---------- */
 var API='https://api.tcgdex.net/v2/fr';
-var setsCache=null,setIdx={};
+var setsCache=null,setIdx={},hiddenSets=[];
 
 TK.DEMO_SETS=[
  {id:'demo-151',name:'Écarlate et Violet 151',official:165},
@@ -205,9 +205,10 @@ function lowRarity(r,name){
 function numCmp(a,b){var x=parseInt(a,10),y=parseInt(b,10);if(isNaN(x)||isNaN(y)){return String(a).localeCompare(String(b));}return x-y;}
 function stripZ(x){return String(x==null?'':x).replace(/^0+(?=\d)/,'');}
 function cardOut(c,sid){
- var s=setIdx[sid],off=s&&s.official;
+ var s=setIdx[sid],off=s&&s.official,sn=s?s.name:sid;
+ if(sid==='30th-c'&&setIdx['30th']){sn=setIdx['30th'].name;}
  var img=c.image?c.image+'/low.webp':(sid&&sid.indexOf('demo-')!==0?'https://assets.tcgdex.net/fr/'+TK.eraOf(sid).serie+'/'+sid+'/'+c.localId+'/low.webp':null);
- return {card_id:c.id,name:c.name,localId:c.localId,number:off?c.localId+'/'+off:String(c.localId),set_id:sid,set_name:s?s.name:sid,set_abbr:abbrMap[sid]||null,image:img};
+ return {card_id:c.id,name:c.name,localId:c.localId,number:off?c.localId+'/'+off:String(c.localId),set_id:sid,set_name:sn,set_abbr:abbrMap[sid==='30th-c'?'30th':sid]||abbrMap[sid]||null,image:img};
 }
 /* Analyse « Mega Darkrai PBL 110/84 » -> mots, numéro, série reconnue par son sigle. */
 function parseQuery(q){
@@ -252,13 +253,13 @@ TK.catalog={
    if(!r.ok){throw new Error('catalogue');}
    var j=await r.json();
    setsCache=j.map(function(s){return {id:s.id,name:s.name,logo:s.logo?s.logo+'.png':null,symbol:s.symbol?s.symbol+'.png':null,official:s.cardCount&&s.cardCount.official,total:s.cardCount&&s.cardCount.total};}).reverse();
-   var i30=setsCache.map(function(s){return s.id;}).indexOf('30th-c'),j30=setsCache.map(function(s){return s.id;}).indexOf('30th');
-   if(i30>-1&&j30>-1){var sc=setsCache.splice(i30,1)[0];j30=setsCache.map(function(s){return s.id;}).indexOf('30th');setsCache.splice(j30+1,0,sc);}
+   var i30=setsCache.map(function(s){return s.id;}).indexOf('30th-c');
+   if(i30>-1&&setsCache.some(function(s){return s.id==='30th';})){hiddenSets.push(setsCache.splice(i30,1)[0]);}
   }catch(e){
    if(!TK.demo){throw new Error('Catalogue indisponible pour le moment. Réessaie dans un instant.');}
    setsCache=TK.DEMO_SETS.slice();TK.catalog.setAbbrs({'demo-nn':'PBL','demo-151':'MEW','demo-pe':'PRE','demo-base':'BS'});
   }
-  setsCache.forEach(function(s){setIdx[s.id]=s;});
+  setsCache.concat(hiddenSets).forEach(function(s){setIdx[s.id]=s;});
   TK.catalog.loadAbbr();TK.catalog.loadIndex();
   return setsCache;
  },
@@ -328,6 +329,9 @@ TK.catalog={
    if(sid&&setIdx[sid]){
     var set=await fetchSet(sid);
     list=matchLocal((set.cards||[]).map(function(c){return {id:c.id,localId:c.localId,name:c.name,image:c.image};}),p).map(function(c){return cardOut(c,sid);});
+    if(sid==='30th'&&setIdx['30th-c']){
+     try{var sc=await fetchSet('30th-c');list=list.concat(matchLocal((sc.cards||[]).map(function(c){return {id:c.id,localId:c.localId,name:c.name,image:c.image};}),p).map(function(c){return cardOut(c,'30th-c');}));}catch(e0){}
+    }
    }else{
     if(!cardIdx){TK.catalog.loadIndex();}
     var key=norm(p.words.slice().sort(function(a,b){return b.length-a.length;})[0]);

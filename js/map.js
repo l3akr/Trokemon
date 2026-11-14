@@ -113,7 +113,7 @@ TK.map={
   st.entries.slice().sort(function(a,b){return (a.id===st.sel?1:0)-(b.id===st.sel?1:0);}).forEach(function(e){
    var sel=e.id===st.sel;
    L.circle([e.lat,e.lng],{radius:ZONE_RADIUS_M,color:acc,weight:sel?3:2,fillColor:acc,fillOpacity:sel?.35:e.mutual?.26:.12,interactive:false}).addTo(st.layer);
-   var m=L.marker([e.lat,e.lng],{icon:L.divIcon({className:'tk-ic',html:'<div class="pin'+(sel?' sel':'')+(e.mutual?' mut':'')+'">'+e.letter+'</div>',iconSize:[34,34]}),keyboard:false,title:e.title||''});
+   var m=L.marker([e.lat,e.lng],{icon:L.divIcon({className:'tk-ic',html:'<div class="pin'+(sel?' sel':'')+(e.mutual?' mut':'')+'">'+(e.inner||e.letter)+'</div>',iconSize:[34,34]}),keyboard:false,title:e.title||''});
    m.on('click',function(ev){L.DomEvent.stopPropagation(ev);pick(e.id);});
    m.addTo(st.layer);
   });
