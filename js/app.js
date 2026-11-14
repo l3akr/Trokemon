@@ -136,6 +136,7 @@ function reviewList(list){
   (r.comment?'<p style="margin:8px 0 0 0;font-size:14px">'+esc(r.comment)+'</p>':'')+'</div>';
  }).join('');
 }
+function parseEur(v){var n=parseFloat(String(v||'').replace(/\s/g,'').replace(',','.'));return isFinite(n)&&n>0&&n<1e7?Math.round(n*100)/100:0;}
 function sumVal(list){return list.reduce(function(t,i){return t+(Number(i.value_eur)||0);},0);}
 
 /* ---------- navigation ---------- */
@@ -433,8 +434,8 @@ function vItem(t){
   (imgs.length>1?'<div class="seg" style="margin-top:8px" role="group" aria-label="Face">'+imgs.map(function(x,i){return '<button data-a="gimg" data-v="'+i+'" aria-pressed="'+(i===cur)+'">'+x[0]+'</button>';}).join('')+'</div>':''):
   '<div class="gmain cph" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</div>';
  var lv=t.live,foil=foilVariant(it.variant),val=it.value_eur,at=it.value_at,cmUrl=null;
- if(it.type==='loose'){cmUrl=(lv&&lv.idProduct)?lv.url:TK.cmUrl(it);if(lv&&(lv.price||lv.priceFoil)){val=foil?(lv.priceFoil||lv.price):(lv.price||lv.priceFoil);at=lv.updated;}}
- var src=(val!=null&&it.type==='loose')||it.value_source==='cardmarket'?'Cardmarket, toutes langues (via TCGdex)'+(at?' · mis à jour le '+when(at):''):(it.type==='loose'?'':'Pas encore de source de prix automatique pour ce type d\'item');
+ if(it.type==='loose'){cmUrl=(lv&&lv.idProduct)?lv.url:TK.cmUrl(it);if(lv&&lv.doubt&&it.value_source!=='user'){val=null;}else if(lv&&(lv.price||lv.priceFoil)){val=foil?(lv.priceFoil||lv.price):(lv.price||lv.priceFoil);at=lv.updated;}}
+ var src=it.value_source==='user'?'Estimation personnelle du propriétaire'+(at?' · le '+when(at):''):(val!=null&&it.type==='loose')||it.value_source==='cardmarket'?'Cardmarket, toutes langues (via TCGdex)'+(at?' · mis à jour le '+when(at):''):(it.type==='loose'?'':'Pas encore de source de prix automatique pour ce type d\'item');
  var buy='';
  if(it.type==='sealed'){
   var links=TK.buyLinks(it),aff=links.some(function(l){return l.aff;});
@@ -452,7 +453,7 @@ function vItem(t){
   (it.variant?kv('Version',esc(it.variant)):'')+
   (it.type==='loose'?kv('État',esc(it.condition||'')):'')+
   (it.type==='graded'?kv('Grade',esc((it.grade_company||'')+' '+(it.grade||'')))+kv('N° de certificat',esc(it.cert||'')):'')+
-  kv('Estimation',(cmUrl?'<a class="estlink" target="_blank" rel="noopener" href="'+esc(cmUrl)+'" title="Voir sur Cardmarket"><b>'+eur(val)+'</b> ↗</a>':'<b>'+eur(val)+'</b>')+(src?'<br><span class="muted">'+src+'</span>':''))+
+  kv('Estimation',(cmUrl?'<a class="estlink" target="_blank" rel="noopener" href="'+esc(cmUrl)+'" title="Voir sur Cardmarket"><b>'+eur(val)+'</b> ↗</a>':'<b>'+eur(val)+'</b>')+(src?'<br><span class="muted">'+src+'</span>':'')+(mine&&(it.type!=='loose'||it.value_source==='user'||(lv&&lv.doubt))?'<br><button class="btn sm" style="margin-top:8px" data-a="editvalue" data-v="'+esc(it.id)+'">'+(val!=null?'Modifier l\'estimation':'Ajouter une estimation')+'</button>':''))+
   (it.notes?kv('Note',esc(it.notes)):'')+
   '<p class="note" style="margin:8px 0 0 0">Estimation indicative toutes langues confondues, pas un prix garanti. Le lien ouvre Cardmarket filtré sur le français pour comparer.'+(it.type==='graded'?' Vérifie le certificat auprès de la société de gradation.':'')+'</p></div>'+
   buy+seller+'</div></div>'+(actions?'<div class="foot">'+actions+'</div>':''));
@@ -642,10 +643,12 @@ function vAddForm(title){
   '<div><label class="muted" for="f-cert">N° de certificat'+(offer?' *':'')+'</label><input id="f-cert" class="field" data-f="cert" value="'+esc(f.cert)+'" placeholder="Visible sur l\'étiquette de la slab"></div>';}
  if(a.type==='loose'&&a.price&&a.price.variants&&a.price.variants.length){fields+='<div><div class="name" style="margin-bottom:6px">Version</div><div class="vchips" role="group" aria-label="Version">'+a.price.variants.map(function(v){return '<button class="vchip" data-a="svar" data-v="'+esc(v)+'" aria-pressed="'+(f.variant===v)+'">'+esc(v)+'</button>';}).join('')+'</div></div>';}
  var priceNote;
- if(a.type==='loose'){priceNote=a.price&&a.price.price?'Cote automatique Cardmarket (toutes langues) : <a class="estlink" target="_blank" rel="noopener" href="'+esc(a.price.idProduct?a.price.url:TK.cmUrl(a.picked))+'"><b>'+eur(a.price.price)+'</b> ↗</a> (mise à jour le '+when(a.price.updated)+'). Elle est calculée pour toi et ne peut pas être modifiée.':'Cote automatique en cours de chargement ou indisponible pour cette carte.';}
- else if(a.type==='graded'){priceNote=(a.price&&a.price.price?'Repère : la carte non gradée vaut '+eur(a.price.price)+' sur Cardmarket. ':'')+'Pas d\'estimation automatique pour les cartes gradées en bêta : la valeur affichée sera « indisponible ».';}
- else{priceNote='Pas d\'estimation automatique pour les produits scellés en bêta : la valeur affichée sera « indisponible ».';}
- fields+='<div class="card" style="background:var(--surface2)"><div class="name" style="font-size:14px">Estimation</div><div class="note" style="margin-top:4px">'+priceNote+'</div></div>';
+ if(a.type==='loose'){priceNote=a.price&&a.price.price?'Cote automatique Cardmarket (toutes langues) : <a class="estlink" target="_blank" rel="noopener" href="'+esc(a.price.idProduct?a.price.url:TK.cmUrl(a.picked))+'"><b>'+eur(a.price.price)+'</b> ↗</a> (mise à jour le '+when(a.price.updated)+'). Elle est calculée pour toi et ne peut pas être modifiée.':(a.price&&a.price.doubt?'Cote automatique non fiable pour cette version (même produit Cardmarket que la carte de base du set). Saisis ta propre estimation ci-dessous.':'Cote automatique en cours de chargement ou indisponible pour cette carte.');}
+ else if(a.type==='graded'){priceNote=(a.price&&a.price.price?'Repère : la carte non gradée vaut '+eur(a.price.price)+' sur Cardmarket. ':'')+'Pas d\'estimation automatique pour les cartes gradées en bêta : saisis la tienne ci-dessous, sinon « indisponible ».';}
+ else{priceNote='Pas d\'estimation automatique pour les produits scellés en bêta : saisis la tienne ci-dessous, sinon « indisponible ».';}
+ var hasAuto=a.type==='loose'&&a.price&&a.price.price;
+ fields+='<div class="card" style="background:var(--surface2)"><div class="name" style="font-size:14px">Estimation</div><div class="note" style="margin-top:4px">'+priceNote+'</div>'+
+  (hasAuto?'':'<label class="muted" for="f-value" style="display:block;margin-top:10px">Ta propre estimation en € (facultatif, modifiable plus tard)</label><input id="f-value" class="field" data-f="value" inputmode="decimal" placeholder="Ex. 45" value="'+esc(f.value)+'">')+'</div>';
  var optPh=a.type==='loose'&&a.price&&a.price.low&&!p.manual;
  if(offer){fields+='<div><div class="name" style="margin-bottom:2px">Photos'+(optPh?' (facultatives)':' *')+'</div><div class="note" style="margin-bottom:8px">'+(optPh?'Carte courante : les photos ne sont pas obligatoires, mais elles rassurent. Si tu en ajoutes, mets le recto et le verso.':'Recto et verso obligatoires.')+' Photos non retouchées, bien éclairées, '+(a.type==='sealed'?'face avant et arrière de la boîte.':a.type==='graded'?'face avant et arrière de la slab, étiquette lisible.':'carte à plat, coins visibles.')+'</div><div class="row2">'+photoBox('front','Recto')+photoBox('back','Verso')+'</div></div>';}
  fields+='<div><label class="muted" for="f-notes">Note (facultatif)</label><textarea id="f-notes" class="field" data-f="notes" rows="2" maxlength="500" style="padding:10px 12px;resize:vertical">'+esc(f.notes)+'</textarea></div>';
@@ -744,6 +747,12 @@ function vProfil(){
 function sideLabel(side){return side==='front'?'Recto':'Verso';}
 function vSheet(){
  var s=S.sheet;if(!s){return '';}
+ if(s.kind==='value'){
+  return '<div class="sheet-bg" data-a="backdrop"><div class="sheet" role="dialog" aria-modal="true" aria-label="Estimation"><div class="name" style="font-size:17px">Ton estimation</div><p class="muted" style="margin:6px 0 10px 0">Montant en euros. Elle est affichée comme estimation personnelle.</p>'+
+   '<input id="valin" class="field" inputmode="decimal" placeholder="Ex. 45" value="'+esc(s.cur==null?'':String(s.cur).replace('.',','))+'" autocomplete="off">'+
+   '<div class="row2" style="margin-top:12px"><button class="btn" data-a="closesheet">Annuler</button><button class="btn primary" data-a="savevalue">Enregistrer</button></div>'+
+   (s.cur!=null?'<button class="btn ghost" style="margin-top:6px" data-a="clearvalue">Retirer l\'estimation</button>':'')+'</div></div>';
+ }
  if(s.kind==='avatar'){
   return '<div class="sheet-bg" data-a="backdrop"><div class="sheet" role="dialog" aria-modal="true" aria-label="Photo de profil"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div class="name" style="font-size:17px">Photo de profil</div><button class="icon-btn" data-a="closesheet" aria-label="Fermer">✕</button></div>'+
    presetGrid('setpreset')+'<input type="file" accept="image/*" id="photofile2" hidden><button class="btn primary" data-a="pickphoto" style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px">'+ico(I.camera,20)+'Envoyer ma propre photo</button></div></div>';
@@ -858,6 +867,14 @@ function geolocate(cb){
 async function saveProfile(patch){
  try{S.user=await DB.updateProfile(patch);return true;}catch(e){toast(TK.frError(e));return false;}
 }
+async function setValue(n){
+ var id=S.sheet&&S.sheet.id;if(!id){return;}
+ try{
+  var upd=await DB.updateItem(id,{value_eur:n,value_source:n==null?null:'user',value_at:n==null?null:new Date().toISOString()});
+  var t=top();if(t&&t.data&&t.data.id===id){Object.assign(t.data,upd||{});}
+  S.sheet=null;await loadMine();render();toast('Estimation enregistrée');
+ }catch(e){toast(TK.frError(e));}
+}
 async function setAvatar(file){
  if(!/^image\//.test(file.type)){toast('Choisis un fichier image.');return;}
  try{
@@ -875,7 +892,7 @@ async function openItem(id){
   try{t.stats=await DB.getStats(t.data.user_id);if(top()===t){render();}}catch(e){}
  }
  if(t.data&&t.data.type==='loose'&&t.data.card_id&&String(t.data.card_id).indexOf('d')!==0){
-  try{var lv=await TK.catalog.detail(t.data.card_id);if(lv){t.live=lv;if(top()===t){render();}}}catch(e){}
+  try{var lv=await TK.catalog.detail(t.data.card_id);if(lv){t.live=lv;if(lv.doubt&&S.user&&t.data.user_id===S.user.id&&t.data.value_source==='cardmarket'){try{var up=await DB.updateItem(t.data.id,{value_eur:null,value_source:null,value_at:null});Object.assign(t.data,up||{value_eur:null,value_source:null});loadMine();}catch(e6){}}if(top()===t){render();}}}catch(e){}
  }
 }
 async function openProfile(id){
@@ -913,7 +930,7 @@ async function loadReviewState(pid){
 }
 function startAdd(kind){
  S.add={kind:kind,type:'loose',q:'',setId:'',byId:{},setCards:{},setLoad:{},results:null,hint:'',shown:60,sel:{},busy:null,tok:0,loading:false,err:'',picked:null,price:null,saving:false,
-  f:{variant:'',condition:'Near Mint',company:'PSA',grade:'',cert:'',notes:'',sealedKind:TK.SEALED_KINDS[0],custom:'',name:'',number:'',setName:''},photos:{front:null,back:null}};
+  f:{variant:'',condition:'Near Mint',company:'PSA',grade:'',cert:'',notes:'',sealedKind:TK.SEALED_KINDS[0],custom:'',name:'',number:'',setName:'',value:''},photos:{front:null,back:null}};
  nav({name:'add'});
  TK.catalog.sets().then(function(s){S.sets=s;if(top()&&top().name==='add'){render();}}).catch(function(e){S.add.err=TK.frError(e);render();});
 }
@@ -980,14 +997,14 @@ async function submitAdd(){
   }
   var vsel=type==='loose'&&f.variant?f.variant:null;
   var pr=a.price?(foilVariant(vsel)?(a.price.priceFoil||a.price.price):a.price.price):null;
-  var auto=type==='loose'&&pr>0;
+  var auto=type==='loose'&&pr>0,uv=auto?0:parseEur(f.value);
   var row={
    kind:a.kind,type:type,
    name:p.manual?f.name.trim():p.name,number:p.manual?(f.number.trim()||null):(p.number||null),
    set_id:p.set_id||null,set_name:p.manual?(f.setName.trim()||null):(p.set_name||null),
    card_id:(p.manual||type==='sealed')?null:p.card_id,catalog_image:p.image||null,
    condition:type==='loose'?f.condition:null,grade_company:type==='graded'?f.company:null,grade:type==='graded'?(f.grade.trim()||null):null,cert:type==='graded'?(f.cert.trim()||null):null,
-   value_eur:auto?pr:null,value_source:auto?'cardmarket':null,value_at:auto?a.price.updated:null,
+   value_eur:auto?pr:uv>0?uv:null,value_source:auto?'cardmarket':uv>0?'user':null,value_at:auto?a.price.updated:uv>0?new Date().toISOString():null,
    notes:f.notes.trim()||null,photo_front:front,photo_back:back,
    set_abbr:p.manual?null:(p.set_abbr||TK.catalog.abbr(p.set_id)||null),variant:vsel,photo_optional:offer&&type==='loose'&&!front&&!back
   };
@@ -1009,6 +1026,9 @@ var ACT={
  },
  saveenergy:async function(){if(await saveProfile({energy:S.energy})){S.zonePick=null;S.zoneRes=[];S.zoneQ='';goto('zone');}},
  pickphoto:function(){var i=$('#photofile2')||$('#photofile');if(i){i.click();}},
+ editvalue:function(v){var t=top();var it=t&&t.data;S.sheet={kind:'value',id:v,cur:it&&it.value_eur!=null?Number(it.value_eur):null};render();},
+ savevalue:async function(){var n=parseEur(($('#valin')||{}).value);if(!n){toast('Entre un montant valide.');return;}await setValue(n);},
+ clearvalue:async function(){await setValue(null);},
  editavatar:function(){S.sheet={kind:'avatar'};render();},
  setpreset:async function(v){if(await saveProfile({avatar_url:'preset:'+(+v)})){if(S.sheet&&S.sheet.kind==='avatar'){S.sheet=null;}render();}},
  photonext:async function(){
@@ -1220,7 +1240,7 @@ document.addEventListener('submit',async function(e){
   }
  }catch(err){S.err=TK.frError(err);render();}
 });
-document.addEventListener('toggle',function(e){var d=e.target;if(d&&d.classList&&d.classList.contains('grp')){S.open[d.getAttribute('data-gk')]=d.open;if(d.open&&d.getAttribute('data-set')&&S.add&&!S.add.picked){loadSetCards(d.getAttribute('data-set'));}}},true);
+document.addEventListener('toggle',function(e){var d=e.target;if(d&&d.classList&&d.classList.contains('grp')){var gk0=d.getAttribute('data-gk'),was=!!S.open[gk0];S.open[gk0]=d.open;if(d.open!==was&&/^s[ke]\|/.test(gk0)&&S.add){render();}if(d.open&&d.getAttribute('data-set')&&S.add&&!S.add.picked){loadSetCards(d.getAttribute('data-set'));}}},true);
 document.addEventListener('input',function(e){
  var t=e.target;
  if(t.id==='aq'){S.add.q=t.value;liveSearch();}

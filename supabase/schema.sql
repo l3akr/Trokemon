@@ -193,12 +193,12 @@ drop policy if exists photos_delete_own on storage.objects;
 create policy photos_delete_own on storage.objects for delete to authenticated
   using (bucket_id = 'photos' and (storage.foldername(name))[1] = auth.uid()::text);
 
--- ---------- Estimations : uniquement issues d'API (plus de saisie libre) ----------
+-- ---------- Estimations : API (cardmarket) ou saisie personnelle du propriétaire (user) ----------
 alter table public.items drop constraint if exists items_value_source_check;
 update public.items set value_eur = null, value_source = null, value_at = null
-  where value_source is not null and value_source not in ('cardmarket', 'tcgplayer');
+  where value_source is not null and value_source not in ('cardmarket', 'tcgplayer', 'user');
 alter table public.items add constraint items_value_source_check
-  check (value_source is null or value_source in ('cardmarket', 'tcgplayer'));
+  check (value_source is null or value_source in ('cardmarket', 'tcgplayer', 'user'));
 
 -- ---------- Avis après un échange ----------
 create table if not exists public.reviews (

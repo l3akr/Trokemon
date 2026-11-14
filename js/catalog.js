@@ -100,7 +100,9 @@ TK.SEALED_KINDS=['Display','Booster','Coffret Dresseur d\'élite (ETB)','Tripack
 /* Lien Cardmarket : fiche produit si l'identifiant est connu, sinon recherche des singles. */
 TK.cmUrl=function(it,idProduct){
  if(idProduct){return 'https://www.cardmarket.com/fr/Pokemon/Products?idProduct='+encodeURIComponent(idProduct)+'&language=2';}
- var base=String(it.name||'').trim();
+ var base=String(it.name||'').replace(/[‐-―\-]+/g,' ').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\s+/g,' ').trim();
+ var ab=it.set_abbr||(it.set_id&&TK.catalog&&TK.catalog.abbr?TK.catalog.abbr(it.set_id):null),ln=String(it.number||it.localId||'').split('/')[0].replace(/\D/g,'');
+ if(ab&&ln){base+=' '+ab+' '+('000'+ln).slice(-3);}
  return 'https://www.cardmarket.com/fr/Pokemon/Products/Singles?searchString='+encodeURIComponent(base)+'&language=2';
 };
 /* Images d'un item : catalogue enregistré, sinon reconstruite depuis la série et le numéro. */
@@ -356,8 +358,25 @@ TK.catalog={
    if(!out.length){var vv=c.variants||{};if(vv.normal){out.push('Normale');}if(vv.reverse){out.push('Reverse');}if(vv.holo){out.push('Holo');}if(vv.firstEdition){out.push('1re édition');}}
    if(!out.length){out.push('Normale');}
    if(c.set&&c.set.id&&c.set.abbreviation){setAbbr(c.set.id,c.set.abbreviation.official||c.set.abbreviation.normal);}
-   var idp=cm.idProduct||cm.productId||null;
-   return {url:TK.cmUrl({name:c.name,number:c.localId,set_abbr:abbrMap[(c.set&&c.set.id)||'']},idp),idProduct:idp,price:price||foil,priceFoil:foil||price,updated:at?at.toISOString():new Date().toISOString(),image:c.image?c.image+'/high.webp':null,rarity:c.rarity||null,low:lowRarity(c.rarity,c.name),variants:out};
+   var idp=cm.idProduct||cm.productId||null,doubt=false;
+   /* TCGdex associe parfois plusieurs versions d'une même carte (ex. 084 et 138 dans le même set) au même produit Cardmarket.
+      Si une carte de même nom et de numéro inférieur dans ce set a le même produit ou la même cote, on n'a aucune cote fiable pour celle-ci. */
+   try{
+    if((idp||price)&&c.set&&c.set.id){
+     var sr=await fetch(API+'/sets/'+encodeURIComponent(c.set.id));
+     if(sr.ok){
+      var sj=await sr.json(),mine=Number(c.localId),sib=(sj.cards||[]).filter(function(x){return x.name===c.name&&x.id!==c.id&&Number(x.localId)<mine;}).slice(0,4);
+      for(var si=0;si<sib.length&&!doubt;si++){
+       var xr=await fetch(API+'/cards/'+encodeURIComponent(sib[si].id));
+       if(!xr.ok){continue;}
+       var xc=await xr.json(),xm=(xc.pricing&&xc.pricing.cardmarket)||{},xi=xm.idProduct||xm.productId||null;
+       if((idp&&xi&&String(xi)===String(idp))||(!idp&&price&&first(xm,['trend','avg','avg7','avg30','low'])===price)){doubt=true;}
+      }
+     }
+    }
+   }catch(e5){}
+   if(doubt){idp=null;price=null;foil=null;}
+   return {doubt:doubt,url:TK.cmUrl({name:c.name,number:c.localId,set_abbr:abbrMap[(c.set&&c.set.id)||'']},idp),idProduct:idp,price:price||foil,priceFoil:foil||price,updated:at?at.toISOString():new Date().toISOString(),image:c.image?c.image+'/high.webp':null,rarity:c.rarity||null,low:lowRarity(c.rarity,c.name),variants:out};
   }catch(e){return null;}
  }
 };

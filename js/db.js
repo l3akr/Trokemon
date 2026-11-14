@@ -75,6 +75,7 @@ function makeSupabase(){
   listOfUser:async function(id){return chk(await sb.from('items').select('*').eq('user_id',id).eq('status','active').order('created_at',{ascending:false}));},
   addItem:async function(row){row.user_id=uid;return chk(await sb.from('items').insert(row).select().single());},
   removeItem:async function(id){chk(await sb.from('items').delete().eq('id',id));},
+  updateItem:async function(id,patch){return chk(await sb.from('items').update(patch).eq('id',id).eq('user_id',uid).select().single());},
   getItem:async function(id){
    return chk(await sb.from('items').select('*, owner:profiles(id,pseudo,avatar_url,energy,zone_label,zone_lat,zone_lng)').eq('id',id).single());
   },
@@ -203,6 +204,7 @@ function makeDemo(){
    row.id=nid('i');row.user_id='me';row.status='active';row.created_at=new Date().toISOString();DB.items.push(row);return copy(row);
   },
   removeItem:async function(id){DB.items=DB.items.filter(function(i){return i.id!==id;});},
+  updateItem:async function(id,patch){var it=DB.items.filter(function(i){return i.id===id&&i.user_id==='me';})[0];if(!it){throw new Error('Item introuvable.');}Object.assign(it,patch);return copy(it);},
   getItem:async function(id){
    var it=DB.items.filter(function(i){return i.id===id;})[0];if(!it){throw new Error('Item introuvable.');}
    var o=copy(it);o.owner=copy(prof(it.user_id));return o;
