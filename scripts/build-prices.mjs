@@ -46,7 +46,7 @@ export function build(products, guide, sets) {
     for (const [i, o] of ov) { const s = o / (e.names.size + tsets[i].names.size - o); if (s > bs) { bs = s; bi = i; } }
     if (bi >= 0 && bs >= 0.5 && (!best.has(bi) || best.get(bi).score < bs)) best.set(bi, { exp: e, score: bs });
   }
-  const out = {}, rep = { sets: [], unsetted: [], ambiguous: [], unmatched: 0, matched: 0 };
+  const out = {}, rep = { sets: [], unsetted: [], ambiguous: [], dups: [], approx: 0, unmatched: 0, matched: 0 };
   const priced = id => { const g = guide[id]; return g ? [id, g.trend ?? null, g.avg ?? null, g.low ?? null, g['trend-holo'] ?? null] : [id, null, null, null, null]; };
   tsets.forEach((s, i) => {
     const b = best.get(i);
@@ -59,6 +59,11 @@ export function build(products, guide, sets) {
         for (const p of prods) { const c = cards.find(c => lid(c) === p.num); if (c) { out[c.id] = priced(p.id); rep.matched++; } }
       } else if (prods.length === cards.length) {
         cards.forEach((c, k) => { out[c.id] = priced(prods[k].id); rep.matched++; });
+        if (cards.length > 1) rep.dups.push(`${s.id} ${cards[0].name} : ` + cards.map((c, k) => `${c.localId}→${prods[k].id}`).join(', '));
+      } else if (prods.length > cards.length) {
+        /* produits en trop (variantes ajoutées plus tard : tampons, 1re édition…) : on garde les plus anciens */
+        cards.forEach((c, k) => { out[c.id] = priced(prods[k].id); rep.matched++; rep.approx++; });
+        rep.dups.push(`${s.id} ${cards[0].name} [approx, ${prods.length} produits] : ` + cards.map((c, k) => `${c.localId}→${prods[k].id}`).join(', '));
       } else {
         rep.ambiguous.push(`${s.id} « ${cards[0].name} » : ${cards.length} cartes TCGdex (${cards.map(c => c.localId).join(',')}) contre ${prods.length} produits Cardmarket (${prods.map(p => p.id).join(',')})`);
         rep.unmatched += cards.length;
@@ -88,8 +93,10 @@ async function main() {
   const { out, rep } = build(cat.products, guide, sets);
   fs.mkdirSync('data', { recursive: true });
   fs.writeFileSync('data/prices.json', JSON.stringify({ createdAt: pg.createdAt, c: out }));
+  const recent = rep.dups.slice(-250);
   const L = a => a.slice(0, 300).map(x => '- ' + x).join('\n') + (a.length > 300 ? `\n- … (+${a.length - 300})` : '');
-  fs.writeFileSync('data/report.md', `# Rapport prix Cardmarket\n\nGénéré : ${new Date().toISOString()} (guide du ${pg.createdAt})\n\n- Cartes associées : ${rep.matched}\n- Cartes sans produit : ${rep.unmatched}\n- Sets TCGdex associés : ${rep.sets.length} / ${sets.length}\n\n## Sets non associés\n${L(rep.unsetted)}\n\n## Cas ambigus (non associés)\n${L(rep.ambiguous)}\n\n## Associations de sets\n${L(rep.sets)}\n`);
+  fs.writeFileSync('data/report.md', `# Rapport prix Cardmarket\n\nGénéré : ${new Date().toISOString()} (guide du ${pg.createdAt})\n\n- Cartes associées : ${rep.matched}\n- Cartes sans produit : ${rep.unmatched}\n- Dont associées par approximation (produits en trop) : ${rep.approx}\n- Sets TCGdex associés : ${rep.sets.length} / ${sets.length}\n\n## Sets non associés\n${L(rep.unsetted)}\n\n## Cas ambigus (non associés, sets récents d'abord ; liste complète dans data/ambiguous.md)\n${L(rep.ambiguous.slice().reverse())}\n\n## Doublons de nom associés par ordre (sets récents en dernier)\n${L(recent)}\n\n## Associations de sets\n${L(rep.sets)}\n`);
+  fs.writeFileSync('data/ambiguous.md', '# Cas non associés\\n\\n' + rep.ambiguous.map(x => '- ' + x).join('\\n') + '\\n');
   console.log(`associées ${rep.matched}, sans produit ${rep.unmatched}, ambiguës ${rep.ambiguous.length}`);
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) main().catch(e => { console.error(e); process.exit(1); });
