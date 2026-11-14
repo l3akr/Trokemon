@@ -80,7 +80,7 @@ function toast(t){var el=$('#toast');el.textContent=t;el.hidden=false;clearTimeo
 function phColor(s){var h=0;for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))%360;}return 'hsl('+h+' 28% 22%)';}
 function cardImg(it){
  var src=it.photo_front||it.catalog_image;
- return src?'<img class="cimg" loading="lazy" alt="" data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(src)+'">':'<span class="cph" aria-hidden="true" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</span>';
+ return src?'<img class="cimg'+(it.type==='sealed'&&it.photo_front?' free':'')+'" loading="lazy" alt="" data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(src)+'">':'<span class="cph" aria-hidden="true" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</span>';
 }
 var PRESETS=[
  ['#F5C842','#2B2410','M50 22l8 20 22 2-17 14 6 22-19-12-19 12 6-22-17-14 22-2z'],
@@ -443,7 +443,7 @@ function vItem(t){
  if(it.photo_back){imgs.push(['Verso',it.photo_back]);}
  var cat=TK.catImg(it,'high');if(!imgs.length&&cat){imgs.push(['Catalogue',cat]);}
  var cur=Math.min(t.img||0,imgs.length-1);
- var gal=imgs.length?'<button class="gbtn" data-a="light" data-v="'+cur+'" aria-label="Agrandir la photo"><img class="gmain" data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(imgs[cur][1])+'" alt="'+esc(it.name+' - '+imgs[cur][0])+'"></button>'+
+ var gal=imgs.length?'<button class="gbtn" data-a="light" data-v="'+cur+'" aria-label="Agrandir la photo"><img class="gmain'+(it.type==='sealed'?' free':'')+'" data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(imgs[cur][1])+'" alt="'+esc(it.name+' - '+imgs[cur][0])+'"></button>'+
   (imgs.length>1?'<div class="seg" style="margin-top:8px" role="group" aria-label="Face">'+imgs.map(function(x,i){return '<button data-a="gimg" data-v="'+i+'" aria-pressed="'+(i===cur)+'">'+x[0]+'</button>';}).join('')+'</div>':''):
   '<div class="gmain cph" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</div>';
  var lv=t.live,foil=foilVariant(it.variant),val=it.value_eur,at=it.value_at,cmUrl=null;
@@ -645,7 +645,7 @@ function vAdd(){
 }
 function photoBox(side,lbl){
  var ph=S.add.photos[side];
- return '<div><button class="photobox'+(ph?' ok':'')+'" data-a="pickside" data-v="'+side+'" aria-label="'+(ph?'Changer la photo ':'Ajouter la photo ')+lbl.toLowerCase()+'">'+
+ return '<div><button class="photobox'+(ph?' ok':'')+(S.add.type==='sealed'?' free':'')+'" data-a="pickside" data-v="'+side+'" aria-label="'+(ph?'Changer la photo ':'Ajouter la photo ')+lbl.toLowerCase()+'">'+
   (ph?'<img src="'+esc(ph.url)+'" alt="Aperçu '+lbl.toLowerCase()+'">':ico(I.camera,28)+'<span>'+lbl+(S.add.type==='loose'&&S.add.price&&S.add.price.low&&!S.add.picked.manual?'':' *')+'</span>')+'</button><input type="file" accept="image/*" id="pf-'+side+'" hidden></div>';
 }
 function addMissing(){
@@ -1142,7 +1142,8 @@ var ACT={
   function setP(blob){var o=S.sheet&&S.sheet.photos[side];if(o){URL.revokeObjectURL(o.url);}if(S.sheet){S.sheet.photos[side]={blob:blob,url:URL.createObjectURL(blob)};render();}}
   function viaFile(){var i=$('#ef-'+side);if(i){i.click();}}
   if(!TK.camera.supported()){viaFile();return;}
-  TK.camera.open({hint:'Place la '+(side==='front'?'face avant':'face arrière')+' dans le cadre, bien à plat',onShot:setP,onGallery:function(f){TK.shrink(f,1400).then(setP).catch(function(err){toast(TK.frError(err));});},onFail:function(){toast('Caméra indisponible : choisis une photo dans la galerie.');viaFile();}});
+  var t1=top(),fr1=t1&&t1.data&&t1.data.type==='sealed';
+  TK.camera.open({free:fr1,hint:fr1?'Cadre ton produit comme tu veux':'Place la '+(side==='front'?'face avant':'face arrière')+' dans le cadre, bien à plat',onShot:setP,onGallery:function(f){TK.shrink(f,1400).then(setP).catch(function(err){toast(TK.frError(err));});},onFail:function(){toast('Caméra indisponible : choisis une photo dans la galerie.');viaFile();}});
  },
  saveedit:async function(){
   var s=S.sheet,t=top(),it=t&&t.data;if(!s||s.kind!=='edit'||!it||s.saving){return;}
@@ -1276,8 +1277,10 @@ var ACT={
   var sh=S.sheet;if(!sh){return;}var side=sh.side;
   function viaFile(){var i=$('#sf-cam');if(i){i.click();}}
   if(!TK.camera.supported()){viaFile();return;}
+  var fr2=!!(S.add&&S.add.type==='sealed');
   TK.camera.open({
-   hint:'Place la '+(side==='front'?'face avant':'face arrière')+' dans le cadre, bien à plat',
+   free:fr2,
+   hint:fr2?'Cadre ton produit comme tu veux':'Place la '+(side==='front'?'face avant':'face arrière')+' dans le cadre, bien à plat',
    onShot:function(blob){S.sheet={kind:'photocheck',side:side,blob:blob,url:URL.createObjectURL(blob)};render();},
    onGallery:function(f){TK.shrink(f,1400).then(function(blob){S.sheet={kind:'photocheck',side:side,blob:blob,url:URL.createObjectURL(blob)};render();}).catch(function(err){toast(TK.frError(err));});},
    onFail:function(){toast('Caméra indisponible : choisis une photo dans la galerie.');}

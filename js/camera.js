@@ -31,6 +31,7 @@ TK.camera={
   ov.innerHTML='<video playsinline muted autoplay></video><div class="camframe"></div><div class="camhint"></div>'+
    '<div class="cambar"><button type="button" class="camb" data-c="close" aria-label="Fermer">✕</button><button type="button" class="camshot" data-c="shot" aria-label="Prendre la photo"></button><button type="button" class="camb" data-c="torch" aria-label="Flash" aria-pressed="false" style="visibility:hidden">⚡</button></div>'+
    '<button type="button" class="camgal" data-c="gal">Galerie</button><button type="button" class="camauto" data-c="auto" aria-pressed="true">Auto</button><input type="file" accept="image/*" hidden>';
+  if(opt.free){ov.classList.add('free');}
   var hint=ov.querySelector('.camhint'),base=opt.hint||'Place la carte dans le cadre, bien à plat';
   hint.textContent=base;
   document.body.appendChild(ov);
@@ -48,7 +49,7 @@ TK.camera={
   /* zone de la vidéo (en pixels source) qui correspond au cadre agrandi de EXPAND */
   function region(e){
    var vw=v.videoWidth,vh=v.videoHeight;if(!vw||!vh){return null;}
-   var r=v.getBoundingClientRect(),f=fr.getBoundingClientRect();
+   var r=v.getBoundingClientRect(),f=opt.free?r:fr.getBoundingClientRect();
    var sc=Math.max(r.width/vw,r.height/vh),ox=(r.width-vw*sc)/2,oy=(r.height-vh*sc)/2;
    var cx=f.left+f.width/2,cy=f.top+f.height/2,fw=f.width*e,fh=f.height*e;
    var sx=((cx-fw/2-r.left)-ox)/sc,sy=((cy-fh/2-r.top)-oy)/sc,sw=fw/sc,sh=fh/sc;
@@ -56,7 +57,7 @@ TK.camera={
    return {sx:x0,sy:y0,sw:x1-x0,sh:y1-y0};
   }
   function look(){
-   if(closed||busy||!stream){return;}
+   if(closed||busy||!stream||opt.free){return;}
    var rg=region(EXPAND);if(!rg||rg.sw<10){return;}
    var W=72,H=Math.max(10,Math.round(W*rg.sh/rg.sw)),cv=look.cv||(look.cv=document.createElement('canvas'));
    cv.width=W;cv.height=H;var cx=cv.getContext('2d',{willReadFrequently:true});
