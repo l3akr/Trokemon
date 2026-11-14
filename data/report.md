@@ -1,0 +1,499 @@
+# Rapport prix Cardmarket
+
+Généré : 2026-11-14T14:40:25.281Z (guide du 2026-11-13T02:44:11+0100)
+
+- Cartes associées : 18758
+- Cartes sans produit : 304
+- Dont associées par approximation (produits en trop) : 2061
+- Sets TCGdex associés : 160 / 221
+
+## Sets non associés
+- miscp Miscellaneous Promos
+- wp W Promotional
+- jumbo Jumbo cards
+- sp Sample
+- tk-ex-latia EX trainer Kit (Latias)
+- exu Unseen Forces Unown Collection
+- tk-ex-m EX trainer Kit 2 (Minun)
+- ex13 Holon Phantoms
+- ex15 Dragon Frontiers
+- pop5 POP Series 5
+- dp1 Diamond & Pearl
+- dpp DP Black Star Promos
+- dp2 Mysterious Treasures
+- pop6 POP Series 6
+- tk-dp-l DP trainer Kit (Lucario)
+- tk-dp-m DP trainer Kit (Manaphy)
+- dp3 Secret Wonders
+- dp4 Great Encounters
+- pop7 POP Series 7
+- dp5 Majestic Dawn
+- dp6 Legends Awakened
+- pop8 POP Series 8
+- dp7 Stormfront
+- pl1 Platinum
+- pop9 POP Series 9
+- pl2 Rising Rivals
+- pl3 Supreme Victors
+- pl4 Arceus
+- ru1 Pokémon Rumble
+- tk-hs-g HS trainer Kit (Gyarados)
+- tk-bw-e BW trainer Kit (Excadrill)
+- rc Radiant Collection
+- xya Yellow A Alternate
+- tk-xy-sy XY trainer Kit (Sylveon)
+- tk-xy-w XY trainer Kit (Wigglytuff)
+- tk-xy-latio XY trainer Kit (Latios)
+- tk-xy-su XY trainer Kit (Suicune)
+- tk-sm-l SM trainer Kit (Lycanroc)
+- sm115 Hidden Fates
+- swsh4.5 Shining Fates
+- swsh9tg Brilliant Stars Trainer Gallery
+- swsh10tg Astral Radiance Trainer Gallery
+- swsh11tg Lost Origin Trainer Gallery
+- swsh12tg Silver Tempest Trainer Gallery
+- swsh12.5gg Crown Zenith Galarian Gallery
+- A1 Genetic Apex
+- P-A Promos-A
+- A1a Mythical Island
+- A2 Space-Time Smackdown
+- A2a Triumphant Light
+- A2b Shining Revelry
+- A3 Celestial Guardians
+- A3a Extradimensional Crisis
+- A3b Eevee Grove
+- A4 Wisdom of Sea and Sky
+- A4a Secluded Springs
+- B1 Mega Rising
+- B1a Crimson Blaze
+- B2 Fantastical Parade
+- B2a Paldean Wonders
+- 30th-c 30th Classic Collection
+
+## Cas ambigus (non associés, sets récents d'abord ; liste complète dans data/ambiguous.md)
+- swshp « Greninja ☆ » : 2 cartes TCGdex (SWSH144,SWSH305) contre 1 produits Cardmarket (690367)
+- swshp « Zacian » : 2 cartes TCGdex (SWSH033,SWSH135) contre 1 produits Cardmarket (491179)
+- sm1 « Metal Energy » : 2 cartes TCGdex (163,171) contre 1 produits Cardmarket (295476)
+- tk-xy-latia « Lotad » : 2 cartes TCGdex (11,23) contre 1 produits Cardmarket (289742)
+- bwp « Pikachu » : 2 cartes TCGdex (BW54,BW77) contre 1 produits Cardmarket (279876)
+- ex14 « Treecko » : 2 cartes TCGdex (67,68) contre 1 produits Cardmarket (277148)
+- ex14 « Charmander » : 2 cartes TCGdex (48,49) contre 1 produits Cardmarket (277129)
+- ex14 « Charmeleon » : 2 cartes TCGdex (29,30) contre 1 produits Cardmarket (277110)
+- ex14 « Grovyle δ » : 2 cartes TCGdex (19,32) contre 1 produits Cardmarket (277113)
+- ex14 « Blastoise δ » : 2 cartes TCGdex (2,14) contre 1 produits Cardmarket (277095)
+- ex11 « Eevee δ » : 2 cartes TCGdex (68,69) contre 1 produits Cardmarket (276832)
+- ex11 « Azumarill δ » : 2 cartes TCGdex (19,114) contre 1 produits Cardmarket (276877)
+
+## Doublons de nom associés par ordre (sets récents en dernier)
+- me01 Mega Manectric ex : 050→851121, 158→851229
+- me01 Helioptile : 052→851123, 143→851214
+- me01 Mega Gardevoir ex : 060→851131, 159→851230, 178→851249, 187→851258
+- me01 Shedinja : 061→851132, 144→851215
+- me01 Houndstone : 066→851137, 145→851216
+- me01 Mega Lucario ex : 077→851148, 160→851231, 179→851250, 188→851259
+- me01 Marshadow : 080→851151, 146→851217
+- me01 Garganacl : 084→851155, 147→851218
+- me01 Mega Absol ex : 086→851157, 161→851232, 180→851251
+- me01 Spiritomb : 087→851158, 148→851219
+- me01 Shroodle : 091→851162, 149→851220
+- me01 Steelix : 093→851164, 150→851221
+- me01 Mega Mawile ex : 094→851165, 162→851233
+- me01 Mega Latias ex : 100→851171, 163→851234, 181→851252
+- me01 Spearow : 102→851173, 151→851222
+- me01 Mega Kangaskhan ex : 104→851175, 164→851235, 182→851253
+- me01 Delibird : 105→851176, 152→851223
+- me01 Gumshoos : 110→851181, 153→851224
+- me01 Stufful : 111→851182, 154→851225
+- me01 Acerola's Mischief : 113→851184, 165→851236, 183→851254
+- me01 Fighting Gong : 116→851187, 168→851239
+- me01 Lillie's Determination : 119→851190, 169→851240, 184→851255
+- me01 Lt. Surge's Bargain : 120→851191, 170→851241, 185→851256
+- me01 Mega Signal : 121→851192, 171→851242
+- me01 Mystery Garden : 122→851193, 172→851243
+- me01 Premium Power Pro : 124→851195, 174→851245
+- me01 Rare Candy : 125→851196, 175→851246
+- me01 Wally's Compassion : 132→851203, 176→851247, 186→851257
+- me02 Mega Heracross ex : 004→857579, 108→857683
+- me02 Ludicolo : 007→857582, 095→857670
+- me02 Nymble : 009→857584, 096→857671
+- me02 Mega Charizard X ex : 013→857588, 109→857684, 125→857700, 130→857705
+- me02 Oricorio ex : 018→857593, 110→857685
+- me02 Dewgong : 022→857597, 097→857672
+- me02 Piplup : 027→857602, 098→857673
+- me02 Rotom ex : 029→857604, 111→857686, 126→857701
+- me02 Yamper : 030→857605, 099→857674
+- me02 Mismagius ex : 036→857611, 112→857687
+- me02 Zacian : 045→857620, 100→857675
+- me02 Flygon : 053→857628, 101→857676
+- me02 Mega Sharpedo ex : 061→857636, 113→857688, 127→857702
+- me02 Toxtricity : 068→857643, 103→857678
+- me02 Empoleon ex : 070→857645, 114→857689
+- me02 Togedemaru : 073→857648, 104→857679
+- me02 Wigglytuff : 077→857652, 105→857680
+- me02 Ambipom : 079→857654, 107→857682
+- me02 Mega Lopunny ex : 084→857659, 115→857690, 128→857703
+- me02 Battle Cage : 085→857660, 116→857691
+- me02 Blowtorch : 086→857661, 117→857692
+- me02 Dawn : 087→857662, 118→857693, 129→857704
+- me02 Firebreather : 089→857664, 119→857694
+- me02 Grimsley's Move : 090→857665, 120→857695
+- me02 Punk Helmet : 092→857667, 121→857696
+- me02 Sacred Charm : 093→857668, 122→857697
+- me02.5 Erika's Tangela : 007→869618, 218→869829
+- me02.5 Mega Meganium ex : 010→869621, 272→869883
+- me02.5 Beautifly : 013→869624, 219→869830
+- me02.5 Dustox : 015→869626, 220→869831
+- me02.5 Budew : 016→869627, 221→869832
+- me02.5 Mega Charizard Y ex : 022→869633, 294→869905
+- me02.5 Ethan's Magcargo : 024→869635, 222→869833
+- me02.5 Numel : 027→869638, 223→869834
+- me02.5 Mega Emboar ex : 031→869642, 273→869884
+- me02.5 Salazzle : 035→869646, 224→869835
+- me02.5 Scorbunny : 036→869647, 225→869836
+- me02.5 Psyduck : 039→869650, 226→869837
+- me02.5 Mega Feraligatr ex : 043→869654, 274→869885
+- me02.5 Weavile : 045→869656, 228→869839
+- me02.5 Snorunt : 046→869657, 227→869838
+- me02.5 Mega Froslass ex : 047→869658, 265→869876, 275→869886
+- me02.5 Pikachu ex : 057→869668, 276→869887, 277→869888
+- me02.5 Mega Eelektross ex : 061→869672, 266→869877, 278→869889
+- me02.5 Heliolisk : 064→869675, 229→869840
+- me02.5 Vikavolt : 066→869677, 230→869841
+- me02.5 Iono's Bellibolt ex : 070→869681, 279→869890
+- me02.5 Iono's Wattrel : 071→869682, 231→869842
+- me02.5 Lillie's Clefairy ex : 076→869687, 280→869891
+- me02.5 Team Rocket's Mewtwo ex : 079→869690, 281→869892
+- me02.5 Togekiss : 082→869693, 235→869846
+- me02.5 Marill : 083→869694, 232→869843
+- me02.5 Misdreavus : 085→869696, 233→869844
+- me02.5 Banette : 091→869702, 234→869845
+- me02.5 Slurpuff : 094→869705, 236→869847
+- me02.5 Hop's Trevenant : 096→869707, 237→869848
+- me02.5 Team Rocket's Mimikyu : 097→869708, 238→869849
+- me02.5 Team Rocket's Dugtrio : 101→869712, 239→869850
+- me02.5 Hitmontop : 102→869713, 240→869851
+- me02.5 Medicham : 104→869715, 241→869852
+- me02.5 Stunfisk ex : 114→869725, 252→869863
+- me02.5 Mega Hawlucha ex : 116→869727, 268→869879, 283→869894
+- me02.5 Carbink : 117→869728, 242→869853
+- me02.5 Mega Gengar ex : 125→869736, 269→869880, 284→869895
+- me02.5 Mightyena : 129→869740, 243→869854
+- me02.5 Galarian Obstagoon : 132→869743, 245→869856
+- me02.5 Cynthia's Spiritomb : 133→869744, 244→869855
+- me02.5 Mega Scrafty ex : 135→869746, 270→869881, 285→869896
+- me02.5 N's Zoroark ex : 137→869748, 286→869897
+- me02.5 Fezandipiti ex : 142→869753, 288→869899
+- me02.5 Mawile : 144→869755, 246→869857
+- me02.5 Mega Dragonite ex : 152→869763, 271→869882, 290→869901, 295→869906
+- me02.5 Dreepy : 158→869769, 247→869858
+- me02.5 Drakloak : 159→869770, 248→869859
+- me02.5 Larry's Staraptor : 170→869781, 249→869860
+- me02.5 Fan Rotom : 171→869782, 250→869861
+- me02.5 Mega Audino ex : 172→869783, 253→869864
+- me02.5 Anthea & Concordia : 182→869793, 254→869865
+- me02.5 Canari : 185→869796, 257→869868, 291→869903
+- me02.5 Counter Gain : 186→869797, 259→869870
+- me02.5 Glass Trumpet : 189→869800, 260→869871
+- me02.5 Iris's Fighting Spirit : 190→869801, 292→869902
+- me02.5 N's PP Up : 195→869806, 262→869873
+- me02.5 Surfer : 200→869811, 293→869904
+- me02.5 Team Rocket's Transceiver : 209→869820, 263→869874
+- me02.5 Ultra Ball : 213→869824, 264→869875
+- me02.5 Mega Diancie ex : 267→869878, 282→869893
+- me03 Spewpa : 008→877420, 089→877506
+- me03 Rowlet : 010→877422, 090→877507
+- me03 Decidueye ex : 012→877424, 100→877517
+- me03 Talonflame : 014→877426, 091→877508
+- me03 Salazzle ex : 016→877428, 101→877518
+- me03 Mega Starmie ex : 021→877433, 102→877519, 118→877535
+- me03 Aurorus : 024→877437, 092→877509
+- me03 Dedenne : 029→877442, 093→877510
+- me03 Clefairy : 030→877444, 094→877511
+- me03 Mega Clefable ex : 031→877445, 103→877520, 119→877536
+- me03 Espurr : 033→877447, 095→877512
+- me03 Probopass : 038→877452, 096→877513
+- me03 Mega Zygarde ex : 047→877461, 104→877521, 120→877537, 124→877541
+- me03 Drapion : 052→877468, 097→877514
+- me03 Yveltal ex : 053→877469, 105→877522
+- me03 Mega Skarmory ex : 055→877471, 106→877523
+- me03 Doublade : 057→877473, 098→877515
+- me03 Raticate : 061→877477, 099→877516
+- me03 Meowth ex : 062→877478, 107→877524, 121→877538
+- me03 Jacinthe : 075→877492, 110→877527, 122→877539
+- me03 Lumiose City : 077→877494, 111→877528
+- me03 Naveen : 079→877496, 112→877529
+- me03 Poké Pad : 081→877498, 113→877530
+- me03 Rosa's Encouragement : 084→877501, 114→877531, 123→877540
+- me03 Tarragon : 085→877502, 116→877533
+- me04 Beedrill ex : 003→886395, 098→886490
+- me04 Chespin : 005→886397, 087→886479
+- me04 Mega Pyroar ex : 015→886407, 099→886491
+- me04 Froakie : 020→886412, 088→886480
+- me04 Frogadier : 021→886413, 089→886481
+- me04 Mega Greninja ex : 022→886414, 100→886492, 116→886509, 122→886515
+- me04 Ampharos : 029→886421, 090→886482
+- me04 Deoxys : 031→886423, 032→886424, 033→886425, 034→886426
+- me04 Mega Floette ex : 035→886427, 101→886493, 117→886510
+- me04 Gourgeist ex : 041→886433, 102→886494
+- me04 Xerneas : 042→886434, 091→886483
+- me04 Claydol : 047→886439, 092→886484
+- me04 Crobat : 051→886443, 093→886485
+- me04 Metang : 060→886452, 094→886487
+- me04 Cobalion ex : 064→886456, 103→886495
+- me04 Mega Dragalge ex : 065→886457, 104→886496, 118→886511
+- me04 Sliggoo : 067→886459, 095→886486
+- me04 Tauros : 069→886461, 096→886488
+- me04 Watchog : 071→886463, 097→886489
+- me04 Cinccino ex : 073→886465, 105→886497, 119→886512
+- me04 AZ's Tranquility : 076→886468, 106→886500, 120→886513
+- me04 Emma : 077→886470, 107→886501
+- me04 Philippe : 079→886471, 110→886502
+- me04 Prism Tower : 080→886472, 111→886504
+- me04 Roxie's Performance : 081→886473, 112→886505, 121→886514
+- me04 Special Red Card : 082→886474, 113→886506
+- me05 Fomantis : 003→895791, 085→895869
+- me05 Lurantis ex : 004→895792, 096→895881
+- me05 Armarouge : 012→895800, 086→895870
+- me05 Goldeen : 013→895801, 087→895871
+- me05 Wailord ex : 016→895804, 097→895882
+- me05 Primarina : 020→895808, 088→895872
+- me05 Manectric : 024→895812, 089→895873
+- me05 Mega Zeraora ex : 027→895787, 098→895883, 114→895899
+- me05 Slowbro : 030→895817, 090→895874
+- me05 Mega Chandelure ex : 038→895786, 099→895884, 115→895900
+- me05 Dhelmise : 039→895825, 091→895875
+- me05 Rampardos ex : 045→895831, 100→895885
+- me05 Mega Darkrai ex : 048→895788, 101→895886, 116→895901, 120→895905
+- me05 Thievul : 054→895839, 092→895876
+- me05 Morpeko ex : 055→895840, 102→895887, 117→895902
+- me05 Bastiodon : 062→895847, 093→895878
+- me05 Mega Excadrill ex : 065→895785, 103→895888
+- me05 Toucannon : 068→895852, 094→895879
+- me05 Silvally : 070→895854, 095→895880
+- me05 Dark Bell : 075→895859, 106→895891
+- me05 Gladion's Final Battle : 077→895861, 108→895893, 118→895903
+- me05 Gwynn : 078→895862, 109→895894, 119→895904
+- me05 Misty's Vitality : 080→895864, 111→895896
+- me05 Rust Syndicate Grunt : 081→895865, 112→895897
+- me05 Tremendous Bomb : 082→895866, 113→895898
+- 30th Alolan Exeggutor : 002→907608, 129→907737
+- 30th Moltres : 011→907617, 130→907738
+- 30th Fuecoco ex : 015→907621, 147→907754
+- 30th Lapras : 017→907623, 131→907739
+- 30th Articuno : 018→907624, 132→907740
+- 30th Greninja ex : 021→907628, 148→907755
+- 30th Pikachu [approx, 31 produits] : 023→907630, 024→907631, 025→907632, 026→907633, 027→907634, 028→907635, 029→907636, 030→907637, 031→907638, 032→907639, 033→907640, 034→907641, 035→907642, 036→907643, 037→907644, 038→907645, 039→907646, 040→907647, 041→907648, 042→907649, 043→907650, 044→907651, 045→907652, 046→907653, 047→907654, 048→907655, 049→907656, 050→907657, 051→907658, 052→907659
+- 30th Pikachu ex : 053→907660, 054→907661, 149→907756, 150→907757
+- 30th Zapdos : 055→907662, 133→907741
+- 30th Toxtricity : 059→907666, 060→907667, 134→907742
+- 30th Morpeko : 061→907668, 135→907743
+- 30th Mewtwo ex : 064→907671, 151→907761, 157→908353
+- 30th Mew : 065→907672, B→909509, G→909510, R→909511
+- 30th Mew ex : 066→907673, 152→907762, 158→908354
+- 30th Sylveon ex : 071→907678, 153→907758
+- 30th Drifloon : 073→907680, 136→907744
+- 30th Chandelure : 075→907682, 137→907745
+- 30th Lycanroc : 085→907692, 138→907746
+- 30th Alolan Meowth : 089→907696, 139→907747
+- 30th Gengar ex : 090→907697, 154→908355
+- 30th Scraggy : 094→907701, 140→907748
+- 30th Galarian Meowth : 101→907708, 141→907749
+- 30th Jirachi ex : 102→907709, 155→907759
+- 30th Gholdengo : 108→907715, 142→907750
+- 30th Salamence ex : 109→907716, 156→907760
+- 30th Kommo-o : 112→907719, 143→908352
+- 30th Meowth : 113→907720, 144→907751
+- 30th Eevee : 116→907723, 117→907724, 118→907725
+- 30th Lugia [approx, 2 produits] : 121→907728
+- 30th Hisuian Zorua : 122→907729, 145→907752
+- 30th Maushold : 125→907732, 146→907753
+- me06 Masquerain : 003→918812, 104→918940
+- me06 Mega Golisopod ex : 011→918820, 118→918957, 135→918979
+- me06 Sprigatito : 012→918821, 105→918941
+- me06 Growlithe : 018→918832, 106→918943
+- me06 Magmortar : 021→918836, 107→918944
+- me06 Heat Rotom ex : 023→918838, 119→918958
+- me06 Wishiwashi ex : 029→918845, 120→918959
+- me06 Electivire : 031→918847, 108→918945
+- me06 Raikou ex : 033→918849, 121→918960, 136→918980
+- me06 Pincurchin : 036→918853, 109→918947
+- me06 Mega Golurk ex : 047→918868, 122→918961, 137→918981
+- me06 Enamorus : 048→918869, 110→918948
+- me06 Groudon : 053→918876, 111→918949
+- me06 Zorua : 066→918891, 112→918950
+- me06 Inkay : 068→918893, 113→918952
+- me06 Mega Malamar ex : 069→918895, 123→918962
+- me06 Eevee : 078→918906, 114→918953
+- me06 Azurill : 080→918908, 115→918954
+- me06 Altaria : 082→918910, 116→918955
+- me06 Kecleon : 083→918911, 117→918956
+- me06 Mega Rayquaza ex : 084→918912, 138→918982, 141→918985
+- me06 Talonflame ex : 088→918916, 124→918963
+- me06 Aarune : 089→918917, 125→918964, 139→918983
+- me06 Custom Vest : 091→918919, 127→918966
+- me06 Emcee's Hype : 092→918920, 128→918967
+- me06 Legendary Summit : 096→918926, 097→918927
+- me06 Tate & Liza's Training : 102→918934, 130→918969
+- me06 Zinnia's Trust : 103→918935, 131→918970, 140→918984
+
+## Associations de sets
+- base1 Base Set ← expansion 1523 (score 0.98)
+- base2 Jungle ← expansion 1525 (score 1.00)
+- basep Wizards Black Star Promos ← expansion 1607 (score 0.96)
+- base3 Fossil ← expansion 1526 (score 1.00)
+- base4 Base Set 2 ← expansion 1527 (score 0.98)
+- base5 Team Rocket ← expansion 1528 (score 1.00)
+- gym1 Gym Heroes ← expansion 1529 (score 1.00)
+- gym2 Gym Challenge ← expansion 1530 (score 1.00)
+- neo1 Neo Genesis ← expansion 1531 (score 1.00)
+- neo2 Neo Discovery ← expansion 1532 (score 0.83)
+- si1 Southern Islands ← expansion 1633 (score 1.00)
+- neo3 Neo Revelation ← expansion 1533 (score 0.94)
+- neo4 Neo Destiny ← expansion 1534 (score 0.87)
+- lc Legendary Collection ← expansion 1535 (score 1.00)
+- ecard1 Expedition Base Set ← expansion 1536 (score 1.00)
+- bog Best of game ← expansion 1605 (score 1.00)
+- ecard2 Aquapolis ← expansion 1537 (score 1.00)
+- ecard3 Skyridge ← expansion 1538 (score 0.93)
+- ex1 Ruby & Sapphire ← expansion 1539 (score 1.00)
+- ex2 Sandstorm ← expansion 1540 (score 1.00)
+- np Nintendo Black Star Promos ← expansion 1608 (score 0.97)
+- ex3 Dragon ← expansion 1541 (score 1.00)
+- ex4 Team Magma vs Team Aqua ← expansion 1542 (score 1.00)
+- ex5 Hidden Legends ← expansion 1543 (score 0.96)
+- ex5.5 Poké Card Creator Pack ← expansion 4505 (score 1.00)
+- tk-ex-latio EX trainer Kit (Latios) ← expansion 1626 (score 0.56)
+- ex6 FireRed & LeafGreen ← expansion 1544 (score 0.98)
+- pop1 POP Series 1 ← expansion 1613 (score 1.00)
+- ex7 Team Rocket Returns ← expansion 1545 (score 0.94)
+- ex8 Deoxys ← expansion 1546 (score 0.95)
+- ex9 Emerald ← expansion 1547 (score 1.00)
+- pop2 POP Series 2 ← expansion 1614 (score 1.00)
+- ex10 Unseen Forces ← expansion 1548 (score 0.94)
+- ex11 Delta Species ← expansion 1549 (score 0.51)
+- ex12 Legend Maker ← expansion 1550 (score 0.92)
+- tk-ex-p EX trainer Kit 2 (Plusle) ← expansion 1627 (score 0.57)
+- pop3 POP Series 3 ← expansion 1615 (score 1.00)
+- pop4 POP Series 4 ← expansion 1616 (score 0.70)
+- ex14 Crystal Guardians ← expansion 1552 (score 0.77)
+- ex16 Power Keepers ← expansion 1554 (score 0.95)
+- hgss1 HeartGold SoulSilver ← expansion 1566 (score 1.00)
+- hgssp HGSS Black Star Promos ← expansion 1610 (score 1.00)
+- tk-hs-r HS trainer Kit (Raichu) ← expansion 1629 (score 0.57)
+- hgss2 Unleashed ← expansion 1567 (score 1.00)
+- hgss3 Undaunted ← expansion 1568 (score 0.99)
+- hgss4 Triumphant ← expansion 1569 (score 0.99)
+- col1 Call of Legends ← expansion 1570 (score 1.00)
+- bw1 Black & White ← expansion 1571 (score 0.99)
+- bwp BW Black Star Promos ← expansion 1611 (score 0.99)
+- 2011bw McDonald's Collection 2011 ← expansion 1623 (score 1.00)
+- bw2 Emerging Powers ← expansion 1572 (score 0.99)
+- tk-bw-z BW trainer Kit (Zoroark) ← expansion 1630 (score 0.54)
+- bw3 Noble Victories ← expansion 1573 (score 0.99)
+- bw4 Next Destinies ← expansion 1574 (score 0.99)
+- bw5 Dark Explorers ← expansion 1575 (score 0.99)
+- 2012bw McDonald's Collection 2012 ← expansion 1624 (score 1.00)
+- bw6 Dragons Exalted ← expansion 1576 (score 0.96)
+- dv1 Dragon Vault ← expansion 1636 (score 1.00)
+- bw7 Boundaries Crossed ← expansion 1577 (score 0.99)
+- bw8 Plasma Storm ← expansion 1578 (score 0.99)
+- bw9 Plasma Freeze ← expansion 1579 (score 0.99)
+- bw10 Plasma Blast ← expansion 1580 (score 0.99)
+- xyp XY Black Star Promos ← expansion 1612 (score 0.86)
+- bw11 Legendary Treasures ← expansion 1581 (score 0.99)
+- xy0 Kalos Starter Set ← expansion 1637 (score 0.97)
+- xy1 XY ← expansion 1582 (score 0.96)
+- tk-xy-n XY trainer Kit (Noivern) ← expansion 1631 (score 0.70)
+- xy2 Flashfire ← expansion 1583 (score 0.95)
+- 2014xy McDonald's Collection 2014 ← expansion 1625 (score 1.00)
+- xy3 Furious Fists ← expansion 1584 (score 0.95)
+- tk-xy-b XY trainer Kit (Bisharp) ← expansion 1632 (score 0.57)
+- xy4 Phantom Forces ← expansion 1521 (score 0.96)
+- xy5 Primal Clash ← expansion 1585 (score 0.96)
+- dc1 Double Crisis ← expansion 1648 (score 1.00)
+- tk-xy-latia XY trainer Kit (Latias) ← expansion 1683 (score 0.54)
+- xy6 Roaring Skies ← expansion 1649 (score 0.92)
+- xy7 Ancient Origins ← expansion 1660 (score 0.90)
+- xy8 BREAKthrough ← expansion 1678 (score 0.95)
+- 2015xy McDonald's Collection 2015 ← expansion 1741 (score 1.00)
+- xy9 BREAKpoint ← expansion 1687 (score 0.96)
+- g1 Generations ← expansion 1693 (score 0.92)
+- tk-xy-p XY trainer Kit (Pikachu Libre) ← expansion 1707 (score 0.54)
+- xy10 Fates Collide ← expansion 1706 (score 0.94)
+- xy11 Steam Siege ← expansion 1716 (score 0.95)
+- 2016xy McDonald's Collection 2016 ← expansion 1752 (score 1.00)
+- xy12 Evolutions ← expansion 1742 (score 0.90)
+- sm1 Sun & Moon ← expansion 1745 (score 0.99)
+- smp SM Black Star Promos ← expansion 1757 (score 1.00)
+- tk-sm-r SM trainer Kit (Alolan Raichu) ← expansion 1758 (score 0.54)
+- sm2 Guardians Rising ← expansion 1800 (score 0.99)
+- 2017sm McDonald's Collection 2017 ← expansion 1845 (score 1.00)
+- sm3 Burning Shadows ← expansion 1824 (score 0.99)
+- sm3.5 Shining Legends ← expansion 1842 (score 0.99)
+- sm4 Crimson Invasion ← expansion 1843 (score 0.99)
+- sm5 Ultra Prism ← expansion 2065 (score 0.97)
+- sm6 Forbidden Light ← expansion 2075 (score 0.97)
+- sm7 Celestial Storm ← expansion 2320 (score 0.99)
+- sm7.5 Dragon Majesty ← expansion 2351 (score 0.98)
+- 2018sm McDonald's Collection 2018 ← expansion 2404 (score 1.00)
+- sm8 Lost Thunder ← expansion 2370 (score 0.97)
+- sm9 Team Up ← expansion 2407 (score 0.97)
+- det1 Detective Pikachu ← expansion 2438 (score 0.90)
+- sm10 Unbroken Bonds ← expansion 2437 (score 0.98)
+- sm11 Unified Minds ← expansion 2487 (score 1.00)
+- sma Hidden Fates Shiny Vault ← expansion 2514 (score 0.59)
+- 2019sm McDonald's Collection 2019 ← expansion 2829 (score 1.00)
+- sm12 Cosmic Eclipse ← expansion 2644 (score 1.00)
+- swshp SWSH Black Star Promos ← expansion 2916 (score 0.95)
+- swsh1 Sword & Shield ← expansion 2921 (score 0.99)
+- swsh2 Rebel Clash ← expansion 3143 (score 0.97)
+- swsh3 Darkness Ablaze ← expansion 3199 (score 0.96)
+- fut2020 Pokémon Futsal 2020 ← expansion 3510 (score 1.00)
+- swsh3.5 Champion's Path ← expansion 3419 (score 0.88)
+- swsh4 Vivid Voltage ← expansion 3484 (score 0.95)
+- 2021swsh McDonald's Collection 2021 ← expansion 3738 (score 1.00)
+- swsh4.5sv Shining Fates Shiny Vault ← expansion 3630 (score 0.72)
+- swsh5 Battle Styles ← expansion 3675 (score 0.99)
+- swsh6 Chilling Reign ← expansion 4174 (score 0.99)
+- swsh7 Evolving Skies ← expansion 4328 (score 0.99)
+- cel25cc Celebrations Classic Collection ← expansion 4346 (score 0.61)
+- cel25 Celebrations ← expansion 6348 (score 0.88)
+- swsh8 Fusion Strike ← expansion 4382 (score 1.00)
+- swsh9 Brilliant Stars ← expansion 4434 (score 0.85)
+- swsh10 Astral Radiance ← expansion 4979 (score 0.88)
+- swsh10.5 Pokémon GO ← expansion 5051 (score 0.96)
+- 2022swsh McDonald's Collection 2022 ← expansion 5135 (score 1.00)
+- swsh11 Lost Origin ← expansion 5093 (score 0.90)
+- swsh12 Silver Tempest ← expansion 5142 (score 0.89)
+- swsh12.5 Crown Zenith ← expansion 5201 (score 0.73)
+- sve Scarlet & Violet Energy ← expansion 6697 (score 0.89)
+- sv01 Scarlet & Violet ← expansion 5223 (score 0.98)
+- svp SVP Black Star Promos ← expansion 5241 (score 0.98)
+- sv02 Paldea Evolved ← expansion 5318 (score 0.98)
+- 2023sv McDonald's Collection 2023 ← expansion 5430 (score 1.00)
+- sv03 Obsidian Flames ← expansion 5385 (score 0.99)
+- sv03.5 151 ← expansion 5328 (score 1.00)
+- mfb My First Battle ← expansion 5526 (score 0.79)
+- sv04 Paradox Rift ← expansion 5444 (score 0.99)
+- sv04.5 Paldean Fates ← expansion 5546 (score 0.97)
+- sv05 Temporal Forces ← expansion 5589 (score 0.99)
+- sv06 Twilight Masquerade ← expansion 5691 (score 0.99)
+- sv06.5 Shrouded Fable ← expansion 5760 (score 0.99)
+- sv07 Stellar Crown ← expansion 5802 (score 0.99)
+- sv08 Surging Sparks ← expansion 5879 (score 0.99)
+- 2024sv McDonald's Collection 2024 ← expansion 5978 (score 1.00)
+- sv08.5 Prismatic Evolutions ← expansion 5944 (score 0.97)
+- sv09 Journey Together ← expansion 6006 (score 0.99)
+- sv10 Destined Rivals ← expansion 6096 (score 1.00)
+- sv10.5w White Flare ← expansion 6135 (score 1.00)
+- sv10.5b Black Bolt ← expansion 6134 (score 0.98)
+- mee Mega Evolution Energy ← expansion 5224 (score 0.50)
+- mep MEP Black Star Promos ← expansion 6232 (score 0.92)
+- me01 Mega Evolution ← expansion 6209 (score 0.99)
+- me02 Phantasmal Flames ← expansion 6299 (score 1.00)
+- me02.5 Ascended Heroes ← expansion 6395 (score 0.99)
+- me03 Perfect Order ← expansion 6443 (score 0.94)
+- me04 Chaos Rising ← expansion 6517 (score 0.93)
+- me05 Pitch Black ← expansion 6569 (score 0.96)
+- 30th 30th Celebration ← expansion 6601 (score 0.78)
+- me06 Delta Reign ← expansion 6704 (score 0.87)
