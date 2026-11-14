@@ -2,10 +2,10 @@
 (function(){
 'use strict';
 var TK=window.TK=window.TK||{},C=window.TK_CONFIG||{},L=window.L;
-var st={map:null,layer:null,ro:null,entries:[],sel:null,me:null,meLayer:null,cb:{}};
+var st={radiusKm:0,radiusLayer:null,map:null,layer:null,ro:null,entries:[],sel:null,me:null,meLayer:null,cb:{}};
 var CLUSTER_MAX_Z=9,ZONE_RADIUS_M=1500;
 
-function accent(){return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#5CC27A';}
+function accent(){return getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()||'#F5C842';}
 function hexA(hex,a){var n=parseInt(hex.slice(1),16);return 'rgba('+(n>>16&255)+','+(n>>8&255)+','+(n&255)+','+a+')';}
 function reduced(){return window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;}
 
@@ -32,6 +32,8 @@ TK.map={
    t=setTimeout(function(){if(st.map===map&&st.cb.onMove){st.cb.onMove(TK.map.bounds(),map.getCenter(),map.getZoom());}},350);
   }
   map.on('moveend zoomend',moved);
+  map.on('zoomend',function(){if(st.cb.onZoom){st.cb.onZoom(map.getZoom());}});
+  map.on('move',function(){if(st.radiusKm){TK.map.drawRadius();}});
   map.on('click',function(){if(st.cb.onSelect){st.cb.onSelect(null);}});
   if(window.ResizeObserver){st.ro=new ResizeObserver(function(){if(st.map){st.map.invalidateSize();}});st.ro.observe(el);}
   TK.map.setMe(st.me);
@@ -52,6 +54,20 @@ TK.map={
   L.circle([me.lat,me.lng],{radius:ZONE_RADIUS_M,color:'#F1F3F4',weight:1.5,dashArray:'5 4',fillColor:'#F1F3F4',fillOpacity:.06,interactive:false}).addTo(g);
   L.marker([me.lat,me.lng],{icon:L.divIcon({className:'tk-ic',html:'<div class="me-dot"></div>',iconSize:[14,14]}),interactive:false,keyboard:false}).addTo(g);
   g.addTo(st.map);st.meLayer=g;
+ },
+ getZoom:function(){return st.map?st.map.getZoom():null;},
+ setZoom:function(z){if(st.map){st.map.setZoom(z,{animate:!reduced()});}},
+ /* Rayon de recherche (km) autour du centre de la carte ; 0 = pas de limite. */
+ setRadius:function(km,fit){
+  st.radiusKm=km||0;TK.map.drawRadius();
+  if(fit&&km&&st.map){var c=st.map.getCenter();st.map.fitBounds(L.latLng(c.lat,c.lng).toBounds(km*2000),{animate:!reduced(),padding:[10,10]});}
+ },
+ drawRadius:function(){
+  if(!st.map){return;}
+  if(st.radiusLayer){st.radiusLayer.remove();st.radiusLayer=null;}
+  if(!st.radiusKm){return;}
+  var c=st.map.getCenter();
+  st.radiusLayer=L.circle(c,{radius:st.radiusKm*1000,color:accent(),weight:2,dashArray:'6 6',fillColor:accent(),fillOpacity:.05,interactive:false}).addTo(st.map);
  },
  flyTo:function(lat,lng,z){
   if(!st.map){return;}

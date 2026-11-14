@@ -96,6 +96,22 @@ TK.shrink=async function(file,max){
 TK.SEALED_KINDS=['Display','Booster','Coffret Dresseur d\'élite (ETB)','Tripack','Bundle de boosters','Coffret / Collection','Autre'];
 
 /* ---------- liens d'achat neuf ---------- */
+/* Lien Cardmarket : fiche produit si l'identifiant est connu, sinon recherche des singles. */
+TK.cmUrl=function(it,idProduct){
+ if(idProduct){return 'https://www.cardmarket.com/fr/Pokemon/Products?idProduct='+encodeURIComponent(idProduct)+'&language=2';}
+ var base=String(it.name||'').trim();
+ return 'https://www.cardmarket.com/fr/Pokemon/Products/Singles?searchString='+encodeURIComponent(base)+'&language=2';
+};
+/* Images d'un item : catalogue enregistré, sinon reconstruite depuis la série et le numéro. */
+TK.catImg=function(it,q){
+ var src=it.catalog_image;
+ if(!src&&it.set_id&&it.number&&String(it.set_id).indexOf('demo-')!==0){
+  var sid=it.set_id,ln=String(it.number).split('/')[0];
+  src='https://assets.tcgdex.net/fr/'+TK.eraOf(sid).serie+'/'+sid+'/'+ln;
+ }
+ if(!src){return null;}
+ return src.replace(/\/(low|high)\.(webp|png|jpg)$/,'')+'/'+(q||'high')+'.webp';
+};
 TK.buyLinks=function(it){
  var a=C.AFFILIATE||{},base=(it.name+' '+(it.set_name||'')).trim(),q=encodeURIComponent(base+' pokemon');
  var ebay='https://www.ebay.fr/sch/i.html?_nkw='+q+(a.ebay?'&'+String(a.ebay).replace(/^[?&]/,''):'');
@@ -135,6 +151,7 @@ var ERAS=[['me','Méga-Évolution'],['sv','Écarlate et Violet'],['swsh','Épée
 /* Renvoie {k, n, o, serie} : clé, nom, ordre d'affichage (récent d'abord) et dossier de la série chez TCGdex. */
 TK.eraOf=function(setId){
  var id=String(setId||'');
+ if(/^30th/i.test(id)){return {k:'me',n:'Méga-Évolution',o:0,serie:'me'};}
  if(id.indexOf('demo-')===0){return {k:'demo',n:'Démo',o:50,serie:''};}
  if(/^[A-Z]/.test(id)){return {k:'pocket',n:'TCG Pocket',o:97,serie:''};}
  var m=id.match(/^[a-z]+/),pre=m?m[0]:'',c=[pre,pre.replace(/p$/,'')];
@@ -272,18 +289,25 @@ TK.catalog={
    var r=await fetch(API+'/cards/'+encodeURIComponent(cardId));
    if(!r.ok){return null;}
    var c=await r.json(),cm=(c.pricing&&c.pricing.cardmarket)||{};
-   var price=cm.trend||cm.avg||null,foil=cm['trend-holo']||cm['avg-holo']||null,at=null;
-   if(cm.updated){at=typeof cm.updated==='number'?new Date(cm.updated<1e12?cm.updated*1000:cm.updated):new Date(cm.updated);if(isNaN(at)){at=null;}}
+   function num(v){v=Number(v);return isFinite(v)&&v>0?v:null;}
+   function first(o,keys){for(var k=0;k<keys.length;k++){var n=num(o&&o[keys[k]]);if(n){return n;}}return null;}
+   var price=first(cm,['trend','avg','avg7','avg30','low']),foil=first(cm,['trend-holo','avg-holo','avg7-holo','avg30-holo','low-holo']),at=null;
+   if(!price&&!foil){['normal','holo','reverse'].forEach(function(k){if(cm[k]&&typeof cm[k]==='object'){var n=first(cm[k],['trend','avg','avg7','avg30','low','market']);if(n){if(k==='normal'){price=price||n;}else{foil=foil||n;}}}});}
+   if(cm.updated){try{at=typeof cm.updated==='number'?new Date(cm.updated<1e12?cm.updated*1000:cm.updated):new Date(cm.updated);if(isNaN(at)){at=null;}}catch(e2){at=null;}}
    var VT={normal:'Normale',reverse:'Reverse',holo:'Holo'},out=[];
-   (c.variants_detailed||[]).forEach(function(v){
-    var ex=[];if(v.foil){ex.push(v.foil);}if(v.stamp&&v.stamp.length){ex.push('tampon '+v.stamp.join('/'));}if(v.subtype){ex.push(v.subtype);}
-    var lab=(VT[v.type]||v.type||'Normale')+(ex.length?' · '+ex.join(', '):'');
-    if(out.indexOf(lab)<0){out.push(lab);}
-   });
+   try{
+    var vd=c.variants_detailed;if(vd&&!Array.isArray(vd)){vd=Object.keys(vd).map(function(k){return typeof vd[k]==='object'?Object.assign({type:k},vd[k]):{type:k};});}
+    (vd||[]).forEach(function(v){
+     var ex=[];if(v.foil){ex.push(v.foil);}if(v.stamp&&v.stamp.length){ex.push('tampon '+[].concat(v.stamp).join('/'));}if(v.subtype){ex.push(v.subtype);}
+     var lab=(VT[v.type]||v.type||'Normale')+(ex.length?' · '+ex.join(', '):'');
+     if(out.indexOf(lab)<0){out.push(lab);}
+    });
+   }catch(e3){out=[];}
    if(!out.length){var vv=c.variants||{};if(vv.normal){out.push('Normale');}if(vv.reverse){out.push('Reverse');}if(vv.holo){out.push('Holo');}if(vv.firstEdition){out.push('1re édition');}}
    if(!out.length){out.push('Normale');}
    if(c.set&&c.set.id&&c.set.abbreviation){setAbbr(c.set.id,c.set.abbreviation.official||c.set.abbreviation.normal);}
-   return {price:price||foil,priceFoil:foil||price,updated:at?at.toISOString():new Date().toISOString(),image:c.image?c.image+'/high.webp':null,rarity:c.rarity||null,low:lowRarity(c.rarity,c.name),variants:out};
+   var idp=cm.idProduct||cm.productId||null;
+   return {url:TK.cmUrl({name:c.name,number:c.localId,set_abbr:abbrMap[(c.set&&c.set.id)||'']},idp),idProduct:idp,price:price||foil,priceFoil:foil||price,updated:at?at.toISOString():new Date().toISOString(),image:c.image?c.image+'/high.webp':null,rarity:c.rarity||null,low:lowRarity(c.rarity,c.name),variants:out};
   }catch(e){return null;}
  }
 };

@@ -21,7 +21,7 @@ var STATUS={sent:'Envoyée',accepted:'Acceptée',declined:'Refusée',cancelled:'
 
 var S={
  phase:'boot',err:'',notice:null,form:{pseudo:'',email:''},recover:false,
- user:null,energy:'plante',tab:'carte',stack:[],
+ user:null,energy:null,tab:'carte',stack:[],
  my:{offers:[],wants:[]},listTab:'offers',sets:null,
  mv:{lat:46.6,lng:2.4,z:6},mode:'tous',mapProfiles:[],mapIdx:{},selected:null,mapTok:0,geo:null,
  sugg:[],cardSugg:[],itemFilter:null,open:{},zoneQ:'',zoneRes:[],zonePick:null,
@@ -61,10 +61,19 @@ function dist(p){
  return d<1.5?'≈ 1 km':d<50?'≈ '+Math.round(d)+' km':'≈ '+(Math.round(d/10)*10)+' km';
 }
 function applyTheme(){
- var e=ENERGIES.filter(function(x){return x.id===S.energy;})[0]||ENERGIES[0],r=document.documentElement.style;
- r.setProperty('--accent',e.color);r.setProperty('--accent-soft',hexA(e.color,0.16));
+ var e=energyObj(),r=document.documentElement.style;
+ r.setProperty('--accent',e.color);r.setProperty('--accent-soft',hexA(e.color,0.16));r.setProperty('--glow',hexA(e.color,0.1));r.setProperty('--glow2',hexA(e.color,0.05));
+ var svg='<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><g fill="'+e.color+'" opacity=".05"><path d="'+e.path+'" transform="scale(4.6) translate(.4 .4)"/></g></svg>';
+ r.setProperty('--tile','url("data:image/svg+xml,'+encodeURIComponent(svg)+'")');
+ var d=document.getElementById('decor');if(d){d.setAttribute('data-e',e.id);}
+ var tc=document.querySelector('meta[name=theme-color]');if(tc){tc.setAttribute('content','#0E0F11');}
 }
-function energyObj(){return ENERGIES.filter(function(x){return x.id===S.energy;})[0]||ENERGIES[0];}
+/* Logo : deux cartes qui s'échangent. */
+function logoMark(sz){
+ return '<svg class="lmark" width="'+sz+'" height="'+sz+'" viewBox="0 0 32 32" aria-hidden="true"><rect x="3.5" y="6" width="15" height="21" rx="3.2" transform="rotate(-12 11 16.5)" fill="none" stroke="currentColor" stroke-width="2"/><rect x="13" y="5" width="15" height="21" rx="3.2" transform="rotate(9 20.5 15.5)" fill="currentColor"/><path d="M17.5 12.2h7l-1.8-1.8M24.5 18.6h-7l1.8 1.8" transform="rotate(9 20.5 15.5)" fill="none" stroke="#0A130C" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+}
+function wordmark(sz){return logoMark(sz||26)+'<span class="wtxt">TROKÉMON</span>';}
+function energyObj(){return ENERGIES.filter(function(x){return x.id===S.energy;})[0]||ENERGIES[3];}
 var toastTimer=0;
 function toast(t){var el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.hidden=true;},3000);}
 function phColor(s){var h=0;for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))%360;}return 'hsl('+h+' 28% 22%)';}
@@ -119,8 +128,8 @@ function nav(v){
 window.addEventListener('popstate',function(){if(S.stack.length){S.stack.pop();render();}});
 
 /* ---------- vues d'entrée ---------- */
-function onav(extra){return '<header class="onav"><button class="wordmark" data-a="goto" data-v="landing" aria-label="Accueil">TROKÉMON</button>'+(extra||'')+'</header>';}
-function vBoot(){return '<div class="outer center"><div class="wordmark">TROKÉMON</div><p class="muted">Chargement…</p></div>';}
+function onav(extra){return '<header class="onav"><button class="wordmark" data-a="goto" data-v="landing" aria-label="Accueil">'+wordmark(26)+'</button>'+(extra||'')+'</header>';}
+function vBoot(){return '<div class="outer center"><div class="wordmark bootmark">'+wordmark(44)+'</div><p class="muted">Chargement…</p></div>';}
 function vFatal(){
  return '<div class="outer">'+onav('')+'<div class="authwrap"><h1>Un souci est survenu</h1><p class="err" role="alert">'+esc(S.err)+'</p><button class="btn" data-a="logout">Revenir à l\'accueil</button></div></div>';
 }
@@ -226,9 +235,9 @@ function tabbar(){
  }).join('')+'</nav>';
 }
 function side(){
- return '<aside class="side" aria-label="Navigation principale"><div class="wordmark" style="padding:8px 12px 20px 12px">TROKÉMON</div>'+
+ return '<aside class="side" aria-label="Navigation principale"><div class="wordmark" style="padding:8px 12px 20px 12px">'+wordmark(28)+'</div>'+
  navItems().map(function(t){return '<button class="sidebtn" data-a="tab" data-v="'+t[0]+'"'+(S.tab===t[0]?' aria-current="page"':'')+'>'+ico(t[2])+'<span>'+t[1]+'</span></button>';}).join('')+
- '<div class="grow"></div><div class="me">'+avatar(S.user,40)+'<div class="grow"><div class="name">'+esc(S.user.pseudo)+'</div><div class="muted">Énergie '+energyObj().name+'</div></div></div></aside>';
+ '<div class="grow"></div><div class="me">'+avatar(S.user,40)+'<div class="grow"><div class="name">'+esc(S.user.pseudo)+'</div><div class="muted">'+(S.energy?'Énergie '+energyObj().name:'Énergie à choisir')+'</div></div></div></aside>';
 }
 function page(inner){return '<div class="pg">'+inner+'</div>';}
 function header(title,sub,back){
@@ -242,8 +251,14 @@ function vCarte(){
  return '<div class="mapview"><div class="mappane"><div id="lmap" role="application" aria-label="Carte des échanges. La liste des profils visibles est à côté."></div>'+
  '<div class="msearch"><div class="srow"><div class="sbox">'+ico(I.search,18)+'<input id="msearch" type="search" placeholder="Ville, code postal, carte ou n°" aria-label="Rechercher un lieu, une carte ou un numéro de carte" autocomplete="off"></div>'+
  '<button class="locbtn" data-a="locate">'+ico(I.locate,18)+'<span>Autour de moi</span></button></div><div id="sugg" class="sugg" hidden></div><div id="fchip">'+filterChipHtml()+'</div></div>'+
- '<div id="preview" class="preview"></div></div>'+
+ '<div id="preview" class="preview"></div>'+mapSliders()+'</div>'+
  '<div class="listpane"><div class="listhead"><div class="seg" role="group" aria-label="Mode">'+modes.map(function(m){return '<button data-a="mode" data-v="'+m[0]+'" aria-pressed="'+(S.mode===m[0])+'">'+m[1]+'</button>';}).join('')+'</div><div class="name" id="pcount" style="margin-top:10px"></div></div><div id="plist"></div></div></div>';
+}
+function radiusLabel(v){return +v>=300?'Illimité':v+' km';}
+function mapSliders(){
+ var z=(S.mv&&S.mv.z)||6,r=S.radius||300;
+ return '<div class="msliders"><label><span>Zoom</span><input id="zslider" type="range" min="4" max="18" step="0.5" value="'+z+'" aria-label="Zoom de la carte"></label>'+
+  '<label><span>Rayon <b id="rlabel">'+radiusLabel(r)+'</b></span><input id="rslider" type="range" min="5" max="300" step="5" value="'+r+'" aria-label="Rayon de la zone de recherche en kilomètres"></label></div>';
 }
 function filterChipHtml(){
  var f=S.itemFilter;if(!f){return '';}
@@ -278,6 +293,9 @@ function mapEntries(){
   if(S.mode==='cherchent'){return e.m.gives.length>0;}
   if(S.mode==='mutuel'){return e.mutual;}
   return true;
+ }).filter(function(e){
+  if(!S.radius||!S.mv){return true;}
+  return km({lat:S.mv.lat,lng:S.mv.lng},{lat:e.p.zone_lat,lng:e.p.zone_lng})<=S.radius;
  });
 }
 function profRow(e){
@@ -327,8 +345,10 @@ function mountMap(){
  TK.map.mount($('#lmap'),{
   center:[S.mv.lat,S.mv.lng],zoom:S.mv.z,
   onSelect:function(id){S.selected=id;syncMap();},
-  onMove:function(b,c,z){S.mv={lat:c.lat,lng:c.lng,z:z};loadMapData(b);}
+  onMove:function(b,c,z){S.mv={lat:c.lat,lng:c.lng,z:z};loadMapData(b);if(S.radius){syncMap();}},
+  onZoom:function(z){var zs=$('#zslider');if(zs&&document.activeElement!==zs){zs.value=z;}}
  });
+ TK.map.setRadius(S.radius||0,false);
  var me=S.geo||(S.user&&S.user.zone_lat!=null?{lat:S.user.zone_lat,lng:S.user.zone_lng}:null);
  TK.map.setMe(me);
  syncMap();
@@ -388,12 +408,14 @@ function vItem(t){
  var imgs=[];
  if(it.photo_front){imgs.push(['Recto',it.photo_front]);}
  if(it.photo_back){imgs.push(['Verso',it.photo_back]);}
- if(!imgs.length&&it.catalog_image){imgs.push(['Catalogue',it.catalog_image.replace('/low.webp','/high.webp')]);}
+ var cat=TK.catImg(it,'high');if(!imgs.length&&cat){imgs.push(['Catalogue',cat]);}
  var cur=Math.min(t.img||0,imgs.length-1);
- var gal=imgs.length?'<button class="gbtn" data-a="light" data-v="'+cur+'" aria-label="Agrandir la photo"><img class="gmain" src="'+esc(imgs[cur][1])+'" alt="'+esc(it.name+' - '+imgs[cur][0])+'"></button>'+
+ var gal=imgs.length?'<button class="gbtn" data-a="light" data-v="'+cur+'" aria-label="Agrandir la photo"><img class="gmain" data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(imgs[cur][1])+'" alt="'+esc(it.name+' - '+imgs[cur][0])+'"></button>'+
   (imgs.length>1?'<div class="seg" style="margin-top:8px" role="group" aria-label="Face">'+imgs.map(function(x,i){return '<button data-a="gimg" data-v="'+i+'" aria-pressed="'+(i===cur)+'">'+x[0]+'</button>';}).join('')+'</div>':''):
   '<div class="gmain cph" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</div>';
- var src=it.value_source==='cardmarket'?'Cardmarket (via TCGdex)'+(it.value_at?' · mis à jour le '+when(it.value_at):''):(it.type==='loose'?'':'Pas encore de source de prix automatique pour ce type d\'item');
+ var lv=t.live,foil=foilVariant(it.variant),val=it.value_eur,at=it.value_at,cmUrl=null;
+ if(it.type==='loose'){cmUrl=(lv&&lv.idProduct)?lv.url:TK.cmUrl(it);if(lv&&(lv.price||lv.priceFoil)){val=foil?(lv.priceFoil||lv.price):(lv.price||lv.priceFoil);at=lv.updated;}}
+ var src=(val!=null&&it.type==='loose')||it.value_source==='cardmarket'?'Cardmarket, toutes langues (via TCGdex)'+(at?' · mis à jour le '+when(at):''):(it.type==='loose'?'':'Pas encore de source de prix automatique pour ce type d\'item');
  var buy='';
  if(it.type==='sealed'){
   var links=TK.buyLinks(it),aff=links.some(function(l){return l.aff;});
@@ -411,9 +433,9 @@ function vItem(t){
   (it.variant?kv('Version',esc(it.variant)):'')+
   (it.type==='loose'?kv('État',esc(it.condition||'')):'')+
   (it.type==='graded'?kv('Grade',esc((it.grade_company||'')+' '+(it.grade||'')))+kv('N° de certificat',esc(it.cert||'')):'')+
-  kv('Estimation','<b>'+eur(it.value_eur)+'</b>'+(src?'<br><span class="muted">'+src+'</span>':''))+
+  kv('Estimation',(cmUrl?'<a class="estlink" target="_blank" rel="noopener" href="'+esc(cmUrl)+'" title="Voir sur Cardmarket"><b>'+eur(val)+'</b> ↗</a>':'<b>'+eur(val)+'</b>')+(src?'<br><span class="muted">'+src+'</span>':''))+
   (it.notes?kv('Note',esc(it.notes)):'')+
-  '<p class="note" style="margin:8px 0 0 0">Estimation indicative, pas un prix garanti.'+(it.type==='graded'?' Vérifie le certificat auprès de la société de gradation.':'')+'</p></div>'+
+  '<p class="note" style="margin:8px 0 0 0">Estimation indicative toutes langues confondues, pas un prix garanti. Le lien ouvre Cardmarket filtré sur le français pour comparer.'+(it.type==='graded'?' Vérifie le certificat auprès de la société de gradation.':'')+'</p></div>'+
   buy+seller+'</div></div>'+(actions?'<div class="foot">'+actions+'</div>':''));
 }
 function vProfileOther(t){
@@ -450,17 +472,48 @@ function ownedCount(cardId){
 function thumb(c){
  return c.image?'<img class="cthumb" loading="lazy" alt="" data-n="'+esc(c.name)+'" onerror="TK_imgFallback(this)" src="'+esc(c.image)+'">':'<div class="ph cph" style="background:'+phColor(c.name)+'">'+esc(c.name.charAt(0))+'</div>';
 }
+function nrm(x){return String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();}
+function cardBtn(c){
+ var a=S.add,sel=!!a.sel[c.card_id];a.byId[c.card_id]=c;
+ return '<button class="cat'+(sel?' sel':'')+(a.busy===c.card_id?' busy':'')+'" data-a="pickcard" data-v="'+esc(c.card_id)+'" aria-pressed="'+sel+'">'+thumb(c)+(sel?'<span class="selbadge" aria-hidden="true">✓</span>':'')+(ownedCount(c.card_id)?'<span class="ownbadge">Déjà ×'+ownedCount(c.card_id)+'</span>':'')+
+  '<div class="bd"><div class="name" style="font-size:14px">'+label(c)+'</div><div class="muted" style="font-size:12px">'+esc(c.set_name||'')+'</div></div></button>';
+}
+function loadSetCards(id){
+ var a=S.add;if(!a||a.setCards[id]||a.setLoad[id]){return;}
+ a.setLoad[id]=true;
+ TK.catalog.search('',id).then(function(r){a.setCards[id]=r.list;}).catch(function(){a.setCards[id]=[];a.err='Catalogue indisponible pour le moment. Réessaie dans un instant.';}).then(function(){if(S.add===a){render();}});
+}
+/* Arbre : génération > série (logo + sigle) > cartes. Pendant une recherche, les séries correspondantes s'ouvrent. */
 function resultsHtml(){
- var a=S.add;
+ var a=S.add,qq=a.q.trim(),qmode=qq.length>=2;
  if(a.err){return '<p class="err">'+esc(a.err)+'</p>';}
- if(a.results==null){return '<p class="muted">'+(a.loading?'Recherche…':esc(a.hint||'Tape un nom, un sigle de série ou un numéro, ou choisis une série : les cartes s\'affichent tout de suite.'))+'</p>';}
- if(!a.results.length){return '<p class="muted">'+(a.loading?'Recherche…':esc(a.hint||'Aucun résultat.'))+'</p>';}
- var n=Math.min(a.shown,a.results.length);
- return '<div class="muted" style="margin-bottom:8px" aria-live="polite">'+a.results.length+' carte'+(a.results.length>1?'s':'')+(a.loading?' · mise à jour…':'')+'</div><div class="cgrid">'+a.results.slice(0,n).map(function(c,i){
-  var sel=!!a.sel[c.card_id];
-  return '<button class="cat'+(sel?' sel':'')+(a.busy===c.card_id?' busy':'')+'" data-a="pickcard" data-v="'+i+'" aria-pressed="'+sel+'">'+thumb(c)+(sel?'<span class="selbadge" aria-hidden="true">✓</span>':'')+(ownedCount(c.card_id)?'<span class="ownbadge">Déjà ×'+ownedCount(c.card_id)+'</span>':'')+
-   '<div class="bd"><div class="name" style="font-size:14px">'+label(c)+'</div><div class="muted" style="font-size:12px">'+esc(c.set_name||'')+'</div></div></button>';
- }).join('')+'</div>'+(n<a.results.length?'<button class="btn" style="margin-top:12px;width:100%" data-a="more">Afficher plus ('+(a.results.length-n)+')</button>':'');
+ if(!S.sets){return '<p class="muted">Chargement des séries…</p>';}
+ var res=qmode&&a.results?a.results:[],bySet={};res.forEach(function(c){(bySet[c.set_id]=bySet[c.set_id]||[]).push(c);});
+ var toks=nrm(qq).split(/\s+/).filter(function(t){return t.length>=2;});
+ var vis=S.sets.filter(function(x){
+  if(!qmode){return true;}
+  if(bySet[x.id]){return true;}
+  var hay=nrm(x.name+' '+(TK.catalog.abbr(x.id)||'')+' '+x.id);
+  return toks.length&&toks.every(function(t){return hay.indexOf(t)>-1;});
+ });
+ if(qmode&&!vis.length){return '<p class="muted">'+(a.loading?'Recherche…':esc(a.hint||'Aucun résultat.'))+'</p>';}
+ var by={},order=[];
+ vis.forEach(function(x){var e=TK.eraOf(x.id);if(!by[e.k]){by[e.k]={e:e,list:[]};order.push(e.k);}by[e.k].list.push(x);});
+ order.sort(function(p,q){return by[p].e.o-by[q].e.o;});
+ var autoSets=qmode&&vis.length<=6,p=qmode?'aq|':'ab|';
+ var head=qmode?'<div class="muted" style="margin-bottom:6px" aria-live="polite">'+res.length+' carte'+(res.length>1?'s':'')+(a.loading?' · recherche…':'')+'</div>':'';
+ return head+order.map(function(k){
+  var g=by[k],ek=p+'e|'+k,eopen=S.open[ek]!==undefined?S.open[ek]:qmode;
+  var inner=g.list.map(function(x){
+   var sk=p+'s|'+x.id,open=S.open[sk]!==undefined?S.open[sk]:autoSets,ab=TK.catalog.abbr(x.id),cards=null,body='';
+   cards=qmode&&bySet[x.id]?bySet[x.id]:a.setCards[x.id];
+   if(cards){body='<div class="cgrid">'+cards.map(cardBtn).join('')+'</div>';}
+   else if(open&&eopen){loadSetCards(x.id);body='<p class="muted" style="padding:6px 0">Chargement…</p>';}
+   var cnt=(qmode&&bySet[x.id])?bySet[x.id].length:(a.setCards[x.id]?a.setCards[x.id].length:(x.official||x.total||''));
+   return '<details class="grp sub" data-gk="'+esc(sk)+'" data-set="'+esc(x.id)+'"'+(open?' open':'')+'><summary>'+setLogo(x)+'<span class="grow">'+esc(x.name)+(ab?' <span class="abbr">'+esc(ab)+'</span>':'')+'</span>'+(cnt!==''?'<span class="chip">'+cnt+'</span>':'')+'</summary>'+body+'</details>';
+  }).join('');
+  return '<details class="grp era-grp" data-gk="'+esc(ek)+'"'+(eopen?' open':'')+'><summary><span class="grow">'+esc(g.e.n)+'</span><span class="chip">'+g.list.length+'</span></summary>'+inner+'</details>';
+ }).join('');
 }
 function trayHtml(){
  var a=S.add,ids=Object.keys(a.sel),offer=a.kind==='offer';
@@ -487,7 +540,7 @@ function vAdd(){
  }else{
   body='<div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">'+
    '<input id="aq" class="field" type="search" placeholder="Nom, sigle, n° (ex. Darkrai PBL 110)" aria-label="Rechercher une carte par nom, sigle de série ou numéro" value="'+esc(a.q)+'" autocomplete="off">'+
-   '<div><label class="muted" for="aset">Série</label><select id="aset" class="field">'+setOptions(a.setId,'Toutes les séries')+'</select></div></div>'+
+   '</div>'+
    trayHtml()+'<div style="margin-top:14px">'+resultsHtml()+
    '<p style="margin-top:14px"><button class="btn sm ghost" style="color:var(--accent)" data-a="manual">Je ne trouve pas ma carte</button></p></div>';
  }
@@ -526,7 +579,7 @@ function vAddForm(title){
   '<div><label class="muted" for="f-cert">N° de certificat'+(offer?' *':'')+'</label><input id="f-cert" class="field" data-f="cert" value="'+esc(f.cert)+'" placeholder="Visible sur l\'étiquette de la slab"></div>';}
  if(a.type==='loose'&&a.price&&a.price.variants&&a.price.variants.length){fields+='<div><div class="name" style="margin-bottom:6px">Version</div><div class="vchips" role="group" aria-label="Version">'+a.price.variants.map(function(v){return '<button class="vchip" data-a="svar" data-v="'+esc(v)+'" aria-pressed="'+(f.variant===v)+'">'+esc(v)+'</button>';}).join('')+'</div></div>';}
  var priceNote;
- if(a.type==='loose'){priceNote=a.price&&a.price.price?'Cote automatique Cardmarket : <b>'+eur(a.price.price)+'</b> (mise à jour le '+when(a.price.updated)+'). Elle est calculée pour toi et ne peut pas être modifiée.':'Cote automatique en cours de chargement ou indisponible pour cette carte.';}
+ if(a.type==='loose'){priceNote=a.price&&a.price.price?'Cote automatique Cardmarket (toutes langues) : <a class="estlink" target="_blank" rel="noopener" href="'+esc(a.price.idProduct?a.price.url:TK.cmUrl(a.picked))+'"><b>'+eur(a.price.price)+'</b> ↗</a> (mise à jour le '+when(a.price.updated)+'). Elle est calculée pour toi et ne peut pas être modifiée.':'Cote automatique en cours de chargement ou indisponible pour cette carte.';}
  else if(a.type==='graded'){priceNote=(a.price&&a.price.price?'Repère : la carte non gradée vaut '+eur(a.price.price)+' sur Cardmarket. ':'')+'Pas d\'estimation automatique pour les cartes gradées en bêta : la valeur affichée sera « indisponible ».';}
  else{priceNote='Pas d\'estimation automatique pour les produits scellés en bêta : la valeur affichée sera « indisponible ».';}
  fields+='<div class="card" style="background:var(--surface2)"><div class="name" style="font-size:14px">Estimation</div><div class="note" style="margin-top:4px">'+priceNote+'</div></div>';
@@ -667,7 +720,7 @@ function render(){
   html='<div class="shell">'+side()+'<main class="main">'+body+'</main>'+tabbar()+'</div>';
  }
  if(S.sheet){html+=vSheet();}
- if(S.light){html+='<div class="lightbox" data-a="closelight" role="dialog" aria-label="Photo agrandie"><img alt="" src="'+esc(S.light)+'"></div>';}
+ if(S.light){html+='<div class="lightbox" data-a="closelight" role="dialog" aria-label="Photo agrandie"><img alt="" data-n="?" onerror="TK_imgFallback(this)" src="'+esc(S.light)+'"></div>';}
  var fo=document.activeElement,fid=fo&&fo.id&&/^(aq|zq|msearch|msgin|scustom|f-)/.test(fo.id)?fo.id:null,fpos=fid&&fo.selectionStart!=null?fo.selectionStart:null;
  var key=viewKey(),prev=$('.scroll'),pos=(prev&&key===S.lastKey)?prev.scrollTop:0;
  app.innerHTML=html;S.lastKey=key;
@@ -694,7 +747,7 @@ function loadUser(){
   try{
    var u=await DB.getProfile(DB.uid());
    if(!u){throw new Error('Profil introuvable. Le fichier supabase/schema.sql a-t-il bien été exécuté ?');}
-   S.user=u;S.energy=u.energy||'plante';applyTheme();
+   S.user=u;S.energy=u.energy||null;applyTheme();
    await loadMine();
    if(u.zone_lat!=null){S.mv={lat:u.zone_lat,lng:u.zone_lng,z:11};}
    S.tab='carte';S.stack=[];S.err='';
@@ -740,6 +793,9 @@ async function openItem(id){
  if(t.data&&t.data.user_id&&(!S.user||t.data.user_id!==S.user.id)){
   try{t.stats=await DB.getStats(t.data.user_id);if(top()===t){render();}}catch(e){}
  }
+ if(t.data&&t.data.type==='loose'&&t.data.card_id&&String(t.data.card_id).indexOf('d')!==0){
+  try{var lv=await TK.catalog.detail(t.data.card_id);if(lv){t.live=lv;if(top()===t){render();}}}catch(e){}
+ }
 }
 async function openProfile(id){
  var t={name:'profile',id:id,data:null,tab:'offers'};nav(t);
@@ -775,7 +831,7 @@ async function loadReviewState(pid){
  try{var mine=await DB.myReviewFor(pid);S.rev={pid:pid,mine:mine||null,rating:0,comment:''};}catch(e){S.rev=null;}
 }
 function startAdd(kind){
- S.add={kind:kind,type:'loose',q:'',setId:'',results:null,hint:'',shown:60,sel:{},busy:null,tok:0,loading:false,err:'',picked:null,price:null,saving:false,
+ S.add={kind:kind,type:'loose',q:'',setId:'',byId:{},setCards:{},setLoad:{},results:null,hint:'',shown:60,sel:{},busy:null,tok:0,loading:false,err:'',picked:null,price:null,saving:false,
   f:{variant:'',condition:'Near Mint',company:'PSA',grade:'',cert:'',notes:'',sealedKind:TK.SEALED_KINDS[0],custom:'',name:'',number:'',setName:''},photos:{front:null,back:null}};
  nav({name:'add'});
  TK.catalog.sets().then(function(s){S.sets=s;if(top()&&top().name==='add'){render();}}).catch(function(e){S.add.err=TK.frError(e);render();});
@@ -872,7 +928,7 @@ var ACT={
  pickphoto:function(){var i=$('input[type=file]');if(i){i.click();}},
  logout:async function(){
   try{await DB.signOut();}catch(e){}
-  S.user=null;S.stack=[];S.sheet=null;S.my={offers:[],wants:[]};S.props=[];S.energy='plante';S.geo=null;S.mapProfiles=[];S.recover=false;
+  S.user=null;S.stack=[];S.sheet=null;S.my={offers:[],wants:[]};S.props=[];S.energy=null;S.geo=null;S.mapProfiles=[];S.recover=false;
   applyTheme();goto('landing');
  },
  tab:function(v){
@@ -922,7 +978,7 @@ var ACT={
  },
  item:function(v){openItem(v);},
  gimg:function(v){top().img=+v;render();},
- light:function(v){var t=top(),imgs=[t.data.photo_front,t.data.photo_back].filter(Boolean);S.light=imgs[+v]||(t.data.catalog_image||'').replace('/low.webp','/high.webp');if(S.light){render();}},
+ light:function(v){var t=top(),imgs=[t.data.photo_front,t.data.photo_back].filter(Boolean);S.light=imgs[+v]||TK.catImg(t.data,'high')||'';if(S.light){render();}},
  closelight:function(){S.light=null;render();},
  ltab:function(v){S.listTab=v;render();},
  add:function(v){startAdd(v);},
@@ -930,7 +986,7 @@ var ACT={
  asearch:function(){runSearch(false);},
  more:function(){S.add.shown+=60;render();},
  pickcard:async function(v){
-  var a=S.add,c=a.results&&a.results[+v];if(!c){return;}
+  var a=S.add,c=a.byId&&a.byId[v];if(!c){return;}
   if(a.type==='graded'){pickCard(c);return;}
   if(a.sel[c.card_id]){delete a.sel[c.card_id];render();return;}
   var offer=a.kind==='offer';
@@ -1058,11 +1114,13 @@ document.addEventListener('submit',async function(e){
   }
  }catch(err){S.err=TK.frError(err);render();}
 });
-document.addEventListener('toggle',function(e){var d=e.target;if(d&&d.classList&&d.classList.contains('grp')){S.open[d.getAttribute('data-gk')]=d.open;}},true);
+document.addEventListener('toggle',function(e){var d=e.target;if(d&&d.classList&&d.classList.contains('grp')){S.open[d.getAttribute('data-gk')]=d.open;if(d.open&&d.getAttribute('data-set')&&S.add&&!S.add.picked){loadSetCards(d.getAttribute('data-set'));}}},true);
 document.addEventListener('input',function(e){
  var t=e.target;
  if(t.id==='aq'){S.add.q=t.value;liveSearch();}
  if(t.id==='zq'){S.zoneQ=t.value;zoneSearch(t.value);}
+ if(t.id==='zslider'){TK.map.setZoom(+t.value);}
+ if(t.id==='rslider'){var v=+t.value;S.radius=v>=300?0:v;$('#rlabel').textContent=radiusLabel(v);TK.map.setRadius(S.radius,true);syncMap();}
  if(t.id==='msearch'){mapSearch(t.value);}
  if(t.getAttribute&&t.getAttribute('data-f')&&S.add){S.add.f[t.getAttribute('data-f')]=t.value;refreshAddBtn();}
 });

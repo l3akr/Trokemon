@@ -167,7 +167,7 @@ function makeDemo(){
   DB.reviews=DB.reviews.filter(function(x){return DB.profiles.some(function(p){return p.id===x.reviewer;});});
  })();
  function createMe(email,pseudo,onboarded){
-  me={id:'me',pseudo:pseudo,avatar_url:null,energy:'plante',zone_label:onboarded?'Toulouse':null,zone_lat:onboarded?43.6:null,zone_lng:onboarded?1.44:null,onboarded:!!onboarded,email:email};
+  me={id:'me',pseudo:pseudo,avatar_url:null,energy:null,zone_label:onboarded?'Toulouse':null,zone_lat:onboarded?43.6:null,zone_lng:onboarded?1.44:null,onboarded:!!onboarded,email:email};
   DB.profiles=DB.profiles.filter(function(p){return p.id!=='me';});DB.profiles.push(me);
   DB.items=DB.items.filter(function(i){return i.user_id!=='me';});
   [5,9,8].forEach(function(c,j){DB.items.push(itemFrom(TK.DEMO_CARDS[c-1],'want','me',j));});

@@ -3,7 +3,7 @@
 :root{
   --bg:#0E0F11; --surface:#16181B; --surface2:#202327; --line:#2A2E33;
   --text:#F1F3F4; --muted:#9CA3AA;
-  --accent:#5CC27A; --accent-soft:rgba(92,194,122,.16); --on-accent:#0A130C;
+  --accent:#F5C842; --accent-soft:rgba(245,200,66,.16); --on-accent:#0A130C;
   --font-body:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif; --font-display:'Unbounded','Manrope',sans-serif;
   color-scheme:dark;
 }
@@ -230,3 +230,52 @@ details.grp[open]{padding-bottom:6px}
 .qty{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}
 .qctl{display:flex;align-items:center;gap:10px}
 .qctl b{min-width:18px;text-align:center}
+
+details.era-grp{background:transparent;border:0;padding:0;margin-top:14px}
+details.era-grp>summary{font-size:13px;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);min-height:36px;padding:0 2px}
+details.era-grp[open]{padding-bottom:0}
+details.grp.sub{margin-top:8px;padding:0 10px}
+.abbr{color:var(--muted);font-weight:700;font-size:13px}
+details.sub .cgrid{padding-bottom:6px}
+
+.msliders{position:absolute;left:10px;bottom:28px;z-index:500;background:rgba(18,20,23,.92);border:1px solid var(--line);border-radius:14px;padding:8px 12px;display:flex;flex-direction:column;gap:4px;width:min(230px,calc(100% - 90px));backdrop-filter:blur(6px)}
+.msliders label{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--muted)}
+.msliders b{color:var(--text)}
+.msliders input[type=range]{width:100%;accent-color:var(--accent);margin:0;height:22px}
+.estlink{color:var(--accent);text-decoration:none}.estlink:hover{text-decoration:underline}
+.preview{bottom:128px}
+
+/* ---------- identité visuelle : logo, fond d'ambiance par énergie ---------- */
+:root{--glow:rgba(245,200,66,.1);--glow2:rgba(245,200,66,.05);--tile:none;}
+#decor{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(900px 520px at 85% -12%,var(--glow),transparent 70%),var(--bg);transition:background .4s}
+/* un seul grand symbole d'énergie, très discret, dans un coin */
+#decor::after{content:"";position:absolute;right:-70px;bottom:-70px;width:420px;height:420px;background:var(--tile) no-repeat center/contain;opacity:1}
+/* la lueur change simplement de place selon l'énergie */
+#decor[data-e=feu]{background:radial-gradient(900px 480px at 50% 120%,var(--glow),transparent 70%),var(--bg)}
+#decor[data-e=eau]{background:radial-gradient(900px 520px at 10% -12%,var(--glow),transparent 70%),var(--bg)}
+#decor[data-e=psy]{background:radial-gradient(800px 520px at 50% -15%,var(--glow),transparent 70%),var(--bg)}
+#decor[data-e=obscurite]{background:radial-gradient(500px 420px at 85% 0,var(--glow),transparent 70%),var(--bg)}
+#decor[data-e=dragon]{background:radial-gradient(800px 480px at 100% 0,var(--glow),transparent 65%),var(--bg)}
+#decor[data-e=incolore],#decor[data-e=metal],#decor[data-e=combat]{background:radial-gradient(900px 520px at 50% -15%,var(--glow),transparent 70%),var(--bg)}
+/* logo */
+.wordmark{display:inline-flex;align-items:center;gap:9px}
+.lmark{color:var(--accent);flex:none;filter:drop-shadow(0 0 10px var(--glow))}
+.wtxt{background:linear-gradient(90deg,var(--accent),var(--text) 130%);-webkit-background-clip:text;background-clip:text;color:transparent;font-size:inherit}
+.bootmark{font-size:22px;flex-direction:column;gap:10px}
+.bootmark .lmark{animation:tkpulse 1.6s ease-in-out infinite}
+@keyframes tkpulse{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.08) rotate(6deg)}}
+@media(prefers-reduced-motion:reduce){.bootmark .lmark{animation:none}}
+/* chrome translucide pour laisser voir le décor */
+.tabbar,.side{background:rgba(14,15,17,.82);backdrop-filter:blur(10px)}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.035),transparent 60%),var(--surface);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.btn.primary{background:linear-gradient(180deg,rgba(255,255,255,.18),transparent 55%),var(--accent);box-shadow:0 6px 18px -6px var(--accent)}
+.top h1,.hero h1{font-family:var(--font-display);font-weight:600;letter-spacing:-.3px}
+.top h1{font-size:17px}
+.hero h1{font-size:clamp(26px,7vw,46px);line-height:1.15}
+.hero .hl{background:linear-gradient(90deg,var(--accent),var(--text));-webkit-background-clip:text;background-clip:text;color:transparent}
+.edots{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:18px}
+.edot{width:22px;height:22px;border-radius:50%;border:2px solid transparent;padding:0;box-shadow:0 0 0 1px var(--line);transition:transform .15s}
+.edot:hover{transform:scale(1.15)}
+.edot[aria-pressed=true]{border-color:var(--bg);box-shadow:0 0 0 2px var(--text)}
+
+#app{position:relative;z-index:1}
