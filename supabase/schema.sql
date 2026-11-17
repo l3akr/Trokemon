@@ -323,3 +323,102 @@ grant execute on function public.showcase(int) to anon, authenticated;
 alter table public.profiles alter column energy drop not null;
 alter table public.profiles alter column energy drop default;
 notify pgrst, 'reload schema';
+
+
+-- Photos d'une même carte déjà postées par un utilisateur : servent d'image quand le catalogue n'en a pas.
+create or replace function public.card_photos(ids text[])
+returns table(card_id text, photo text)
+language sql stable security definer set search_path = public as $$
+  select distinct on (i.card_id) i.card_id, i.photo_front
+  from public.items i
+  where i.card_id = any(ids) and i.photo_front is not null and i.status = 'active'
+  order by i.card_id, i.created_at desc
+$$;
+grant execute on function public.card_photos(text[]) to authenticated;
+
+
+-- ---------- Rendez-vous et double confirmation d'un échange ----------
+alter table public.proposals add column if not exists meeting jsonb;            -- {place, at, by, status: proposed|accepted|declined}
+alter table public.proposals add column if not exists confirm_from boolean not null default false;
+alter table public.proposals add column if not exists confirm_to boolean not null default false;
+
+-- Le rendez-vous, les confirmations et le passage à « done » ne se font que par les fonctions ci-dessous.
+create or replace function public.proposals_guard() returns trigger
+language plpgsql as $$
+begin
+  if new.from_user <> old.from_user or new.to_user <> old.to_user or new.give <> old.give
+     or new.get <> old.get or new.handover <> old.handover or new.created_at <> old.created_at then
+    raise exception 'Seul le statut d''une proposition peut être modifié';
+  end if;
+  if coalesce(current_setting('trokemon.rpc', true), '') <> '1' then
+    if new.meeting is distinct from old.meeting or new.confirm_from <> old.confirm_from
+       or new.confirm_to <> old.confirm_to or (new.status = 'done' and old.status <> 'done') then
+      raise exception 'Utilise les boutons de l''échange pour fixer le rendez-vous ou confirmer';
+    end if;
+  end if;
+  new.updated_at := now();
+  return new;
+end $$;
+
+create or replace function public.propose_meeting(pid uuid, place text, at timestamptz)
+returns public.proposals language plpgsql security definer set search_path = public as $$
+declare p public.proposals;
+begin
+  select * into p from public.proposals where id = pid;
+  if not found or (p.from_user <> auth.uid() and p.to_user <> auth.uid()) then raise exception 'Échange introuvable'; end if;
+  if p.status <> 'accepted' then raise exception 'Le rendez-vous se fixe une fois la proposition acceptée'; end if;
+  if char_length(trim(coalesce(place, ''))) = 0 then raise exception 'Indique un lieu'; end if;
+  perform set_config('trokemon.rpc', '1', true);
+  update public.proposals set meeting = jsonb_build_object('place', left(trim(place), 200), 'at', at, 'by', auth.uid(), 'status', 'proposed')
+    where id = pid returning * into p;
+  return p;
+end $$;
+
+create or replace function public.answer_meeting(pid uuid, accept boolean)
+returns public.proposals language plpgsql security definer set search_path = public as $$
+declare p public.proposals;
+begin
+  select * into p from public.proposals where id = pid;
+  if not found or (p.from_user <> auth.uid() and p.to_user <> auth.uid()) then raise exception 'Échange introuvable'; end if;
+  if p.meeting is null or p.meeting->>'status' <> 'proposed' then raise exception 'Aucun rendez-vous à valider'; end if;
+  if (p.meeting->>'by')::uuid = auth.uid() then raise exception 'Seule l''autre personne peut répondre à ton rendez-vous'; end if;
+  perform set_config('trokemon.rpc', '1', true);
+  update public.proposals set meeting = jsonb_set(meeting, '{status}', to_jsonb(case when accept then 'accepted' else 'declined' end))
+    where id = pid returning * into p;
+  return p;
+end $$;
+
+create or replace function public.confirm_exchange(pid uuid)
+returns public.proposals language plpgsql security definer set search_path = public as $$
+declare p public.proposals; r record;
+begin
+  select * into p from public.proposals where id = pid;
+  if not found or (p.from_user <> auth.uid() and p.to_user <> auth.uid()) then raise exception 'Échange introuvable'; end if;
+  if p.status <> 'accepted' then raise exception 'Cet échange n''est pas en cours'; end if;
+  perform set_config('trokemon.rpc', '1', true);
+  if p.from_user = auth.uid() then update public.proposals set confirm_from = true where id = pid returning * into p;
+  else update public.proposals set confirm_to = true where id = pid returning * into p; end if;
+  if p.confirm_from and p.confirm_to then
+    update public.proposals set status = 'done' where id = pid returning * into p;
+    -- items échangés : retirés de « Je propose » chez leur propriétaire…
+    update public.items set status = 'traded'
+      where status = 'active' and (
+        (user_id = p.from_user and id in (select (x->>'id')::uuid from jsonb_array_elements(p.give) x where x ? 'id'))
+        or (user_id = p.to_user and id in (select (x->>'id')::uuid from jsonb_array_elements(p.get) x where x ? 'id')));
+    -- …et la même carte est retirée de « Je recherche » chez celui qui la reçoit (une ligne par carte reçue).
+    for r in select i.match_key, i.user_id from public.items i
+             where i.id in (select (x->>'id')::uuid from jsonb_array_elements(p.give) x where x ? 'id')
+                or i.id in (select (x->>'id')::uuid from jsonb_array_elements(p.get) x where x ? 'id') loop
+      update public.items set status = 'traded' where id = (
+        select w.id from public.items w
+        where w.kind = 'want' and w.status = 'active' and w.match_key = r.match_key
+          and w.user_id = case when r.user_id = p.from_user then p.to_user else p.from_user end
+        limit 1);
+    end loop;
+  end if;
+  return p;
+end $$;
+
+grant execute on function public.propose_meeting(uuid, text, timestamptz) to authenticated;
+grant execute on function public.answer_meeting(uuid, boolean) to authenticated;
+grant execute on function public.confirm_exchange(uuid) to authenticated;

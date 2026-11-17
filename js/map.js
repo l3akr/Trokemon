@@ -27,7 +27,7 @@ TK.map={
   st.layer=L.layerGroup().addTo(map);
   var t=0;
   function moved(){
-   TK.map.redraw();
+   TK.map.redraw();TK.map.drawRadius();
    clearTimeout(t);
    t=setTimeout(function(){if(st.map===map&&st.cb.onMove){st.cb.onMove(TK.map.bounds(),map.getCenter(),map.getZoom());}},350);
   }

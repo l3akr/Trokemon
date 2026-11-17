@@ -350,3 +350,5 @@ details.sub .cgrid{padding-bottom:6px}
 .photobox.free img,.cimg.free{object-fit:contain}
 .row.match{box-shadow:none;position:relative;padding-left:8px;padding-right:8px}
 .row.match::after{content:"";position:absolute;inset:0;border:2px solid var(--accent);border-radius:12px;pointer-events:none}
+
+.mappane .leaflet-top.leaflet-right{top:64px}
