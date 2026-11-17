@@ -104,7 +104,7 @@ function presetGrid(action){
 function avatar(p,sz,ring,noaura){
  var inner=avatarBase(p,sz,ring);
  if(noaura||!p||p.supporter!=='dresseur'){return inner;}
- var en=ENERGIES.filter(function(x){return x.id===(p.energy||(p.id===(S.user&&S.user.id)?S.energy:null));})[0];
+ var en=ENERGIES.filter(function(x){return x.id===((S.user&&p.id===S.user.id&&S.energy)||p.energy||null);})[0];
  return '<span class="aura" style="--ac:'+(en?en.color:'var(--accent)')+';width:'+sz+'px;height:'+sz+'px">'+inner+'</span>';
 }
 function avatarBase(p,sz,ring){
@@ -1177,8 +1177,8 @@ var ACT={
  goto:function(v){goto(v);},
  energy:function(v){
   S.energy=v;applyTheme();
-  if(S.phase==='app'){saveProfile({energy:v});}
   render();
+  if(S.phase==='app'){saveProfile({energy:v}).then(function(){render();});}
  },
  saveenergy:async function(){if(await saveProfile({energy:S.energy})){S.zonePick=null;S.zoneRes=[];S.zoneQ='';goto('zone');}},
  pickphoto:function(){var i=$('#photofile2')||$('#photofile');if(i){i.click();}},

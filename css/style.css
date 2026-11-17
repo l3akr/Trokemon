@@ -390,3 +390,5 @@ a.btn{display:flex;align-items:center;justify-content:center;text-align:center;t
 a.btn.primary{color:var(--on-accent)}
 
 #decor::after{display:none}
+
+.avbadge{z-index:3}

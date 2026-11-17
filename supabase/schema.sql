@@ -302,16 +302,18 @@ grant execute on function public.search_items(text, int) to authenticated;
 create or replace function public.showcase(n int default 8)
 returns table (name text, number text, set_name text, set_abbr text, variant text, image text, zone_label text)
 language sql stable security definer set search_path = public as $$
+  -- cartes « rares » (estimation >= 10 EUR ou version spéciale), tirées au hasard, une par utilisateur
   select t.name, t.number, t.set_name, t.set_abbr, t.variant, t.image, t.zone_label from (
     select distinct on (i.user_id)
       i.name, i.number, i.set_name, i.set_abbr, i.variant,
-      coalesce(i.photo_front, i.catalog_image) as image, p.zone_label, i.created_at
+      coalesce(i.photo_front, i.catalog_image) as image, p.zone_label
     from public.items i join public.profiles p on p.id = i.user_id
-    where i.kind = 'offer' and i.status = 'active' and p.zone_label is not null
+    where i.kind = 'offer' and i.status = 'active' and i.type = 'loose' and p.zone_label is not null
       and coalesce(i.photo_front, i.catalog_image) is not null
-    order by i.user_id, i.created_at desc
+      and (coalesce(i.value_eur, 0) >= 10 or i.variant is not null)
+    order by i.user_id, i.value_eur desc nulls last
   ) t
-  order by t.created_at desc
+  order by random()
   limit least(coalesce(n, 8), 12);
 $$;
 grant execute on function public.showcase(int) to anon, authenticated;
