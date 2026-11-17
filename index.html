@@ -7,6 +7,10 @@
 <meta name="description" content="Trouve près de chez toi les cartes que tu cherches, propose celles que tu as et échange en main propre. Gratuit, sans abonnement.">
 <meta name="theme-color" content="#0E0F11">
 <link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Trokémon">
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
 <link rel="preconnect" href="https://assets.tcgdex.net">
@@ -26,6 +30,7 @@
 <script src="vendor/supabase.js"></script>
 <script src="config.js"></script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+<script src="js/pwa.js"></script>
 <script src="js/catalog.js"></script>
 <script src="js/db.js"></script>
 <script src="js/map.js"></script>

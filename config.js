@@ -17,13 +17,16 @@ window.TK_CONFIG = {
      amazon : ton identifiant Partenaires (ex. "monid-21") */
   AFFILIATE: { ebay: '', amazon: '' },
 
+  /* Lien de soutien facultatif (Ko-fi, Buy Me a Coffee, Tipeee, page de don...). Laisse vide pour ne rien afficher. */
+  SUPPORT_URL: 'https://fr.tipeee.com/trokemon/',
+
   /* Pages légales (legal.html). */
   LEGAL: {
     nom: 'L3AKR',
     statut: 'Particulier',
     siret: '',
     adresse: 'FRANCE',
-    email: 'l3akr@proton.me',
+    email: 'l3akr.dev@proton.me',
     directeur: 'L3AKR',
     supabaseRegion: 'Londres (eu-west-2)'
   }

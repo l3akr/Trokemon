@@ -123,3 +123,30 @@ Le titre « Supabase » vient du tableau de bord, pas du code :
 
 ## Prix Cardmarket (data/prices.json)
 Le workflow `.github/workflows/prices.yml` télécharge chaque nuit le guide des prix et le catalogue Cardmarket (fichiers publics), les associe aux cartes TCGdex et écrit `data/prices.json` + `data/report.md`. Lancement manuel : onglet Actions > « Prix Cardmarket » > Run workflow. Le site lit `data/prices.json` quand il existe (sinon cote TCGdex). Dans Settings > Actions > General, autorise « Read and write permissions » pour le workflow.
+
+## Expéditeur d'e-mails personnalisé (SMTP)
+
+Sans SMTP personnalisé, Supabase envoie depuis son propre serveur : très limité (quelques e-mails par heure) et expéditeur « Supabase Auth ». À faire avant d'ouvrir au public :
+
+1. **Un nom de domaine** (~8 €/an chez OVH, Gandi, Porkbun…). Sans domaine à toi, les e-mails finissent presque toujours en spam (un « @gmail.com » comme expéditeur est refusé par les règles DMARC de Google).
+2. **Un fournisseur d'envoi** avec offre gratuite : Brevo (300 e-mails/jour), Resend (3 000/mois) ou MailerSend. Crée un compte, ajoute ton domaine, puis copie les enregistrements DNS qu'il te donne (SPF, DKIM, DMARC) chez ton registrar. Attends « vérifié ».
+3. Supabase > **Authentication > Emails > SMTP Settings** : active « Enable custom SMTP » et renseigne l'hôte, le port (587), l'utilisateur, le mot de passe/clé API du fournisseur, l'adresse expéditrice (ex. `no-reply@tondomaine.fr`) et le nom d'expéditeur `Trokémon`.
+4. **Authentication > Emails > Templates** : colle `supabase/email-templates/confirm.html` (Confirm signup) et `recovery.html` (Reset password), avec les objets « Confirme ton e-mail Trokémon » et « Réinitialise ton mot de passe Trokémon ».
+5. Teste : crée un compte avec une adresse Gmail et une adresse Outlook ; vérifie que le mail arrive en boîte de réception.
+6. Ajoute le nom du fournisseur d'e-mails dans `legal.html` (sous-traitants) si tu veux le nommer.
+
+## Modération (signalements, blocages, suspension)
+
+- Les membres signalent depuis un profil ou un échange (motifs : arnaque, fausses photos, comportement, contenu, spam, autre) et peuvent bloquer (plus de carte, de proposition ni de message entre eux).
+- **Lire les signalements** : Supabase > Table Editor > `reports` (tri par `created_at`, colonne `status` à passer à `reviewed`/`closed`). Prévois de regarder au moins une fois par jour une fois ouvert au public.
+- **Suspendre un compte** : Table Editor > `profiles` > coche `banned` : le profil et toutes ses cartes disparaissent pour les autres. Pour une suppression complète : Authentication > Users > supprimer l'utilisateur.
+- Les membres peuvent exporter leurs données et supprimer leur compte depuis Profil > Sécurité et données (fonctions `export_my_data` et `delete_my_account` : relance `supabase/schema.sql`).
+- Quand le nombre de signalements dépasse ce que tu peux traiter seul, recrute 1 ou 2 modérateurs bénévoles de confiance (compte Supabase « lecture seule » sur `reports`) avant d'envisager de payer quelqu'un.
+
+## Soutien (don)
+
+`config.js` > `SUPPORT_URL` : colle ton lien Ko-fi / Buy Me a Coffee / Tipeee. Un bloc « Soutenir Trokémon » apparaît alors dans le Profil. Vide = rien d'affiché.
+
+## Soutiens Tipeee (aura « dresseur »)
+
+Colonne `supporter` de `profiles` (relance `supabase/schema.sql`) : valeurs `dresseur` (aura animée aux couleurs de l'énergie du membre, partout où sa photo apparaît sauf sur les pastilles de la carte) ou `tipeur` (pas d'effet visuel, sert à ta liste de remerciements). Tu la renseignes à la main dans Supabase > Table Editor > `profiles` ; un membre ne peut pas se l'attribuer lui-même. Pour retrouver un soutien, demande-lui son pseudo Trokémon à l'inscription sur Tipeee.

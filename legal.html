@@ -70,6 +70,7 @@ td,th{border:1px solid #262c36;padding:8px;text-align:left;vertical-align:top}
  <tr><td>Zone approximative (nom de lieu + coordonnées arrondies à environ 2 km)</td><td>T'afficher sur la carte et trouver des échanges proches. Ta position précise n'est jamais enregistrée.</td><td>Exécution du service ; ton choix de la renseigner</td><td>Jusqu'à modification ou suppression du compte</td></tr>
  <tr><td>Cartes proposées/recherchées (nom, numéro, sigle de série, version), photos recto/verso, notes</td><td>Permettre les échanges. Les cartes récemment proposées sont affichées publiquement sur la page d'accueil avec la seule ville du membre (ni pseudo, ni coordonnées). Les photos sont accessibles par lien public.</td><td>Exécution du service</td><td>Jusqu'au retrait de l'item ou de ton compte</td></tr>
  <tr><td>Propositions, messages, avis et notes</td><td>Organiser les échanges et établir la confiance entre membres (avis visibles des membres connectés)</td><td>Exécution du service ; intérêt légitime</td><td>Tant que le compte existe</td></tr>
+ <tr><td>Signalements et blocages que tu effectues</td><td>Protéger les membres et traiter les abus</td><td>Intérêt légitime (sécurité du service)</td><td>Blocages : tant que le compte existe. Signalements : le temps du traitement</td></tr>
  <tr><td>Position de ton appareil (si tu cliques « Autour de moi »)</td><td>Centrer la carte. Utilisée dans ton navigateur uniquement, non envoyée à nos serveurs.</td><td>Ton consentement (autorisation du navigateur)</td><td>Non conservée</td></tr>
 </table>
 <h3>Destinataires et sous-traitants</h3>
@@ -77,7 +78,7 @@ td,th{border:1px solid #262c36;padding:8px;text-align:left;vertical-align:top}
 <h3>Cookies et stockage local</h3>
 <p>Trokémon n'utilise aucun cookie de suivi ni outil de mesure d'audience ou de publicité. Ton navigateur conserve seulement, en stockage local, ta session de connexion et le style de carte choisi : ces éléments sont strictement nécessaires au service et ne demandent pas de consentement.</p>
 <h3>Tes droits</h3>
-<p>Tu peux demander l'accès, la rectification, l'effacement, la limitation, l'opposition et la portabilité de tes données en écrivant à l'adresse de contact ci-dessus. Tu peux aussi modifier ta photo, ta zone et retirer tes cartes depuis l'application. Pour supprimer ton compte, écris-nous : nous supprimons le compte et les données associées dans un délai d'un mois. Tu peux introduire une réclamation auprès de la <a href="https://www.cnil.fr/fr/plaintes" rel="noopener">CNIL</a>.</p>
+<p>Tu peux demander l'accès, la rectification, l'effacement, la limitation, l'opposition et la portabilité de tes données en écrivant à l'adresse de contact ci-dessus. Depuis l'application (Profil > Sécurité et données), tu peux aussi télécharger toutes tes données au format JSON et supprimer définitivement ton compte, ce qui efface ton profil, tes cartes, tes photos, tes échanges et tes messages. Tu peux modifier ta photo, ta zone et retirer tes cartes à tout moment. Pour supprimer ton compte, écris-nous : nous supprimons le compte et les données associées dans un délai d'un mois. Tu peux introduire une réclamation auprès de la <a href="https://www.cnil.fr/fr/plaintes" rel="noopener">CNIL</a>.</p>
 <h3>Mineurs</h3>
 <p>Trokémon s'adresse aux personnes de 15 ans et plus. Les mineurs sont invités à utiliser le service avec l'accord de leurs parents et à ne jamais organiser de rendez-vous seuls.</p>
 <h3>Sécurité</h3>
@@ -102,7 +103,7 @@ td,th{border:1px solid #262c36;padding:8px;text-align:left;vertical-align:top}
 <h3>6. Avis et notes</h3>
 <p>Après un échange marqué « effectué », chaque participant peut noter l'autre (1 à 5) et laisser un commentaire. Les avis doivent refléter une expérience réelle, rester respectueux et ne contenir aucune donnée personnelle. Un avis est définitif ; un avis contraire aux présentes conditions peut être supprimé sur signalement.</p>
 <h3>7. Signalement et modération</h3>
-<p>Pour signaler un profil, un item ou un avis, écris à l'adresse de contact. L'éditeur peut retirer un contenu ou suspendre un compte qui ne respecte pas ces conditions, avec ou sans préavis en cas d'abus grave.</p>
+<p>Tu peux signaler une personne depuis son profil ou depuis un échange, et la bloquer : elle ne te voit plus et ne peut plus t'écrire. Les signalements (motif, détails, personne concernée) sont lus par l'éditeur, conservés tant qu'ils sont utiles au traitement de l'abus puis supprimés, et ne sont jamais communiqués à la personne signalée. Pour signaler un avis ou un autre problème, écris à l'adresse de contact. L'éditeur peut retirer un contenu ou suspendre un compte qui ne respecte pas ces conditions, avec ou sans préavis en cas d'abus grave.</p>
 <h3>8. Conseils de prudence</h3>
 <p>Vérifie le certificat des cartes gradées auprès de la société de gradation. Contrôle l'état de l'item devant l'autre personne. Choisis un lieu public. Méfie-toi des demandes de paiement à l'avance ou de sortie de la plateforme. Les mineurs doivent être accompagnés.</p>
 <h3>9. Responsabilité</h3>
@@ -118,7 +119,7 @@ td,th{border:1px solid #262c36;padding:8px;text-align:left;vertical-align:top}
  var L=(window.TK_CONFIG&&window.TK_CONFIG.LEGAL)||{};
  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
  function v(x,label){return x?esc(x):'<span class="todo">['+label+' à compléter dans config.js]</span>';}
- document.getElementById('maj').textContent='11 novembre 2026';
+ document.getElementById('maj').textContent='17 novembre 2026';
  document.getElementById('editeur').innerHTML=
   '<b>'+v(L.nom,'Nom')+'</b><br>'+v(L.statut,'Statut')+(L.siret?'<br>SIRET : '+esc(L.siret):'')+'<br>'+v(L.adresse,'Adresse')+'<br>Email : '+v(L.email,'Email');
  document.getElementById('directeur').innerHTML=v(L.directeur||L.nom,'Directeur de la publication');

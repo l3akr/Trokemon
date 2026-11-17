@@ -352,3 +352,31 @@ details.sub .cgrid{padding-bottom:6px}
 .row.match::after{content:"";position:absolute;inset:0;border:2px solid var(--accent);border-radius:12px;pointer-events:none}
 
 .mappane .leaflet-top.leaflet-right{top:64px}
+
+.linkbtn{background:none;border:0;padding:4px 2px;color:var(--muted);text-decoration:underline;font:inherit;font-size:13px;cursor:pointer}
+.seg.col{display:flex;flex-direction:column;gap:6px;background:none;padding:0}
+.seg.col button{width:100%;min-height:44px;text-align:left;padding:0 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--text);font-weight:600}
+.seg.col button[aria-pressed=true]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent)}
+textarea.field{height:auto;padding:10px 12px;resize:vertical}
+
+/* Aura animée des soutiens « dresseur » : suit la couleur de l'énergie du membre */
+.aura{position:relative;display:inline-flex;flex:none;border-radius:50%}
+.aura::before{content:"";position:absolute;inset:-7px;border-radius:50%;background:conic-gradient(from 0deg,var(--ac),transparent 28%,var(--ac) 52%,transparent 78%,var(--ac));filter:blur(7px);opacity:.9;animation:auraSpin 4.5s linear infinite}
+.aura::after{content:"";position:absolute;inset:-2px;border-radius:50%;box-shadow:0 0 12px 3px var(--ac);animation:auraPulse 2.6s ease-in-out infinite}
+.aura>.av,.aura>svg{position:relative;z-index:1}
+@keyframes auraSpin{to{transform:rotate(360deg)}}
+@keyframes auraPulse{0%,100%{opacity:.45}50%{opacity:1}}
+@media (prefers-reduced-motion:reduce){.aura::before,.aura::after{animation:none}}
+
+.merci-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:16px 10px}
+.merci-i{display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;font-weight:700;font-size:14px;padding:6px 0;word-break:break-word}
+.pwa-bar{position:fixed;left:8px;right:8px;z-index:60;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 10px;border:1px solid var(--line);border-radius:14px;background:var(--panel,#16181c);box-shadow:0 6px 24px rgba(0,0,0,.5);font-size:13px;font-weight:600;max-width:520px;margin:0 auto}
+.pwa-bar img{border-radius:9px;flex:none}
+.pwa-bar span{flex:1;line-height:1.25}
+.pwa-bar .btn{min-height:36px;padding:0 14px;flex:none;width:auto}
+.pwa-x{flex:none;width:32px;height:32px;border:0;background:transparent;color:var(--muted);font-size:22px;line-height:1}
+.pwa-ov{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.6);display:flex;align-items:flex-end}
+.pwa-sh{width:100%;background:var(--panel,#16181c);border-radius:18px 18px 0 0;padding:20px 18px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px}
+.pwa-sh ol{margin:4px 0;padding-left:20px;line-height:1.5}
+.pwa-ic{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:0 6px}
+@media (min-width:700px) and (pointer:fine){.pwa-bar{display:none}}

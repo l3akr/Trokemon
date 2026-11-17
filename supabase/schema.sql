@@ -422,3 +422,111 @@ end $$;
 grant execute on function public.propose_meeting(uuid, text, timestamptz) to authenticated;
 grant execute on function public.answer_meeting(uuid, boolean) to authenticated;
 grant execute on function public.confirm_exchange(uuid) to authenticated;
+
+
+-- ---------- Modération : signalements, blocages, suspension ----------
+alter table public.profiles add column if not exists banned boolean not null default false;  -- à passer à true depuis le Table Editor pour suspendre un compte
+
+drop policy if exists profiles_select on public.profiles;
+create policy profiles_select on public.profiles for select to authenticated using (not banned or id = auth.uid());
+drop policy if exists items_select on public.items;
+create policy items_select on public.items for select to authenticated
+  using ((status = 'active' and not exists (select 1 from public.profiles p where p.id = user_id and p.banned)) or user_id = auth.uid());
+
+create table if not exists public.blocks (
+  blocker    uuid not null references public.profiles(id) on delete cascade,
+  blocked    uuid not null references public.profiles(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (blocker, blocked),
+  check (blocker <> blocked)
+);
+alter table public.blocks enable row level security;
+drop policy if exists blocks_select on public.blocks;
+create policy blocks_select on public.blocks for select to authenticated using (blocker = auth.uid());
+drop policy if exists blocks_insert on public.blocks;
+create policy blocks_insert on public.blocks for insert to authenticated with check (blocker = auth.uid());
+drop policy if exists blocks_delete on public.blocks;
+create policy blocks_delete on public.blocks for delete to authenticated using (blocker = auth.uid());
+
+-- Identifiants bloqués dans les deux sens (pour masquer les profils concernés).
+create or replace function public.my_blocks() returns setof uuid
+language sql stable security definer set search_path = public as $$
+  select blocked from public.blocks where blocker = auth.uid()
+  union select blocker from public.blocks where blocked = auth.uid()
+$$;
+grant execute on function public.my_blocks() to authenticated;
+
+-- Impossible d'envoyer une proposition ou un message entre deux personnes qui se sont bloquées.
+create or replace function public.forbid_blocked() returns trigger
+language plpgsql security definer set search_path = public as $$
+declare a uuid; b uuid;
+begin
+  if tg_table_name = 'proposals' then a := new.from_user; b := new.to_user;
+  else select case when p.from_user = new.sender then p.to_user else p.from_user end into b from public.proposals p where p.id = new.proposal_id; a := new.sender; end if;
+  if exists (select 1 from public.blocks where (blocker = a and blocked = b) or (blocker = b and blocked = a)) then
+    raise exception 'Cette personne n''est pas joignable';
+  end if;
+  return new;
+end $$;
+drop trigger if exists proposals_forbid_blocked on public.proposals;
+create trigger proposals_forbid_blocked before insert on public.proposals for each row execute function public.forbid_blocked();
+drop trigger if exists messages_forbid_blocked on public.messages;
+create trigger messages_forbid_blocked before insert on public.messages for each row execute function public.forbid_blocked();
+
+create table if not exists public.reports (
+  id          uuid primary key default gen_random_uuid(),
+  reporter    uuid not null references public.profiles(id) on delete cascade,
+  target      uuid not null references public.profiles(id) on delete cascade,
+  proposal_id uuid references public.proposals(id) on delete set null,
+  reason      text not null check (reason in ('arnaque','faux','comportement','contenu','spam','autre')),
+  details     text check (char_length(details) <= 600),
+  status      text not null default 'new' check (status in ('new','reviewed','closed')),
+  created_at  timestamptz not null default now(),
+  check (reporter <> target)
+);
+alter table public.reports enable row level security;
+drop policy if exists reports_insert on public.reports;
+create policy reports_insert on public.reports for insert to authenticated with check (reporter = auth.uid());
+-- Aucune policy de lecture : seuls toi (Table Editor) et le serveur voient les signalements.
+create index if not exists reports_target on public.reports (target, created_at desc);
+
+-- Droit à l'effacement : supprime les photos, le profil, les cartes, les échanges et le compte.
+create or replace function public.delete_my_account() returns void
+language plpgsql security definer set search_path = public, storage, auth as $$
+begin
+  if auth.uid() is null then raise exception 'Non connecté'; end if;
+  delete from storage.objects where bucket_id = 'photos' and (storage.foldername(name))[1] = auth.uid()::text;
+  delete from auth.users where id = auth.uid();
+end $$;
+grant execute on function public.delete_my_account() to authenticated;
+
+-- Droit d'accès / portabilité : toutes tes données en un JSON.
+create or replace function public.export_my_data() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select jsonb_build_object(
+    'exporte_le', now(),
+    'profil', (select to_jsonb(p) from public.profiles p where p.id = auth.uid()),
+    'items', coalesce((select jsonb_agg(to_jsonb(i)) from public.items i where i.user_id = auth.uid()), '[]'::jsonb),
+    'propositions', coalesce((select jsonb_agg(to_jsonb(x)) from public.proposals x where x.from_user = auth.uid() or x.to_user = auth.uid()), '[]'::jsonb),
+    'messages_envoyes', coalesce((select jsonb_agg(to_jsonb(m)) from public.messages m where m.sender = auth.uid()), '[]'::jsonb),
+    'avis_donnes', coalesce((select jsonb_agg(to_jsonb(r)) from public.reviews r where r.reviewer = auth.uid()), '[]'::jsonb),
+    'avis_recus', coalesce((select jsonb_agg(to_jsonb(r)) from public.reviews r where r.reviewed = auth.uid()), '[]'::jsonb),
+    'blocages', coalesce((select jsonb_agg(to_jsonb(b)) from public.blocks b where b.blocker = auth.uid()), '[]'::jsonb)
+  )
+$$;
+grant execute on function public.export_my_data() to authenticated;
+
+
+-- ---------- Soutiens (Tipeee) : aura animée « dresseur » ----------
+alter table public.profiles add column if not exists supporter text check (supporter in ('tipeur', 'dresseur'));
+-- Seul toi (Table Editor) peux modifier cette colonne : un membre connecté ne peut pas se l'attribuer.
+create or replace function public.guard_supporter() returns trigger
+language plpgsql as $$
+begin
+  if new.supporter is distinct from old.supporter and auth.uid() is not null then
+    raise exception 'Cette valeur ne peut pas être modifiée';
+  end if;
+  return new;
+end $$;
+drop trigger if exists profiles_guard_supporter on public.profiles;
+create trigger profiles_guard_supporter before update on public.profiles for each row execute function public.guard_supporter();

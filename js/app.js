@@ -19,7 +19,7 @@ var CONDITIONS=[['Mint','Mint (neuve)'],['Near Mint','Near Mint'],['Excellent','
 var COMPANIES=['PSA','BGS','CGC','SGC','PCA','Autre'];
 var STATUS={sent:'Envoyée',accepted:'Acceptée',declined:'Refusée',cancelled:'Annulée',done:'Échange effectué'};
 
-var S={
+var S={blocked:[],blockedList:[],
  phase:'boot',err:'',notice:null,form:{pseudo:'',email:''},recover:false,
  user:null,energy:null,tab:'carte',stack:[],
  my:{offers:[],wants:[]},listTab:'offers',sets:null,
@@ -101,7 +101,13 @@ function presetGrid(action){
  var cur=presetIdx(S.user&&S.user.avatar_url);
  return '<div class="pgrid">'+PRESETS.map(function(d,i){return '<button class="pbtn" data-a="'+action+'" data-v="'+i+'" aria-label="Avatar '+(i+1)+'" aria-pressed="'+(cur===i)+'">'+presetSvg(i,56,'width:100%;height:100%')+'</button>';}).join('')+'</div>';
 }
-function avatar(p,sz,ring){
+function avatar(p,sz,ring,noaura){
+ var inner=avatarBase(p,sz,ring);
+ if(noaura||!p||p.supporter!=='dresseur'){return inner;}
+ var en=ENERGIES.filter(function(x){return x.id===(p.energy||(p.id===(S.user&&S.user.id)?S.energy:null));})[0];
+ return '<span class="aura" style="--ac:'+(en?en.color:'var(--accent)')+';width:'+sz+'px;height:'+sz+'px">'+inner+'</span>';
+}
+function avatarBase(p,sz,ring){
  var st='width:'+sz+'px;height:'+sz+'px;'+(ring?'box-shadow:0 0 0 3px var(--bg),0 0 0 5px var(--accent);':'');
  if(p&&presetIdx(p.avatar_url)>=0){return presetSvg(presetIdx(p.avatar_url),sz,st);}
  if(p&&p.avatar_url){return '<img class="av" src="'+esc(p.avatar_url)+'" alt="" style="'+st+'">';}
@@ -211,7 +217,7 @@ function vPhoto(){
  var has=!!S.user.avatar_url;
  return '<div class="outer">'+onav('')+'<div class="authwrap" style="text-align:center"><div class="steps">Étape 2 sur 4</div><h1>Ajoute une photo de profil</h1>'+
  '<p class="muted" style="margin:0 0 24px 0">Elle apparaît sur ton profil auprès des autres dresseurs. Tu pourras la changer plus tard.</p>'+
- '<div style="padding:8px 0 0 0;display:flex;justify-content:center;margin-bottom:20px">'+avatar(S.user,136,true)+'</div>'+
+ '<div style="padding:22px 0 8px 0;display:flex;justify-content:center;margin-bottom:20px">'+avatar(S.user,136,true)+'</div>'+
  '<div class="muted" style="margin-bottom:8px">Choisis un avatar</div>'+presetGrid('setpreset')+
  '<input type="file" accept="image/*" id="photofile" hidden>'+
  '<button class="btn" data-a="pickphoto" style="margin-top:14px;display:flex;align-items:center;justify-content:center;gap:8px">'+ico(I.camera,20)+'Ou envoyer ma propre photo</button>'+
@@ -225,7 +231,7 @@ function energyTiles(){
 function vEnergy(){
  return '<div class="outer">'+onav('<button class="btn sm ghost" data-a="goto" data-v="photo">‹ Retour</button>')+'<div class="authwrap" style="max-width:640px;text-align:center"><div class="steps">Étape 3 sur 4</div><h1>Choisis ton énergie</h1>'+
  '<p class="muted" style="margin:0 0 20px 0">Elle donne sa couleur à ton profil et à ta zone sur la carte. Tu pourras la changer plus tard.</p>'+
- '<div style="padding:8px 0 0 0;display:flex;justify-content:center;margin-bottom:24px">'+avatar(S.user,88,true)+'</div>'+energyTiles()+
+ '<div style="padding:22px 0 8px 0;display:flex;justify-content:center;margin-bottom:24px">'+avatar(S.user,88,true)+'</div>'+energyTiles()+
  '<button class="btn primary" style="margin-top:20px" data-a="saveenergy">Continuer</button></div></div>';
 }
 function zoneHint(q,res){
@@ -302,7 +308,7 @@ function cardGroups(items){
  return order.map(function(k){return g[k];}).sort(function(a,b){return b.items.length-a.items.length;});
 }
 function mapEntries(){
- return S.mapProfiles.map(function(p){
+ return S.mapProfiles.filter(function(p){return S.blocked.indexOf(p.id)<0;}).map(function(p){
   var items=S.mapIdx[p.id]||[],m=matchFor(items);
   return {p:p,items:items,m:m,mutual:!S.itemFilter&&m.gets.length>0&&m.gives.length>0};
  }).filter(function(e){
@@ -349,7 +355,7 @@ function updatePreview(es){
 }
 function syncMap(){
  var es=mapEntries();
- TK.map.setEntries(es.map(function(e){return {id:e.p.id,letter:esc(e.p.pseudo.charAt(0).toUpperCase()),inner:avatar(e.p,30),lat:e.p.zone_lat,lng:e.p.zone_lng,mutual:e.mutual,title:e.p.pseudo};}),S.selected);
+ TK.map.setEntries(es.map(function(e){return {id:e.p.id,letter:esc(e.p.pseudo.charAt(0).toUpperCase()),inner:avatar(e.p,30,false,true),lat:e.p.zone_lat,lng:e.p.zone_lng,mutual:e.mutual,title:e.p.pseudo};}),S.selected);
  updateList(es);updatePreview(es);
 }
 async function loadMapData(b){
@@ -477,13 +483,14 @@ function vProfileOther(t){
  var p=t.data.profile,items=t.data.items,tab=t.tab||'offers';
  var list=items.filter(function(i){return i.kind===(tab==='offers'?'offer':'want');});
  var m=matchFor(items),mk=keysOf(tab==='offers'?S.my.wants:S.my.offers),hit=function(i){return !!mk[i.match_key];},hitN=list.filter(hit).length;
- return page(header('Profil',null,true)+'<div class="scroll"><div style="text-align:center"><div style="padding:8px 0 0 0;display:flex;justify-content:center">'+avatar(p,72,true)+'</div>'+
+ return page(header('Profil',null,true)+'<div class="scroll"><div style="text-align:center"><div style="padding:22px 0 8px 0;display:flex;justify-content:center">'+avatar(p,72,true)+'</div>'+
   '<div style="font-size:20px;font-weight:800;margin-top:10px">'+esc(p.pseudo)+'</div><div class="muted">Zone '+esc(p.zone_label||'')+(dist(p)?' · '+dist(p):'')+'</div>'+
   '<div style="margin-top:6px">'+statsLine(t.data.stats)+'</div>'+
   (m.gets.length&&m.gives.length?'<div style="margin-top:8px"><span class="chip acc">Échange mutuel possible</span></div>':'')+'</div>'+
   '<div class="seg" style="margin:16px 0 4px 0" role="group"><button data-a="ptab" data-v="offers" aria-pressed="'+(tab==='offers')+'">Propose</button><button data-a="ptab" data-v="wants" aria-pressed="'+(tab==='wants')+'">Recherche</button><button data-a="ptab" data-v="reviews" aria-pressed="'+(tab==='reviews')+'">Avis</button></div>'+
-  (tab==='reviews'?reviewList(t.data.reviews):list.length?(hitN?'<p class="note" style="display:flex;align-items:center;gap:6px;margin:6px 0">'+sniper(16)+'<span>'+hitN+(tab==='offers'?' carte'+(hitN>1?'s':'')+' que tu cherches':' carte'+(hitN>1?'s':'')+' qu\'il ou elle cherche et que tu as')+'</span></p>':'')+setGroups(list,'u-'+p.id+'-'+tab,function(i){return itemRow(i,false,hit(i));},hit):'<p class="muted" style="padding:20px 0">Rien ici pour l\'instant.</p>')+'</div>'+
-  '<div class="foot"><button class="btn primary" data-a="propose" data-v="'+esc(p.id)+'">Proposer un échange</button></div>');
+  (tab==='reviews'?reviewList(t.data.reviews):list.length?(hitN?'<p class="note" style="display:flex;align-items:center;gap:6px;margin:6px 0">'+sniper(16)+'<span>'+hitN+(tab==='offers'?' carte'+(hitN>1?'s':'')+' que tu cherches':' carte'+(hitN>1?'s':'')+' qu\'il ou elle cherche et que tu as')+'</span></p>':'')+setGroups(list,'u-'+p.id+'-'+tab,function(i){return itemRow(i,false,hit(i));},hit):'<p class="muted" style="padding:20px 0">Rien ici pour l\'instant.</p>')+
+  '<p class="note" style="text-align:center;margin:18px 0 90px 0"><button class="linkbtn" data-a="reportopen" data-v="'+esc(p.id)+'|'+esc(p.pseudo)+'">Signaler</button> · <button class="linkbtn" data-a="blockopen" data-v="'+esc(p.id)+'|'+esc(p.pseudo)+'">Bloquer</button></p>'+
+  '</div><div class="foot"><button class="btn primary" data-a="propose" data-v="'+esc(p.id)+'">Proposer un échange</button></div>');
 }
 
 /* ---------- ajout d'une carte ---------- */
@@ -762,6 +769,18 @@ function vEchanges(){
 function msgHtml(){
  return S.msgs.length?S.msgs.map(function(m){return '<div class="msg'+(m.sender===S.user.id?' me':'')+'">'+esc(m.body)+'</div>';}).join(''):'<p class="muted">Aucun message pour l\'instant. Propose un lieu et une heure de rendez-vous.</p>';
 }
+function vMerci(t){
+ var L=t.data;
+ var sup=(window.TK_CONFIG||{}).SUPPORT_URL;
+ var card=function(p){return '<div class="merci-i">'+avatar(p,56)+'<span>'+esc(p.pseudo)+'</span></div>';};
+ var dr=(L||[]).filter(function(p){return p.supporter==='dresseur';}),ti=(L||[]).filter(function(p){return p.supporter==='tipeur';});
+ return page(header('Merci',null,true)+'<div class="scroll"><p style="margin:6px 0 14px 0">Trokémon est gratuit, sans pub et sans revendre tes données. Il tient grâce à celles et ceux qui le soutiennent. Merci à eux.</p>'+
+  (L===null?'<p class="muted">Chargement…</p>':
+   (dr.length?'<div class="name" style="margin:16px 0 10px 0">Dresseurs</div><div class="merci-g">'+dr.map(card).join('')+'</div>':'')+
+   (ti.length?'<div class="name" style="margin:22px 0 10px 0">Tipeurs</div><div class="merci-g">'+ti.map(card).join('')+'</div>':'')+
+   (!dr.length&&!ti.length?'<p class="muted">Personne pour l\'instant : tu peux être le premier.</p>':''))+
+  (sup?'<a class="btn primary" style="display:flex;justify-content:center;margin-top:24px" href="'+esc(sup)+'" target="_blank" rel="noopener">Soutenir Trokémon</a>':'')+'</div>');
+}
 function vProposal(t){
  var pr=S.props.filter(function(x){return x.id===t.id;})[0];
  if(!pr){return loading('Échange');}
@@ -792,7 +811,7 @@ function vProposal(t){
   '<div>'+stepsHtml+'</div>'+
   '<div class="card"><div class="name" style="margin-bottom:4px">Tu donnes</div>'+snapRows(iGive)+'<div class="name" style="margin:12px 0 4px 0">Tu reçois</div>'+snapRows(iGet)+'<div class="note" style="margin-top:6px">Touche une carte pour voir ses photos et son estimation.</div><div class="kv"><span>Valeur à l\'envoi</span><span style="text-align:right">'+eur(iAmFrom?pr.give_value:pr.get_value)+' contre '+eur(iAmFrom?pr.get_value:pr.give_value)+'</span></div></div>'+
   '<div class="card" style="background:var(--surface2)"><div class="name" style="margin-bottom:6px">Avant le rendez-vous</div><div style="font-size:14px">Vérifie le certificat des cartes gradées.<br>Contrôle l\'état devant l\'autre personne.<br>Choisis un lieu public ou une boutique partenaire.</div></div>'+
-  act+meetCard(pr,o)+confirmCard(pr,iAmFrom,o)+review+chat+'</div></div>');
+  act+meetCard(pr,o)+confirmCard(pr,iAmFrom,o)+review+chat+'<p class="note" style="text-align:center;margin:14px 0 0 0"><button class="linkbtn" data-a="reportopen" data-v="'+esc(o.id||'')+'|'+esc(o.pseudo||'')+'|'+esc(pr.id)+'">Signaler '+esc(o.pseudo||'cette personne')+'</button></p></div></div>');
 }
 
 /* ---------- profil ---------- */
@@ -804,7 +823,13 @@ function vProfil(){
  '<div class="name" style="margin:20px 0 4px 0">Ta zone</div><div class="muted" style="margin-bottom:8px">'+(u.zone_label?esc(u.zone_label)+' (zone approximative, environ 2 km)':'Non définie : tu n\'apparais pas sur la carte.')+'</div>'+
  '<button class="btn" data-a="editzone">Modifier ma zone</button>'+
  '<details class="grp" style="margin-top:20px" data-gk="prof|nrj"'+(S.open['prof|nrj']?' open':'')+'><summary><span class="grow">Ton énergie</span></summary><div style="padding-top:6px">'+energyTiles()+'</div></details>'+
+ '<details class="grp" style="margin-top:20px" data-gk="prof|data"'+(S.open['prof|data']?' open':'')+'><summary><span class="grow">Sécurité et données</span></summary><div style="padding-top:8px">'+
+  '<div class="name" style="font-size:15px">Utilisateurs bloqués ('+S.blockedList.length+')</div>'+
+  (S.blockedList.length?S.blockedList.map(function(b){return '<div class="row"><span class="grow">'+esc(b.pseudo)+'</span><button class="btn sm" data-a="unblock" data-v="'+esc(b.id)+'">Débloquer</button></div>';}).join(''):'<p class="note" style="margin:4px 0 10px 0">Personne. Tu peux bloquer ou signaler quelqu\'un depuis son profil.</p>')+
+  '<button class="btn" style="margin-top:8px" data-a="exportdata">Télécharger mes données</button>'+
+  '<button class="btn" style="margin-top:8px;color:var(--danger,#ff6b6b)" data-a="delopen">Supprimer mon compte</button></div></details>'+
  (TK.demo?'<p class="note" style="margin-top:16px">Mode démo : profils, cartes et valeurs fictifs, rien n\'est enregistré.</p>':'')+
+ '<div class="card" style="margin-top:16px"><div class="name">Soutenir Trokémon</div><p class="note" style="margin:6px 0 10px 0">Trokémon est gratuit et sans pub. Si l\'appli te rend service, un petit don aide à payer l\'hébergement.</p>'+((window.TK_CONFIG||{}).SUPPORT_URL?'<a class="btn" style="display:flex;justify-content:center;margin-bottom:8px" href="'+esc((window.TK_CONFIG||{}).SUPPORT_URL)+'" target="_blank" rel="noopener">Faire un don</a>':'')+'<button class="btn" data-a="merci">Page Merci</button></div>'+
  '<button class="btn" style="margin-top:16px" data-a="logout">Se déconnecter</button>'+
  '<p class="note" style="margin-top:16px;text-align:center"><a href="legal.html#mentions" target="_blank" rel="noopener">Mentions légales</a> · <a href="legal.html#confidentialite" target="_blank" rel="noopener">Confidentialité</a> · <a href="legal.html#cgu" target="_blank" rel="noopener">Conditions</a></p></div>');
 }
@@ -822,6 +847,20 @@ function vSheet(){
   return '<div class="sheet-bg" data-a="backdrop"><div class="sheet" role="dialog" aria-modal="true" aria-label="Modifier"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div class="name" style="font-size:17px">Modifier cet item</div><button class="icon-btn" data-a="closesheet" aria-label="Fermer">✕</button></div><div class="stack">'+ff+
    (it.kind==='want'&&!it.photo_front?'':'<div><div class="name" style="font-size:14px">Photos</div><div class="note">Touche une photo pour la remplacer.</div><div class="editph">'+pbox('front','Recto',it.photo_front)+pbox('back','Verso',it.photo_back)+'</div></div>')+
    '<button class="btn primary" data-a="saveedit"'+(s.saving?' disabled':'')+'>'+(s.saving?'Enregistrement…':'Enregistrer')+'</button></div></div></div>';
+ }
+ if(s.kind==='report'){
+  var RS=[['arnaque','Arnaque ou demande de paiement'],['faux','Fausses photos ou contrefaçon'],['comportement','Comportement irrespectueux'],['contenu','Contenu inapproprié'],['spam','Spam ou démarchage'],['autre','Autre']];
+  return '<div class="sheet-bg" data-a="backdrop"><div class="sheet" role="dialog" aria-modal="true" aria-label="Signaler"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div class="name" style="font-size:17px">Signaler '+esc(s.pseudo)+'</div><button class="icon-btn" data-a="closesheet" aria-label="Fermer">✕</button></div><div class="stack">'+
+   '<div class="seg col" role="group" aria-label="Motif">'+RS.map(function(r){return '<button data-a="rreason" data-v="'+r[0]+'" aria-pressed="'+(s.reason===r[0])+'">'+r[1]+'</button>';}).join('')+'</div>'+
+   '<div><label class="muted" for="r-det">Détails (facultatif)</label><textarea id="r-det" class="field" rows="3" maxlength="600" data-rf="details" placeholder="Ce qui s\'est passé, en quelques mots">'+esc(s.details||'')+'</textarea></div>'+
+   '<p class="note">Ton signalement est lu par l\'éditeur et reste confidentiel. En cas de danger immédiat, contacte le 17.</p>'+
+   '<button class="btn primary" data-a="reportsend"'+(!s.reason||s.saving?' disabled':'')+'>'+(s.saving?'Envoi…':'Envoyer le signalement')+'</button></div></div></div>';
+ }
+ if(s.kind==='block'){
+  return '<div class="sheet-bg" data-a="backdrop"><div class="sheet" role="dialog" aria-modal="true" aria-label="Bloquer"><div class="name" style="font-size:17px">Bloquer '+esc(s.pseudo)+' ?</div><p class="muted" style="margin:8px 0 14px 0">Vous ne vous verrez plus sur la carte et vous ne pourrez plus vous envoyer de propositions ni de messages. Tu pourras le débloquer depuis ton profil.</p><div class="row2"><button class="btn" data-a="closesheet">Annuler</button><button class="btn primary" data-a="blockyes">Bloquer</button></div></div></div>';
+ }
+ if(s.kind==='delacc'){
+  return '<div class="sheet-bg" data-a="backdrop"><div class="sheet" role="dialog" aria-modal="true" aria-label="Supprimer mon compte"><div class="name" style="font-size:17px">Supprimer mon compte</div><p class="muted" style="margin:8px 0 12px 0">Ton profil, tes cartes, tes photos, tes propositions et tes messages seront effacés définitivement. Cette action est irréversible.</p><label class="muted" for="d-conf">Écris SUPPRIMER pour confirmer</label><input id="d-conf" class="field" data-df="1" autocomplete="off" value="'+esc(s.conf||'')+'"><div class="row2" style="margin-top:12px"><button class="btn" data-a="closesheet">Annuler</button><button class="btn primary" data-a="delyes"'+(String(s.conf||'').trim().toUpperCase()!=='SUPPRIMER'||s.saving?' disabled':'')+'>'+(s.saving?'Suppression…':'Supprimer')+'</button></div></div></div>';
  }
  if(s.kind==='meet'){
   return '<div class="sheet-bg" data-a="backdrop"><div class="sheet" role="dialog" aria-modal="true" aria-label="Rendez-vous"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><div class="name" style="font-size:17px">Proposer un rendez-vous</div><button class="icon-btn" data-a="closesheet" aria-label="Fermer">✕</button></div><div class="stack">'+
@@ -905,6 +944,7 @@ function render(){
    else if(t.name==='add'){body=vAdd();}
    else if(t.name==='propose'){body=vPropose(t);}
    else if(t.name==='proposal'){body=vProposal(t);}
+   else if(t.name==='merci'){body=vMerci(t);}
   }else if(S.tab==='carte'){body=vCarte();}
   else if(S.tab==='listes'){body=vListes();}
   else if(S.tab==='echanges'){body=vEchanges();}
@@ -947,6 +987,7 @@ function loadUser(){
    if(!u){throw new Error('Profil introuvable. Le fichier supabase/schema.sql a-t-il bien été exécuté ?');}
    S.user=u;S.energy=u.energy||null;applyTheme();
    await loadMine();
+   try{S.blocked=await DB.myBlocks();S.blockedList=await DB.listBlocked();}catch(e){S.blocked=[];S.blockedList=[];}
    if(u.zone_lat!=null){S.mv={lat:u.zone_lat,lng:u.zone_lng,z:11};}
    S.tab='carte';S.stack=[];S.err='';
    S.phase=S.recover?'recover':u.onboarded?'app':'photo';
@@ -1329,6 +1370,35 @@ var ACT={
   try{await DB.setProposalStatus(t.id,v);await loadProps();if(v==='done'){await loadReviewState(t.id);}render();}
   catch(e){toast(TK.frError(e));}
  },
+ merci:async function(){var t={name:'merci',data:null};nav(t);try{t.data=await DB.listSupporters();}catch(e){t.data=[];}if(top()===t){render();}},
+ reportopen:function(v){var a=v.split('|');S.sheet={kind:'report',target:a[0],pseudo:a[1]||'cette personne',proposal:a[2]||null,reason:'',details:'',saving:false};render();},
+ rreason:function(v){if(S.sheet){S.sheet.reason=v;render();}},
+ reportsend:async function(){
+  var sh=S.sheet;if(!sh||sh.kind!=='report'||!sh.reason||sh.saving){return;}
+  sh.saving=true;render();
+  try{await DB.report({target:sh.target,proposal_id:sh.proposal,reason:sh.reason,details:sh.details});S.sheet=null;render();toast('Signalement envoyé. Merci.');}
+  catch(e){sh.saving=false;render();toast(TK.frError(e));}
+ },
+ blockopen:function(v){var a=v.split('|');S.sheet={kind:'block',target:a[0],pseudo:a[1]||'cette personne'};render();},
+ blockyes:async function(){
+  var sh=S.sheet;if(!sh){return;}
+  try{await DB.block(sh.target);S.blocked=await DB.myBlocks();S.blockedList=await DB.listBlocked();S.sheet=null;toast(sh.pseudo+' est bloqué·e');ACT.back();}
+  catch(e){toast(TK.frError(e));}
+ },
+ unblock:async function(v){try{await DB.unblock(v);S.blocked=await DB.myBlocks();S.blockedList=await DB.listBlocked();S.open['prof|data']=true;render();toast('Débloqué·e');}catch(e){toast(TK.frError(e));}},
+ exportdata:async function(){
+  try{
+   var d=await DB.exportData(),b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');
+   a.href=URL.createObjectURL(b);a.download='trokemon-mes-donnees.json';document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1500);toast('Données téléchargées');
+  }catch(e){toast(TK.frError(e));}
+ },
+ delopen:function(){S.sheet={kind:'delacc',conf:'',saving:false};render();},
+ delyes:async function(){
+  var sh=S.sheet;if(!sh||String(sh.conf||'').trim().toUpperCase()!=='SUPPRIMER'||sh.saving){return;}
+  sh.saving=true;render();
+  try{await DB.deleteAccount();S.user=null;S.stack=[];S.sheet=null;S.my={offers:[],wants:[]};S.props=[];S.energy=null;S.geo=null;S.mapProfiles=[];applyTheme();goto('landing');toast('Compte supprimé');}
+  catch(e){sh.saving=false;render();toast(TK.frError(e));}
+ },
  meetopen:function(){
   var t=top(),pr=S.props.filter(function(x){return x.id===t.id;})[0];if(!pr){return;}
   var o=other(pr)||{},m=pr.meeting,d=new Date(Date.now()+2*864e5),pad=function(n){return ('0'+n).slice(-2);},ds=function(x){return x.getFullYear()+'-'+pad(x.getMonth()+1)+'-'+pad(x.getDate());};
@@ -1432,6 +1502,8 @@ document.addEventListener('input',function(e){
  var t=e.target;
  if(t.getAttribute&&t.getAttribute('data-ef')&&S.sheet&&S.sheet.kind==='edit'){S.sheet.f[t.getAttribute('data-ef')]=t.value;}
  if(t.getAttribute&&t.getAttribute('data-mf')&&S.sheet&&S.sheet.kind==='meet'){S.sheet[t.getAttribute('data-mf')]=t.value;}
+ if(t.getAttribute&&t.getAttribute('data-rf')&&S.sheet&&S.sheet.kind==='report'){S.sheet.details=t.value;}
+ if(t.getAttribute&&t.getAttribute('data-df')&&S.sheet&&S.sheet.kind==='delacc'){S.sheet.conf=t.value;var db=$('[data-a=delyes]');if(db){db.disabled=String(t.value).trim().toUpperCase()!=='SUPPRIMER';}}
  if(t.id==='aq'){S.add.q=t.value;liveSearch();}
  if(t.id==='zq'){S.zoneQ=t.value;zoneSearch(t.value);}
  if(t.id==='zslider'){TK.map.setZoom(+t.value);$('#rlabel').textContent=radiusLabel(TK.map.radiusKm(+t.value));}
