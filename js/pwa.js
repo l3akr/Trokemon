@@ -7,14 +7,17 @@
  function mobile(){return (window.matchMedia&&matchMedia('(pointer: coarse)').matches)&&Math.min(screen.width,innerWidth)<=900;}
  function ios(){var u=navigator.userAgent;return /iPad|iPhone|iPod/.test(u)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);}
  function dismissed(){var t=+get();return t&&Date.now()-t<DAYS*864e5;}
- function remove(){if(bar&&bar.parentNode){bar.parentNode.removeChild(bar);}bar=null;}
+ function remove(){if(bar&&bar.parentNode){bar.parentNode.removeChild(bar);}bar=null;document.body.classList.remove('pwa-on');}
  function closeSheet(){if(sheet&&sheet.parentNode){sheet.parentNode.removeChild(sheet);}sheet=null;}
  function pos(){
   if(!bar){return;}
-  var tb=document.querySelector('.tabbar'),h=0;
-  if(tb&&tb.offsetParent!==null){h=tb.getBoundingClientRect().height;}
-  bar.style.bottom='calc('+Math.round(h)+'px + env(safe-area-inset-bottom,0px) + 8px)';
-  if(h){bar.style.bottom=Math.round(h+8)+'px';}
+  var tb=document.querySelector('.tabbar'),vis=!!(tb&&tb.offsetParent!==null);
+  /* masquée dans les sous-pages et les fenêtres ; sinon on réserve de la place en bas des pages */
+  var hide=(document.querySelector('.shell')&&!vis)||(document.body.getAttribute('data-depth')||'0')!=='0'||document.querySelector('.sheet-bg,.foot');
+  bar.style.display=hide?'none':'';
+  document.body.classList.toggle('pwa-on',!hide);
+  if(vis){bar.style.bottom=Math.max(8,Math.round(innerHeight-tb.getBoundingClientRect().top)+8)+'px';}
+  else{bar.style.bottom='calc(8px + env(safe-area-inset-bottom,0px))';}
  }
  function showSheet(){
   if(sheet){return;}
@@ -35,7 +38,8 @@
   bar=document.createElement('div');bar.className='pwa-bar';
   bar.innerHTML='<img src="icon-192.png" alt="" width="36" height="36"><span>Installer l\'appli</span><button type="button" class="btn primary" data-pwa="go">Installer</button><button type="button" class="pwa-x" data-pwa="x" aria-label="Fermer">×</button>';
   bar.addEventListener('click',function(e){var a=e.target.getAttribute&&e.target.getAttribute('data-pwa');if(a==='go'){install();}else if(a==='x'){set(String(Date.now()));remove();}});
-  document.body.appendChild(bar);pos();
+  document.body.appendChild(bar);document.body.classList.add('pwa-on');pos();
+  try{var ap=document.getElementById('app');if(ap&&window.MutationObserver){new MutationObserver(pos).observe(ap,{childList:true,subtree:true});}}catch(e){}
  }
  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferred=e;setTimeout(show,1500);});
  window.addEventListener('appinstalled',function(){deferred=null;remove();closeSheet();set(String(Date.now()+365*864e5-DAYS*864e5));});

@@ -115,11 +115,20 @@ TK.catImg=function(it,q){
  if(!src){return null;}
  return src.replace(/\/(low|high)\.(webp|png|jpg)$/,'')+'/'+(q||'high')+'.webp';
 };
+/* Produit scellé : type de produit reconnu + série => requête précise (et filtres « neuf » côté eBay). */
+TK.sealedQuery=function(it){
+ var n=String(it.name||'').toLowerCase(),sn=String(it.set_name||''),code='',m=sn.match(/\(([^)]+)\)\s*$/);
+ if(m){code=m[1];sn=sn.replace(/\s*\([^)]+\)\s*$/,'');}
+ var kind=/display/.test(n)?'display 36 boosters':/etb|[ée]lite|dresseur/.test(n)?'coffret dresseur d\'élite ETB':/bundle|lot de/.test(n)?'bundle 6 boosters':/tripack|tri-pack|trio/.test(n)?'tripack boosters':/booster/.test(n)?'booster':/tin|pokébox|pokebox/.test(n)?'pokébox tin':/ultra/.test(n)?'coffret ultra premium':/coffret|collection/.test(n)?'coffret collection':String(it.name||'');
+ var extra=/etb|[ée]lite|dresseur|display|bundle|tripack|booster/.test(n)?'':' '+String(it.name||'');
+ var keys=(kind+extra+' '+sn+' '+code).replace(/\s+/g,' ').trim();
+ return {q:keys+' pokemon',cm:(String(it.name||'')+' '+sn).trim(),code:code};
+};
 TK.buyLinks=function(it){
- var a=C.AFFILIATE||{},base=(it.name+' '+(it.set_name||'')).trim(),q=encodeURIComponent(base+' pokemon');
- var ebay='https://www.ebay.fr/sch/i.html?_nkw='+q+(a.ebay?'&'+String(a.ebay).replace(/^[?&]/,''):'');
+ var a=C.AFFILIATE||{},sq=TK.sealedQuery(it),q=encodeURIComponent(sq.q);
+ var ebay='https://www.ebay.fr/sch/i.html?_nkw='+q+'&LH_ItemCondition=1000&LH_BIN=1&_sop=15'+(a.ebay?'&'+String(a.ebay).replace(/^[?&]/,''):'');
  var amz='https://www.amazon.fr/s?k='+q+(a.amazon?'&tag='+encodeURIComponent(a.amazon):'');
- var cm='https://www.cardmarket.com/fr/Pokemon/Products/Search?searchString='+encodeURIComponent(base);
+ var cm='https://www.cardmarket.com/fr/Pokemon/Products/Search?searchString='+encodeURIComponent(sq.cm);
  return [{label:'Cardmarket',url:cm,aff:false},{label:'eBay',url:ebay,aff:!!a.ebay},{label:'Amazon',url:amz,aff:!!a.amazon}];
 };
 

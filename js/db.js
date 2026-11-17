@@ -291,7 +291,9 @@ function makeDemo(){
    var m={id:nid('m'),proposal_id:pid,sender:'me',body:body,created_at:new Date().toISOString()};DB.messages.push(m);return copy(m);
   },
   showcase:async function(){
-   return copy(DB.items.filter(function(i){return i.kind==='offer'&&i.status==='active'&&i.user_id!=='me';}).slice(0,8).map(function(i){var p=prof(i.user_id)||{};
+   var rare=DB.items.filter(function(i){return i.kind==='offer'&&i.status==='active'&&i.user_id!=='me'&&i.type==='loose'&&((i.value_eur||0)>=10||i.variant);});
+   for(var k=rare.length-1;k>0;k--){var j=Math.floor(Math.random()*(k+1)),tmp=rare[k];rare[k]=rare[j];rare[j]=tmp;}
+   return copy(rare.slice(0,8).map(function(i){var p=prof(i.user_id)||{};
     return {name:i.name,number:i.number,set_name:i.set_name,set_abbr:i.set_abbr||null,variant:i.variant||null,image:i.catalog_image||i.photo_front||null,zone_label:p.zone_label||''};}));
   },
   searchItems:async function(q){

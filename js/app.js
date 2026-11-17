@@ -175,7 +175,7 @@ function showcaseCard(it){
 }
 function vLanding(){
  loadShowcase();
- var sc=S.showcase||[],first=sc[0];
+ var sc=S.showcase||[],first=sc.length>1?sc[1]:sc[0];
  var dcard=first?'<div class="democard"><div style="display:flex;justify-content:space-between;align-items:center"><span class="name">Zone '+esc(first.zone_label||'')+'</span><span class="chip acc">À l\'échange</span></div><div class="muted" style="margin-top:4px">Propose '+label(first)+(first.variant?' · '+esc(first.variant):'')+'</div></div>'
   :TK.demo?'<div class="democard"><div style="display:flex;justify-content:space-between;align-items:center"><span class="name">Lune_47 · ≈ 2 km</span><span class="chip acc">Mutuel</span></div><div class="muted" style="margin-top:4px">Propose Lucario (102/96) · cherche Pikachu PSA 9</div></div>'
   :'<div class="democard"><div class="name">Sois le premier !</div><div class="muted" style="margin-top:4px">Crée ton compte et propose une carte près de chez toi.</div></div>';
@@ -191,7 +191,7 @@ function vLanding(){
  ''+fan+dcard+'</div></section>'+
  strip+'<section class="feats" aria-label="Fonctionnement">'+
  [['Une carte des échanges','Vois ce que les gens proposent ou cherchent autour de toi, en zones approximatives.'],['Des cartes bien identifiées','Numéro de carte, photos recto et verso, état ou grade, estimation du moment.'],['En main propre','Rendez-vous en boutique partenaire ou lieu public. Rien ne passe par nous.']].map(function(f){return '<div class="card"><h3>'+f[0]+'</h3><div class="muted">'+f[1]+'</div></div>';}).join('')+'</section>'+
- '<footer class="ofoot note">Projet indépendant, non affilié à Nintendo, Creatures, GAME FREAK ni The Pokémon Company. Pokémon est une marque de ses propriétaires.<br><a href="legal.html#mentions">Mentions légales</a> · <a href="legal.html#confidentialite">Confidentialité</a> · <a href="legal.html#cgu">Conditions</a></footer></div>';
+ '<footer class="ofoot note">Projet indépendant, non affilié à Nintendo, Creatures, GAME FREAK ni The Pokémon Company. Pokémon est une marque de ses propriétaires.<br><a href="legal.html#mentions">Mentions légales</a> · <a href="legal.html#confidentialite">Confidentialité</a> · <a href="legal.html#cgu">Conditions</a>'+((window.TK_CONFIG||{}).SUPPORT_URL?' · <a href="'+esc((window.TK_CONFIG||{}).SUPPORT_URL)+'" target="_blank" rel="noopener">Soutenir Trokémon</a>':'')+'</footer></div>';
 }
 function field(id,lbl,type,ph,val,ac){
  return '<div style="margin-bottom:14px"><label class="muted" for="'+id+'">'+lbl+'</label><input id="'+id+'" name="'+id+'" class="field" type="'+type+'" placeholder="'+ph+'" value="'+esc(val||'')+'" autocomplete="'+ac+'"></div>';
@@ -370,6 +370,7 @@ async function loadMapData(b){
  }catch(e){toast(TK.frError(e));}
 }
 function mountMap(){
+ if(S.mv.auto){S.mv.auto=false;try{S.mv.z=TK.map.zoomForKm($('#lmap'),S.mv.lat,85);}catch(e){}}
  TK.map.mount($('#lmap'),{
   center:[S.mv.lat,S.mv.lng],zoom:S.mv.z,
   onSelect:function(id){S.selected=id;syncMap();},
@@ -377,7 +378,10 @@ function mountMap(){
   onZoom:function(z){var zs=$('#zslider');if(zs&&document.activeElement!==zs){zs.value=z;}var rl=$('#rlabel');if(rl){rl.textContent=radiusLabel(TK.map.radiusKm());}}
  });
  var me=S.geo||(S.user&&S.user.zone_lat!=null?{lat:S.user.zone_lat,lng:S.user.zone_lng}:null);
+
  TK.map.setMe(me);
+ S.radius=TK.map.radiusKm();
+ var zs0=$('#zslider'),rl0=$('#rlabel');if(zs0&&S.mv.z){zs0.value=S.mv.z;}if(rl0){rl0.textContent=radiusLabel(S.radius);}
  syncMap();
 }
 function showSugg(){
@@ -925,6 +929,7 @@ function morphKids(a,b){
 }
 function render(){
  var app=$('#app'),html='';
+ try{document.body.setAttribute('data-depth',String((S.stack?S.stack.length:0)+(S.sheet?1:0)));}catch(e){}
  TK.map.destroy();
  clearInterval(S.poll);S.poll=0;
  var p=S.phase;
@@ -988,7 +993,7 @@ function loadUser(){
    S.user=u;S.energy=u.energy||null;applyTheme();
    await loadMine();
    try{S.blocked=await DB.myBlocks();S.blockedList=await DB.listBlocked();}catch(e){S.blocked=[];S.blockedList=[];}
-   if(u.zone_lat!=null){S.mv={lat:u.zone_lat,lng:u.zone_lng,z:11};}
+   if(u.zone_lat!=null){S.mv={lat:u.zone_lat,lng:u.zone_lng,z:11,auto:true};}
    S.tab='carte';S.stack=[];S.err='';
    S.phase=S.recover?'recover':u.onboarded?'app':'photo';
   }catch(e){S.err=TK.frError(e);S.phase='fatal';}
@@ -1448,7 +1453,7 @@ var ACT={
   var onboarding=S.phase==='zone',patch={zone_label:S.zonePick.label,zone_lat:S.zonePick.lat,zone_lng:S.zonePick.lng};
   if(onboarding){patch.onboarded=true;if(!S.user.avatar_url){patch.avatar_url='preset:'+Math.floor(Math.random()*PRESETS.length);}}
   if(await saveProfile(patch)){
-   S.mv={lat:S.user.zone_lat,lng:S.user.zone_lng,z:11};S.sheet=null;S.zonePick=null;
+   S.mv={lat:S.user.zone_lat,lng:S.user.zone_lng,z:11,auto:true};S.sheet=null;S.zonePick=null;
    if(onboarding){S.phase='app';S.tab='carte';}
    render();toast('Zone enregistrée');
   }

@@ -15,7 +15,8 @@ TK.map={
   TK.map.destroy();
   if(!L){el.innerHTML='<p class="muted" style="padding:16px">La carte n\'a pas pu se charger.</p>';return;}
   st.cb=opt;
-  var map=st.map=L.map(el,{zoomControl:false,minZoom:4,maxZoom:18,zoomSnap:0.5,worldCopyJump:false}).setView(opt.center,opt.zoom);
+  var map=st.map=L.map(el,{zoomControl:false,minZoom:4,maxZoom:18,zoomSnap:0,worldCopyJump:false}).setView(opt.center,opt.zoom);
+  map.options.zoomSnap=0.5;
   L.control.zoom({position:'bottomright',zoomInTitle:'Zoom avant',zoomOutTitle:'Zoom arrière'}).addTo(map);
   var key=C.CARTO_KEY?'?key='+encodeURIComponent(C.CARTO_KEY):'';
   function base(style){return L.tileLayer(C.TILE_URL.replace('{style}',style)+key,{maxZoom:20,maxNativeZoom:20,attribution:C.TILE_ATTRIBUTION,crossOrigin:true});}
@@ -54,6 +55,12 @@ TK.map={
   L.circle([me.lat,me.lng],{radius:ZONE_RADIUS_M,color:'#F1F3F4',weight:1.5,dashArray:'5 4',fillColor:'#F1F3F4',fillOpacity:.06,interactive:false}).addTo(g);
   L.marker([me.lat,me.lng],{icon:L.divIcon({className:'tk-ic',html:'<div class="me-dot"></div>',iconSize:[14,14]}),interactive:false,keyboard:false}).addTo(g);
   g.addTo(st.map);st.meLayer=g;
+ },
+ /* zoom pour lequel le disque de recherche fait ≈ km, dans un conteneur donné */
+ zoomForKm:function(el,lat,km){
+  var m=Math.min(el.clientWidth||360,el.clientHeight||360);if(m<50){m=360;}
+  var mpp=km*1000/(0.4*m);
+  return Math.max(4,Math.min(16,Math.log(156543.03392*Math.cos(lat*Math.PI/180)/mpp)/Math.LN2));
  },
  getZoom:function(){return st.map?st.map.getZoom():null;},
  setZoom:function(z){if(st.map){st.map.setZoom(z,{animate:!reduced()});}},

@@ -249,7 +249,7 @@ details.sub .cgrid{padding-bottom:6px}
 :root{--glow:rgba(245,200,66,.1);--glow2:rgba(245,200,66,.05);--tile:none;}
 #decor{position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(900px 520px at 85% -12%,var(--glow),transparent 70%),var(--bg);transition:background .4s}
 /* un seul grand symbole d'énergie, très discret, dans un coin */
-#decor::after{content:"";position:absolute;right:-110px;bottom:-4vh;width:340px;height:340px;background:var(--tile) no-repeat center/contain;opacity:1}
+#decor::after{content:"";position:absolute;right:28px;bottom:calc(150px + env(safe-area-inset-bottom,0px));width:180px;height:180px;background:var(--tile) no-repeat center/contain;opacity:1}
 /* la lueur change simplement de place selon l'énergie */
 #decor[data-e=feu]{background:radial-gradient(900px 480px at 50% 120%,var(--glow),transparent 70%),var(--bg)}
 #decor[data-e=eau]{background:radial-gradient(900px 520px at 10% -12%,var(--glow),transparent 70%),var(--bg)}
@@ -266,7 +266,10 @@ details.sub .cgrid{padding-bottom:6px}
 @keyframes tkpulse{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.08) rotate(6deg)}}
 @media(prefers-reduced-motion:reduce){.bootmark .lmark{animation:none}}
 /* chrome translucide pour laisser voir le décor */
-.tabbar,.side{background:rgba(14,15,17,.82);backdrop-filter:blur(10px)}
+.side{background:rgba(14,15,17,.82);backdrop-filter:blur(10px)}
+.tabbar{background:var(--bg);position:relative;z-index:5;flex:none}
+html,body{overscroll-behavior:none}
+.scroll,.outer,.pg{overscroll-behavior-y:contain}
 .card{background:linear-gradient(180deg,rgba(255,255,255,.035),transparent 60%),var(--surface);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
 .btn.primary{background:linear-gradient(180deg,rgba(255,255,255,.18),transparent 55%),var(--accent);box-shadow:0 6px 18px -6px var(--accent)}
 .top h1,.hero h1{font-family:var(--font-display);font-weight:600;letter-spacing:-.3px}
@@ -380,3 +383,10 @@ textarea.field{height:auto;padding:10px 12px;resize:vertical}
 .pwa-sh ol{margin:4px 0;padding-left:20px;line-height:1.5}
 .pwa-ic{display:inline-block;border:1px solid var(--line);border-radius:6px;padding:0 6px}
 @media (min-width:700px) and (pointer:fine){.pwa-bar{display:none}}
+
+.pwa-on .scroll{padding-bottom:84px}
+
+a.btn{display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;color:var(--text);box-sizing:border-box}
+a.btn.primary{color:var(--on-accent)}
+
+#decor::after{display:none}
