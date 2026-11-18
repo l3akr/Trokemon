@@ -9,7 +9,7 @@ TK.demo=!(C.SUPABASE_URL&&C.SUPABASE_ANON_KEY&&window.supabase);
 TK.zoneRound=function(x){return Math.round(x*50)/50;};
 /* Clé de correspondance : une carte proposée par l'un répond à la même carte recherchée par l'autre. */
 TK.matchKey=function(it){
- if(it.type==='sealed'){return 's:'+(it.set_id||norm(it.set_name))+':'+norm(it.name);}
+ if(it.type==='sealed'){var sk=TK.sealedKindOf?TK.sealedKindOf(it.name):null;return 's:'+(it.set_id||norm(it.set_name))+':'+norm(sk||it.name);}
  return (it.type==='graded'?'g:':'c:')+(it.card_id||norm(it.name+'|'+(it.number||'')+'|'+(it.set_name||'')));
 };
 TK.frError=function(e){

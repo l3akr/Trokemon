@@ -94,6 +94,17 @@ TK.shrink=async function(file,max){
 
 /* ---------- produits scellés ---------- */
 TK.SEALED_SHORT={'Display':'DISPLAY','Booster':'BOOSTER','Coffret Dresseur d\'élite (ETB)':'ETB','Tripack':'TRIPACK','Bundle de boosters':'BUNDLE','Coffret / Collection':'COFFRET'};
+/* Type générique d'un produit scellé (noms Cardmarket anglais ou français) : sert au rapprochement et au visuel. */
+TK.sealedKindOf=function(name){
+ var n=String(name||'').toLowerCase();
+ if(TK.SEALED_KINDS.indexOf(name)>-1){return name;}
+ if(/elite trainer|dresseur d.?[ée]lite|\betb\b/.test(n)){return 'Coffret Dresseur d\'élite (ETB)';}
+ if(/booster (box|display)|\bdisplay\b/.test(n)){return 'Display';}
+ if(/booster bundle|\bbundle\b/.test(n)){return 'Bundle de boosters';}
+ if(/3[ -]?pack|three[ -]?pack|tri-?pack/.test(n)){return 'Tripack';}
+ if(/booster( pack)?( \(|$)|^booster/.test(n)&&!/box|bundle|display|collection|tin|set|deck|case/.test(n)){return 'Booster';}
+ return null;
+};
 TK.SEALED_KINDS=['Display','Booster','Coffret Dresseur d\'élite (ETB)','Tripack','Bundle de boosters','Coffret / Collection','Autre'];
 
 /* ---------- liens d'achat neuf ---------- */
@@ -216,6 +227,13 @@ async function priceFile(){
  try{var r=await fetch('data/prices.json',{cache:'no-cache'});PF=r.ok?await r.json():false;}catch(e){PF=false;}
  return PF||null;
 }
+var SP=null;
+async function loadSealedData(){
+ if(SP!==null){return SP||null;}
+ SP=false;
+ try{var r=await fetch('data/sealed.json',{cache:'no-cache'});if(r.ok){var j=await r.json();SP=j&&j.s?j.s:false;}}catch(e){SP=false;}
+ return SP||null;
+}
 function setAbbr(id,v){if(v&&abbrMap[id]!==v){abbrMap[id]=v;indexAbbr();saveAbbr();}}
 function lowRarity(r,name){
  var n=norm(r||'');
@@ -265,23 +283,89 @@ async function idbSet(k,v){try{var db=await idbOpen();db.transaction('kv','readw
 TK.catalog={
  enrich:enrichItems,
  abbr:function(id){return abbrMap[id]||null;},
+ setMeta:function(id){return setIdx[id]||null;},
+ abbrSet:function(tok){return abbrIdx[String(tok||'').toUpperCase()]||null;},
+ /* scan : retrouve la carte exacte depuis son numéro, son sigle de série (ou le total de la série) et son nom approximatif */
+ lookupScan:async function(o){
+  await TK.catalog.sets();
+  var cand=[];
+  if(o.abbr&&abbrIdx[o.abbr]){cand=[abbrIdx[o.abbr]];}
+  else if(o.total){cand=(setsCache||[]).filter(function(s){return String(s.official)===String(+o.total);}).map(function(s){return s.id;});}
+  cand=cand.slice(0,12);
+  var found=[];
+  for(var i=0;i<cand.length;i++){
+   try{var set=await fetchSet(cand[i]),c=(set.cards||[]).filter(function(x){return stripZ(x.localId)===stripZ(o.num);})[0];
+    if(c){found.push(cardOut({id:c.id,localId:c.localId,name:c.name,image:c.image},cand[i]));}}catch(e){}
+  }
+  if(!found.length){return null;}
+  function bg(x){x=norm(x).replace(/\s+/g,'');var a={};for(var k=0;k<x.length-1;k++){a[x.slice(k,k+2)]=1;}return a;}
+  function sim(a,b){var A=bg(a),B=bg(b),n=0,ka=Object.keys(A),kb=Object.keys(B);ka.forEach(function(k){if(B[k]){n++;}});return ka.length+kb.length?2*n/(ka.length+kb.length):0;}
+  if(found.length>1&&o.name){found.sort(function(a,b){return sim(o.name,b.name)-sim(o.name,a.name);});if(sim(o.name,found[0].name)<0.3){return {card:null,all:found};}}
+  return {card:found.length===1||o.abbr||o.name?found[0]:null,all:found};
+ },
+ loadSealed:loadSealedData,
+ sealedLoaded:function(){return SP!==null;},
+ /* produits scellés connus d'une série : [{id,name,price,cat,kind}] */
+ sealedFor:function(sid){var l=SP&&SP[sid]||[];return l.map(function(x){return {id:x[0],name:x[1],price:x[2],cat:x[3],kind:TK.sealedKindOf(x[1])};});},
+ sealedSetIds:function(){return SP?Object.keys(SP):[];},
  setAbbrs:function(m){Object.keys(m).forEach(function(k){abbrMap[k]=m[k];});indexAbbr();},
  sets:async function(){
   if(setsCache){return setsCache;}
+  function build(j){
+   var list=j.map(function(s){return {id:s.id,name:s.name,logo:s.logo?s.logo+'.png':null,symbol:s.symbol?s.symbol+'.png':null,official:s.cardCount&&s.cardCount.official,total:s.cardCount&&s.cardCount.total};}).reverse(),hid=[];
+   var i30=list.map(function(s){return s.id;}).indexOf('30th-c');
+   if(i30>-1&&list.some(function(s){return s.id==='30th';})){hid.push(list.splice(i30,1)[0]);}
+   return {list:list,hid:hid};
+  }
+  function adopt(o){setsCache=o.list;hiddenSets=o.hid;setIdx={};setsCache.concat(hiddenSets).forEach(function(s){setIdx[s.id]=s;});}
+  /* La liste des séries ne change qu'à la sortie d'une extension : copie locale, rafraîchie en arrière-plan. */
+  var cs=TK.demo?null:await idbGet('sets');
+  if(cs&&cs.v===2&&cs.list&&cs.list.length>20){
+   adopt({list:cs.list,hid:cs.hid||[]});
+   if(Date.now()-cs.t>6*36e5){
+    fetch(API+'/sets').then(function(r){return r.ok?r.json():null;}).then(function(j){
+     if(!j||!j.length){return;}
+     var o=build(j);idbSet('sets',{v:2,t:Date.now(),list:o.list,hid:o.hid});
+     if(o.list.length!==setsCache.length){adopt(o);notify();}
+    }).catch(function(){});
+   }
+   TK.catalog.loadAbbr();TK.catalog.loadIndex();TK.catalog.warmLogos();
+   return setsCache;
+  }
   try{
    var r=await fetch(API+'/sets');
    if(!r.ok){throw new Error('catalogue');}
-   var j=await r.json();
-   setsCache=j.map(function(s){return {id:s.id,name:s.name,logo:s.logo?s.logo+'.png':null,symbol:s.symbol?s.symbol+'.png':null,official:s.cardCount&&s.cardCount.official,total:s.cardCount&&s.cardCount.total};}).reverse();
-   var i30=setsCache.map(function(s){return s.id;}).indexOf('30th-c');
-   if(i30>-1&&setsCache.some(function(s){return s.id==='30th';})){hiddenSets.push(setsCache.splice(i30,1)[0]);}
+   var o=build(await r.json());adopt(o);
+   idbSet('sets',{v:2,t:Date.now(),list:o.list,hid:o.hid});
   }catch(e){
    if(!TK.demo){throw new Error('Catalogue indisponible pour le moment. Réessaie dans un instant.');}
    setsCache=TK.DEMO_SETS.slice();TK.catalog.setAbbrs({'demo-nn':'PBL','demo-151':'MEW','demo-pe':'PRE','demo-base':'BS'});
+   setsCache.concat(hiddenSets).forEach(function(s){setIdx[s.id]=s;});
   }
-  setsCache.concat(hiddenSets).forEach(function(s){setIdx[s.id]=s;});
-  TK.catalog.loadAbbr();TK.catalog.loadIndex();
+  TK.catalog.loadAbbr();TK.catalog.loadIndex();TK.catalog.warmLogos();
   return setsCache;
+ },
+ /* Charge une fois tous les logos en tâche de fond : le service worker les garde pour toujours. */
+ warmLogos:function(){
+  if(TK.demo||TK._warm||!window.fetch){return;}TK._warm=true;
+  var urls=(setsCache||[]).map(function(s){return s.logo||s.symbol;}).filter(Boolean),i=0,run=0;
+  function next(){
+   while(run<3&&i<urls.length){
+    (function(u){run++;fetch(u,{mode:'cors'}).catch(function(){}).then(function(){run--;setTimeout(next,60);});})(urls[i++]);
+   }
+  }
+  (window.requestIdleCallback||function(f){setTimeout(f,1500);})(next);
+ },
+ /* Série sans logo : image d'une de ses cartes (mémorisée pour toujours). */
+ setThumb:async function(id){
+  var m=(await idbGet('thumbs'))||{};
+  if(m[id]){return m[id];}
+  try{
+   var set=await fetchSet(id),c=(set.cards||[]).filter(function(x){return x.image;})[0];
+   var u=(set.logo?set.logo+'.png':null)||(set.symbol?set.symbol+'.png':null)||(c?c.image+'/low.webp':null);
+   if(u){m[id]=u;idbSet('thumbs',m);}
+   return u;
+  }catch(e){return null;}
  },
  /* Sigles des séries (PBL, MEW…) : une requête GraphQL, sinon lecture en tâche de fond de chaque série (mise en cache 7 jours). */
  loadAbbr:async function(){

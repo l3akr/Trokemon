@@ -150,3 +150,10 @@ Sans SMTP personnalisé, Supabase envoie depuis son propre serveur : très limit
 ## Soutiens Tipeee (aura « dresseur »)
 
 Colonne `supporter` de `profiles` (relance `supabase/schema.sql`) : valeurs `dresseur` (aura animée aux couleurs de l'énergie du membre, partout où sa photo apparaît sauf sur les pastilles de la carte) ou `tipeur` (pas d'effet visuel, sert à ta liste de remerciements). Tu la renseignes à la main dans Supabase > Table Editor > `profiles` ; un membre ne peut pas se l'attribuer lui-même. Pour retrouver un soutien, demande-lui son pseudo Trokémon à l'inscription sur Tipeee.
+
+
+## Séries, produits scellés et scan (novembre 2026)
+
+- **Logos de séries** : la liste des séries est mémorisée dans le navigateur (IndexedDB) et rafraîchie en arrière-plan ; les logos sont préchargés une fois puis gardés par le service worker (`sw.js`). Une série sans logo affiche un badge (sigle) puis l'image d'une de ses cartes.
+- **Produits scellés exacts** : `scripts/build-prices.mjs` lit aussi le catalogue « non-singles » de Cardmarket et écrit `data/sealed.json` (produits et cotes par série). Lance le workflow « Prix Cardmarket » (Actions > Run workflow) pour le créer ; tant que le fichier n'existe pas, le bloc « Produits exacts par série » n'apparaît pas.
+- **Scan de carte** : `js/scan.js` + `vendor/tesseract/` (Tesseract.js, ≈ 7 Mo, chargé seulement au premier scan). Il lit le numéro, le sigle de série et le nom, puis retrouve la carte exacte.

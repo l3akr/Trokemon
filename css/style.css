@@ -392,3 +392,11 @@ a.btn.primary{color:var(--on-accent)}
 #decor::after{display:none}
 
 .avbadge{z-index:3}
+
+@keyframes slL{from{transform:translateX(36px);opacity:.2}to{transform:none;opacity:1}}
+@keyframes slR{from{transform:translateX(-36px);opacity:.2}to{transform:none;opacity:1}}
+.gmain.sl-l{animation:slL .22s ease-out}.gmain.sl-r{animation:slR .22s ease-out}
+.gbtn{touch-action:pan-y}
+@media (prefers-reduced-motion:reduce){.gmain.sl-l,.gmain.sl-r{animation:none}}
+
+.slogo.ph{display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:28px;padding:0 8px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--muted);font:700 11px/1 var(--mono,inherit);letter-spacing:.04em}

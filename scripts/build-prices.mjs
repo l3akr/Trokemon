@@ -18,7 +18,7 @@ const lid = c => String(c.localId).replace(/^0+(?=\d)/, '');
 const byLocal = (a, b) => (parseInt(a.localId, 10) - parseInt(b.localId, 10)) || String(a.localId).localeCompare(String(b.localId));
 
 /* products: [{idProduct,name,idExpansion}], guide: {idProduct -> entry}, sets: [{id,name,cards:[{id,localId,name}]}] */
-export function build(products, guide, sets) {
+export function build(products, guide, sets, nonsingles = []) {
   const exps = new Map();
   for (const p of products) {
     const { base, num } = parseCm(p.name);
@@ -70,7 +70,17 @@ export function build(products, guide, sets) {
       }
     }
   });
-  return { out, rep };
+  /* Produits scellés (catalogue « non-singles » de Cardmarket) rattachés à la série TCGdex dont l'extension a été reconnue. */
+  const sealed = {};
+  if (nonsingles.length) {
+    const byExp = new Map();
+    for (const p of nonsingles) { if (!byExp.has(p.idExpansion)) byExp.set(p.idExpansion, []); byExp.get(p.idExpansion).push(p); }
+    for (const [i, b] of best) {
+      const list = (byExp.get(b.exp.id) || []).map(p => { const g = guide[p.idProduct] || {}; return [p.idProduct, p.name, g.trend ?? g.avg ?? g.low ?? null, p.categoryName || '']; });
+      if (list.length) sealed[tsets[i].id] = list.sort((a, c) => String(a[3]).localeCompare(String(c[3])) || String(a[1]).localeCompare(String(c[1])));
+    }
+  }
+  return { out, rep, sealed };
 }
 
 async function get(u) {
@@ -83,6 +93,8 @@ async function get(u) {
 
 async function main() {
   const [cat, pg] = await Promise.all([get(CM + 'productList/products_singles_6.json'), get(CM + 'priceGuide/price_guide_6.json')]);
+  let ns = [];
+  try { ns = (await get(CM + 'productList/products_nonsingles_6.json')).products || []; } catch (e) { console.warn('produits scellés indisponibles :', e.message); }
   const guide = {}; for (const g of pg.priceGuides) guide[g.idProduct] = g;
   const list = await get(TC + '/sets');
   const sets = [];
@@ -90,13 +102,14 @@ async function main() {
     const part = await Promise.all(list.slice(i, i + 8).map(s => get(TC + '/sets/' + encodeURIComponent(s.id))));
     sets.push(...part);
   }
-  const { out, rep } = build(cat.products, guide, sets);
+  const { out, rep, sealed } = build(cat.products, guide, sets, ns);
   fs.mkdirSync('data', { recursive: true });
   fs.writeFileSync('data/prices.json', JSON.stringify({ createdAt: pg.createdAt, c: out }));
+  if (Object.keys(sealed).length) fs.writeFileSync('data/sealed.json', JSON.stringify({ createdAt: pg.createdAt, s: sealed }));
   const recent = rep.dups.slice(-250);
   const L = a => a.slice(0, 300).map(x => '- ' + x).join('\n') + (a.length > 300 ? `\n- … (+${a.length - 300})` : '');
   fs.writeFileSync('data/report.md', `# Rapport prix Cardmarket\n\nGénéré : ${new Date().toISOString()} (guide du ${pg.createdAt})\n\n- Cartes associées : ${rep.matched}\n- Cartes sans produit : ${rep.unmatched}\n- Dont associées par approximation (produits en trop) : ${rep.approx}\n- Sets TCGdex associés : ${rep.sets.length} / ${sets.length}\n\n## Sets non associés\n${L(rep.unsetted)}\n\n## Cas ambigus (non associés, sets récents d'abord ; liste complète dans data/ambiguous.md)\n${L(rep.ambiguous.slice().reverse())}\n\n## Doublons de nom associés par ordre (sets récents en dernier)\n${L(recent)}\n\n## Associations de sets\n${L(rep.sets)}\n`);
   fs.writeFileSync('data/ambiguous.md', '# Cas non associés\\n\\n' + rep.ambiguous.map(x => '- ' + x).join('\\n') + '\\n');
-  console.log(`associées ${rep.matched}, sans produit ${rep.unmatched}, ambiguës ${rep.ambiguous.length}`);
+  console.log(`associées ${rep.matched}, sans produit ${rep.unmatched}, ambiguës ${rep.ambiguous.length}, séries avec produits scellés ${Object.keys(sealed).length}`);
 }
 if (process.argv[1] === fileURLToPath(import.meta.url)) main().catch(e => { console.error(e); process.exit(1); });
