@@ -336,6 +336,15 @@ TK.catalog={
  search:async function(q,setId){
   await TK.catalog.sets();
   var p=parseQuery(q),sid=setId||p.setId,list=[],hint='';
+  /* « Mew » = sigle de la série 151 ET nom d'un Pokémon : si le mot seul correspond à des noms de cartes, on cherche le Pokémon. */
+  if(!setId&&p.setId&&!p.words.length&&!p.num){
+   var tok=String(q||'').replace(/[()\-–#]/g,' ').trim(),hits=0;
+   try{
+    if(cardIdx){var nt=norm(tok);for(var h=0;h<cardIdx.length&&!hits;h++){if(cardIdx[h].n.indexOf(nt)>-1){hits=1;}}}
+    else{var kk=norm(tok);if(!nameCache[kk]){var rr=await fetch(API+'/cards?name='+encodeURIComponent(kk));if(rr.ok){nameCache[kk]=await rr.json();}}hits=(nameCache[kk]||[]).length;}
+   }catch(eh){}
+   if(hits>0){p={words:[tok],num:null,setId:null};sid=null;}
+  }
   function demoList(){
    var nn=norm(q||'');
    return TK.DEMO_CARDS.filter(function(c){return c.type!=='sealed'&&(!nn||norm(c.name).indexOf(nn)>-1)&&(!sid||c.set_id===sid);}).map(function(c){
