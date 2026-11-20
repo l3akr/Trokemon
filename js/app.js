@@ -417,7 +417,7 @@ window.TK_logoFail=function(im){
 function fillThumbs(){
  var q=document.querySelectorAll('.slogo.ph[data-sid]:not([data-t])'),n=0;
  Array.prototype.forEach.call(q,function(el){
-  var sid=el.getAttribute('data-sid');if(!sid||n>=8||sid.indexOf('demo-')===0){return;}n++;el.setAttribute('data-t','1');
+  var sid=el.getAttribute('data-sid');if(sid&&sid.indexOf('demo-')!==0){var sm=TK.catalog.setMeta?TK.catalog.setMeta(sid):null;TK.catalog.reportMissing('set',sid,(sm&&sm.name)||sid,sid);}if(!sid||n>=8||sid.indexOf('demo-')===0){return;}n++;el.setAttribute('data-t','1');
   TK.catalog.setThumb(sid).then(function(u){
    if(!u||!el.parentNode){return;}
    var im=document.createElement('img');im.className='slogo';im.alt='';im.src=u;im.onerror=function(){};
