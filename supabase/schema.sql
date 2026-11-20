@@ -532,3 +532,70 @@ begin
 end $$;
 drop trigger if exists profiles_guard_supporter on public.profiles;
 create trigger profiles_guard_supporter before update on public.profiles for each row execute function public.guard_supporter();
+
+
+-- ---------- Images manquantes (réservé à l'admin) ----------
+-- Le site signale tout seul les logos de séries et les images de cartes introuvables ; tu ajoutes l'image à la main.
+-- Pour être admin : Table Editor > profiles > ta ligne > coche « admin » (personne d'autre ne peut se l'attribuer).
+alter table public.profiles add column if not exists admin boolean not null default false;
+create or replace function public.guard_admin() returns trigger
+language plpgsql as $$
+begin
+  if new.admin is distinct from old.admin and auth.uid() is not null then
+    raise exception 'Cette valeur ne peut pas être modifiée';
+  end if;
+  return new;
+end $$;
+drop trigger if exists profiles_guard_admin on public.profiles;
+create trigger profiles_guard_admin before update on public.profiles for each row execute function public.guard_admin();
+
+create or replace function public.is_admin() returns boolean
+language sql stable security definer set search_path = public as $$
+  select coalesce((select admin from public.profiles where id = auth.uid()), false);
+$$;
+
+create table if not exists public.image_overrides (
+  kind text not null check (kind in ('set', 'card')),
+  ref text not null,
+  url text not null,
+  created_at timestamptz not null default now(),
+  primary key (kind, ref)
+);
+alter table public.image_overrides enable row level security;
+drop policy if exists image_overrides_read on public.image_overrides;
+create policy image_overrides_read on public.image_overrides for select to anon, authenticated using (true);
+drop policy if exists image_overrides_admin on public.image_overrides;
+create policy image_overrides_admin on public.image_overrides for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+create table if not exists public.missing_images (
+  kind text not null check (kind in ('set', 'card')),
+  ref text not null,
+  label text,
+  set_id text,
+  hits int not null default 1,
+  last_seen timestamptz not null default now(),
+  primary key (kind, ref)
+);
+alter table public.missing_images enable row level security;
+drop policy if exists missing_images_admin on public.missing_images;
+create policy missing_images_admin on public.missing_images for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+create or replace function public.report_missing_image(p_kind text, p_ref text, p_label text, p_sid text)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if p_kind not in ('set', 'card') or p_ref is null or length(p_ref) = 0 or length(p_ref) > 80 then return; end if;
+  if exists (select 1 from public.image_overrides where kind = p_kind and ref = p_ref) then return; end if;
+  insert into public.missing_images (kind, ref, label, set_id)
+  values (p_kind, p_ref, left(coalesce(p_label, ''), 120), left(coalesce(p_sid, ''), 60))
+  on conflict (kind, ref) do update set hits = public.missing_images.hits + 1, last_seen = now();
+end $$;
+grant execute on function public.report_missing_image(text, text, text, text) to anon, authenticated;
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('catalog', 'catalog', true, 3145728, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do nothing;
+drop policy if exists catalog_read on storage.objects;
+create policy catalog_read on storage.objects for select using (bucket_id = 'catalog');
+drop policy if exists catalog_admin_write on storage.objects;
+create policy catalog_admin_write on storage.objects for all to authenticated
+  using (bucket_id = 'catalog' and public.is_admin()) with check (bucket_id = 'catalog' and public.is_admin());

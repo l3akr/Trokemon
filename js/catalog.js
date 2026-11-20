@@ -76,7 +76,7 @@ TK.geo={
 };
 
 /* ---------- photos : réduction avant envoi ---------- */
-TK.shrink=async function(file,max){
+TK.shrink=async function(file,max,type){
  max=max||1400;
  var bmp;
  try{bmp=await createImageBitmap(file,{imageOrientation:'from-image'});}
@@ -89,7 +89,7 @@ TK.shrink=async function(file,max){
  var w=bmp.width||bmp.naturalWidth,h=bmp.height||bmp.naturalHeight,k=Math.min(1,max/Math.max(w,h));
  var cv=document.createElement('canvas');cv.width=Math.round(w*k);cv.height=Math.round(h*k);
  cv.getContext('2d').drawImage(bmp,0,0,cv.width,cv.height);
- return new Promise(function(res,rej){cv.toBlob(function(b){b?res(b):rej(new Error('Image illisible.'));},'image/jpeg',0.82);});
+ return new Promise(function(res,rej){cv.toBlob(function(b){b?res(b):rej(new Error('Image illisible.'));},type||'image/jpeg',0.82);});
 };
 
 /* ---------- produits scellés ---------- */
@@ -188,14 +188,37 @@ function userPhotos(ids){
  if(!need.length||!TK.db||!TK.db.cardPhotos){return Promise.resolve();}
  return TK.db.cardPhotos(need.slice(0,200)).then(function(m){need.forEach(function(i){UPH[i]=(m&&m[i])||null;});}).catch(function(){need.forEach(function(i){UPH[i]=null;});});
 }
+/* Images ajoutées à la main (admin) : elles passent avant celles du catalogue. Mémorisées localement, rafraîchies au démarrage. */
+var OV={},REP={};
+try{OV=JSON.parse(localStorage.getItem('tk_ovr')||'{}')||{};}catch(e){OV={};}
+try{REP=JSON.parse(localStorage.getItem('tk_rep')||'{}')||{};}catch(e){REP={};}
+function saveOv(){try{localStorage.setItem('tk_ovr',JSON.stringify(OV));}catch(e){}}
+TK.catalog=TK.catalog||{};
+TK.catalog.ov=function(kind,ref){return OV[kind+':'+ref]||null;};
+TK.catalog.setOvLocal=function(kind,ref,url){if(url){OV[kind+':'+ref]=url;}else{delete OV[kind+':'+ref];}saveOv();};
+TK.catalog.loadOverrides=async function(){
+ if(!TK.db||!TK.db.imageOverrides){return;}
+ try{var m=await TK.db.imageOverrides();if(m){OV=m;saveOv();}}catch(e){}
+};
+/* Signale à l'admin une image introuvable (une fois par appareil et par semaine). */
+TK.catalog.reportMissing=function(kind,ref,label,sid){
+ if(!ref||!TK.db||!TK.db.reportMissing){return;}
+ var k=kind+':'+ref,now=Date.now();
+ if(OV[k]||(REP[k]&&now-REP[k]<7*864e5)){return;}
+ REP[k]=now;try{localStorage.setItem('tk_rep',JSON.stringify(REP));}catch(e){}
+ TK.db.reportMissing(kind,ref,label,sid).catch(function(){});
+};
 function imgPh(el){
  var n=(el.getAttribute('data-n')||'?').charAt(0).toUpperCase(),sp=document.createElement('span');
  sp.className=el.className.replace('cimg','cph').replace('cthumb','cph')+' cph';sp.setAttribute('aria-hidden','true');sp.textContent=n;
  sp.style.background='var(--surface2)';
  if(el.parentNode){el.parentNode.replaceChild(sp,el);}
+ var cid0=el.getAttribute('data-cid');
+ if(cid0&&cid0.indexOf('demo')!==0&&cid0.length<60){var i0=cid0.lastIndexOf('-');TK.catalog.reportMissing('card',cid0,(el.getAttribute('data-n')||'')+' ('+(i0>0?cid0.slice(0,i0):'?')+')',i0>0?cid0.slice(0,i0):'');}
 }
 window.TK_imgFallback=function(el){
- var src=el.getAttribute('src')||'',fb=el.getAttribute('data-fb')||'';
+ var src=el.getAttribute('src')||'',fb=el.getAttribute('data-fb')||'',cid0=el.getAttribute('data-cid'),o0=cid0&&OV['card:'+cid0];
+ if(o0&&fb.indexOf('o')<0&&src!==o0){el.setAttribute('data-fb',fb+'o');el.src=o0;return;}
  if(!fb&&src.indexOf('/fr/')>-1){el.setAttribute('data-fb','1');el.src=src.replace('/fr/','/en/');return;}
  if(fb==='1'&&src.indexOf('/en/')>-1){el.setAttribute('data-fb','2');el.src=src.replace('/en/','/ja/');return;}
  var cid=el.getAttribute('data-cid');
@@ -246,6 +269,7 @@ function cardOut(c,sid){
  var s=setIdx[sid],off=s&&s.official,sn=s?s.name:sid;
  if(sid==='30th-c'&&setIdx['30th']){sn=setIdx['30th'].name;}
  var img=c.image?c.image+'/low.webp':(sid&&sid.indexOf('demo-')!==0?'https://assets.tcgdex.net/fr/'+TK.eraOf(sid).serie+'/'+sid+'/'+c.localId+'/low.webp':null);
+ img=OV['card:'+c.id]||img;
  return {card_id:c.id,name:c.name,localId:c.localId,number:off?c.localId+'/'+off:String(c.localId),set_id:sid,set_name:sn,set_abbr:abbrMap[sid==='30th-c'?'30th':sid]||abbrMap[sid]||null,image:img};
 }
 /* Analyse « Mega Darkrai PBL 110/84 » -> mots, numéro, série reconnue par son sigle. */
@@ -280,29 +304,10 @@ function buildIdx(slim){return slim.map(function(x){var k=x[0].lastIndexOf('-');
 function idbOpen(){return new Promise(function(res,rej){try{var q=indexedDB.open('trokemon',1);q.onupgradeneeded=function(){q.result.createObjectStore('kv');};q.onsuccess=function(){res(q.result);};q.onerror=function(){rej(q.error);};}catch(e){rej(e);}});}
 async function idbGet(k){try{var db=await idbOpen();return await new Promise(function(res){var r=db.transaction('kv').objectStore('kv').get(k);r.onsuccess=function(){res(r.result);};r.onerror=function(){res(null);};});}catch(e){return null;}}
 async function idbSet(k,v){try{var db=await idbOpen();db.transaction('kv','readwrite').objectStore('kv').put(v,k);}catch(e){}}
-TK.catalog={
+TK.catalog=Object.assign(TK.catalog||{},{
  enrich:enrichItems,
  abbr:function(id){return abbrMap[id]||null;},
  setMeta:function(id){return setIdx[id]||null;},
- abbrSet:function(tok){return abbrIdx[String(tok||'').toUpperCase()]||null;},
- /* scan : retrouve la carte exacte depuis son numéro, son sigle de série (ou le total de la série) et son nom approximatif */
- lookupScan:async function(o){
-  await TK.catalog.sets();
-  var cand=[];
-  if(o.abbr&&abbrIdx[o.abbr]){cand=[abbrIdx[o.abbr]];}
-  else if(o.total){cand=(setsCache||[]).filter(function(s){return String(s.official)===String(+o.total);}).map(function(s){return s.id;});}
-  cand=cand.slice(0,12);
-  var found=[];
-  for(var i=0;i<cand.length;i++){
-   try{var set=await fetchSet(cand[i]),c=(set.cards||[]).filter(function(x){return stripZ(x.localId)===stripZ(o.num);})[0];
-    if(c){found.push(cardOut({id:c.id,localId:c.localId,name:c.name,image:c.image},cand[i]));}}catch(e){}
-  }
-  if(!found.length){return null;}
-  function bg(x){x=norm(x).replace(/\s+/g,'');var a={};for(var k=0;k<x.length-1;k++){a[x.slice(k,k+2)]=1;}return a;}
-  function sim(a,b){var A=bg(a),B=bg(b),n=0,ka=Object.keys(A),kb=Object.keys(B);ka.forEach(function(k){if(B[k]){n++;}});return ka.length+kb.length?2*n/(ka.length+kb.length):0;}
-  if(found.length>1&&o.name){found.sort(function(a,b){return sim(o.name,b.name)-sim(o.name,a.name);});if(sim(o.name,found[0].name)<0.3){return {card:null,all:found};}}
-  return {card:found.length===1||o.abbr||o.name?found[0]:null,all:found};
- },
  loadSealed:loadSealedData,
  sealedLoaded:function(){return SP!==null;},
  /* produits scellés connus d'une série : [{id,name,price,cat,kind}] */
@@ -542,5 +547,5 @@ TK.catalog={
    return {doubt:doubt,direct:!!direct,url:direct||TK.cmUrl({name:c.name,number:c.localId,set_abbr:abbrMap[(c.set&&c.set.id)||'']},idp),idProduct:idp,price:price||foil,priceFoil:foil||price,updated:at?at.toISOString():new Date().toISOString(),image:c.image?c.image+'/high.webp':null,rarity:c.rarity||null,low:lowRarity(c.rarity,c.name),variants:out};
   }catch(e){return null;}
  }
-};
+});
 })();

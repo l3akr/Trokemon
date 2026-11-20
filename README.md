@@ -156,4 +156,10 @@ Colonne `supporter` de `profiles` (relance `supabase/schema.sql`) : valeurs `dre
 
 - **Logos de séries** : la liste des séries est mémorisée dans le navigateur (IndexedDB) et rafraîchie en arrière-plan ; les logos sont préchargés une fois puis gardés par le service worker (`sw.js`). Une série sans logo affiche un badge (sigle) puis l'image d'une de ses cartes.
 - **Produits scellés exacts** : `scripts/build-prices.mjs` lit aussi le catalogue « non-singles » de Cardmarket et écrit `data/sealed.json` (produits et cotes par série). Lance le workflow « Prix Cardmarket » (Actions > Run workflow) pour le créer ; tant que le fichier n'existe pas, le bloc « Produits exacts par série » n'apparaît pas.
-- **Scan de carte** : `js/scan.js` + `vendor/tesseract/` (Tesseract.js, ≈ 7 Mo, chargé seulement au premier scan). Il lit le numéro, le sigle de série et le nom, puis retrouve la carte exacte.
+
+## Images manquantes (admin)
+
+Quand une image de carte ou un logo de série est introuvable, l'appareil le signale (une fois par semaine) dans la table `missing_images`.
+1. Relance tout `supabase/schema.sql` (ajoute `profiles.admin`, `image_overrides`, `missing_images`, le bucket `catalog`).
+2. Dans Supabase > Table Editor > `profiles`, mets `admin = true` sur ta ligne.
+3. Profil > « Admin : images manquantes » : liste des séries/cartes manquantes, bouton **Ajouter** pour envoyer l'image (logo de série : PNG transparent). Elle s'affiche ensuite chez tout le monde ; **Retirer** pour l'annuler.

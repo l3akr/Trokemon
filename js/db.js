@@ -76,6 +76,21 @@ function makeSupabase(){
    if(patch.zone_lat!=null){patch.zone_lat=TK.zoneRound(patch.zone_lat);patch.zone_lng=TK.zoneRound(patch.zone_lng);}
    return chk(await sb.from('profiles').update(patch).eq('id',uid).select().single());
   },
+  imageOverrides:async function(){var r=await sb.from('image_overrides').select('kind,ref,url');if(r.error){throw r.error;}var m={};(r.data||[]).forEach(function(x){m[x.kind+':'+x.ref]=x.url;});return m;},
+  reportMissing:async function(kind,ref,label,sid){await sb.rpc('report_missing_image',{p_kind:kind,p_ref:ref,p_label:label||'',p_sid:sid||''});},
+  listMissing:async function(){return chk(await sb.from('missing_images').select('*').order('hits',{ascending:false}).limit(400));},
+  listOverrides:async function(){return chk(await sb.from('image_overrides').select('*').order('created_at',{ascending:false}).limit(400));},
+  setOverride:async function(kind,ref,blob){
+   var ext=blob.type==='image/png'?'png':(blob.type==='image/webp'?'webp':'jpg'),safe=String(ref).replace(/[^a-zA-Z0-9._-]/g,'_');
+   var path=kind+'/'+safe+'-'+Date.now()+'.'+ext;
+   var up=await sb.storage.from('catalog').upload(path,blob,{contentType:blob.type||'image/jpeg',upsert:false});
+   if(up.error){throw up.error;}
+   var url=sb.storage.from('catalog').getPublicUrl(path).data.publicUrl;
+   chk(await sb.from('image_overrides').upsert({kind:kind,ref:ref,url:url}));
+   await sb.from('missing_images').delete().eq('kind',kind).eq('ref',ref);
+   return url;
+  },
+  removeOverride:async function(kind,ref){chk(await sb.from('image_overrides').delete().eq('kind',kind).eq('ref',ref));},
   uploadPhoto:async function(blob,kind){
    var path=uid+'/'+kind+'-'+Date.now()+'-'+Math.random().toString(36).slice(2,8)+'.jpg';
    var r=await sb.storage.from('photos').upload(path,blob,{contentType:'image/jpeg',upsert:false});
@@ -203,7 +218,7 @@ function makeDemo(){
   DB.reviews=DB.reviews.filter(function(x){return DB.profiles.some(function(p){return p.id===x.reviewer;});});
  })();
  function createMe(email,pseudo,onboarded){
-  me={id:'me',pseudo:pseudo,avatar_url:null,energy:null,zone_label:onboarded?'Toulouse':null,zone_lat:onboarded?43.6:null,zone_lng:onboarded?1.44:null,onboarded:!!onboarded,email:email};
+  me={id:'me',pseudo:pseudo,avatar_url:null,energy:null,zone_label:onboarded?'Toulouse':null,zone_lat:onboarded?43.6:null,zone_lng:onboarded?1.44:null,onboarded:!!onboarded,email:email,admin:true};
   DB.profiles=DB.profiles.filter(function(p){return p.id!=='me';});DB.profiles.push(me);
   DB.items=DB.items.filter(function(i){return i.user_id!=='me';});
   [5,9,8].forEach(function(c,j){DB.items.push(itemFrom(TK.DEMO_CARDS[c-1],'want','me',j));});
@@ -241,6 +256,13 @@ function makeDemo(){
    Object.keys(patch).forEach(function(k){me[k]=patch[k];});return copy(me);
   },
   uploadPhoto:async function(blob){return URL.createObjectURL(blob);},
+  imageOverrides:async function(){return copy(DB.ovr||{});},
+  reportMissing:async function(kind,ref,label,sid){DB.missing=DB.missing||[];var e=DB.missing.filter(function(x){return x.kind===kind&&x.ref===ref;})[0];if(e){e.hits++;}else{DB.missing.push({kind:kind,ref:ref,label:label||'',set_id:sid||'',hits:1});}},
+  listMissing:async function(){DB.missing=DB.missing||[{kind:'set',ref:'demo-delta',label:'Règne Delta',set_id:'demo-delta',hits:4},{kind:'card',ref:'demo-delta-12',label:'Pikachu δ (Règne Delta)',set_id:'demo-delta',hits:2}];return copy(DB.missing);},
+  listOverrides:async function(){var o=DB.ovr||{};return Object.keys(o).map(function(k){return {kind:k.split(':')[0],ref:k.slice(k.indexOf(':')+1),url:o[k]};});},
+  setOverride:async function(kind,ref,blob){DB.ovr=DB.ovr||{};var url=URL.createObjectURL(blob);DB.ovr[kind+':'+ref]=url;DB.missing=(DB.missing||[]).filter(function(x){return !(x.kind===kind&&x.ref===ref);});return url;},
+  removeOverride:async function(kind,ref){if(DB.ovr){delete DB.ovr[kind+':'+ref];}},
+
   listMine:async function(){return copy(DB.items.filter(function(i){return i.user_id==='me'&&i.status!=='traded';}).reverse());},
   listOfUser:async function(id){return copy(DB.items.filter(function(i){return i.user_id===id&&i.status==='active';}).reverse());},
   addItem:async function(row){

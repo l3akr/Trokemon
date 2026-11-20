@@ -79,8 +79,8 @@ var toastTimer=0;
 function toast(t){var el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(function(){el.hidden=true;},3000);}
 function phColor(s){var h=0;for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))%360;}return 'hsl('+h+' 28% 22%)';}
 function cardImg(it){
- var src=it.photo_front||it.catalog_image;
- return src?'<img class="cimg'+(it.type==='sealed'&&it.photo_front?' free':'')+'" loading="lazy" alt="" data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(src)+'">':'<span class="cph" aria-hidden="true" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</span>';
+ var src=it.photo_front||(it.card_id&&TK.catalog.ov('card',it.card_id))||it.catalog_image;
+ return src?'<img class="cimg'+(it.type==='sealed'&&it.photo_front?' free':'')+'" loading="lazy" alt="" '+(it.card_id?'data-cid="'+esc(it.card_id)+'" ':'')+'data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(src)+'">':'<span class="cph" aria-hidden="true" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</span>';
 }
 var PRESETS=[
  ['#F5C842','#2B2410','M50 22l8 20 22 2-17 14 6 22-19-12-19 12 6-22-17-14 22-2z'],
@@ -171,7 +171,7 @@ function loadShowcase(){
  try{DB.showcase().then(function(l){S.showcase=l||[];if(S.phase==='landing'){render();}}).catch(function(){S.showcase=[];});}catch(e){S.showcase=[];}
 }
 function showcaseCard(it){
- return '<div class="stile"><div class="simg">'+(it.image?'<img class="cimg" loading="lazy" alt="" data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(it.image)+'">':'<span class="cph" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</span>')+'</div><div class="name" style="font-size:13px;margin-top:6px">'+label(it)+'</div><div class="muted" style="font-size:12px">'+esc(it.zone_label||'')+(it.variant?' · '+esc(it.variant):'')+'</div></div>';
+ return '<div class="stile"><div class="simg">'+(it.image?'<img class="cimg" loading="lazy" alt="" '+(it.card_id?'data-cid="'+esc(it.card_id)+'" ':'')+'data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(it.image)+'">':'<span class="cph" style="background:'+phColor(it.name)+'">'+esc(it.name.charAt(0))+'</span>')+'</div><div class="name" style="font-size:13px;margin-top:6px">'+label(it)+'</div><div class="muted" style="font-size:12px">'+esc(it.zone_label||'')+(it.variant?' · '+esc(it.variant):'')+'</div></div>';
 }
 function vLanding(){
  loadShowcase();
@@ -179,7 +179,7 @@ function vLanding(){
  var dcard=first?'<div class="democard"><div style="display:flex;justify-content:space-between;align-items:center"><span class="name">Zone '+esc(first.zone_label||'')+'</span><span class="chip acc">À l\'échange</span></div><div class="muted" style="margin-top:4px">Propose '+label(first)+(first.variant?' · '+esc(first.variant):'')+'</div></div>'
   :TK.demo?'<div class="democard"><div style="display:flex;justify-content:space-between;align-items:center"><span class="name">Lune_47 · ≈ 2 km</span><span class="chip acc">Mutuel</span></div><div class="muted" style="margin-top:4px">Propose Lucario (102/96) · cherche Pikachu PSA 9</div></div>'
   :'<div class="democard"><div class="name">Sois le premier !</div><div class="muted" style="margin-top:4px">Crée ton compte et propose une carte près de chez toi.</div></div>';
- var fan=sc.length?'<div class="fan">'+sc.slice(0,3).map(function(it,i){return '<div class="fc fc'+i+'">'+(it.image?'<img alt="" data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(it.image)+'">':'')+'</div>';}).join('')+'</div>':'';
+ var fan=sc.length?'<div class="fan">'+sc.slice(0,3).map(function(it,i){return '<div class="fc fc'+i+'">'+(it.image?'<img alt="" '+(it.card_id?'data-cid="'+esc(it.card_id)+'" ':'')+'data-n="'+esc(it.name)+'" onerror="TK_imgFallback(this)" src="'+esc(it.image)+'">':'')+'</div>';}).join('')+'</div>':'';
  var strip=sc.length?'<section class="strip" aria-label="Cartes à l\'échange en ce moment"><h2 class="name" style="font-size:18px;margin:0 0 10px 0">À l\'échange en ce moment</h2><div class="srow2">'+sc.map(showcaseCard).join('')+'</div></section>':'';
  return '<div class="outer">'+onav('<button class="btn sm ghost" data-a="goto" data-v="login">Se connecter</button>')+
  '<section class="hero"><div><h1>Échanger du <span class="hl">TCG</span> n\'a jamais été aussi simple</h1>'+
@@ -403,14 +403,16 @@ function setBadge(m){
 }
 function setLogo(m){
  if(!m){return '';}
- if(!(m.logo||m.symbol)){return setBadge(m);}
- return '<img class="slogo" data-sid="'+esc(m.id||'')+'" src="'+esc(m.logo||m.symbol)+'" alt="" loading="lazy" onerror="TK_logoFail(this)">';
+ var o=TK.catalog.ov('set',m.id),u=o||m.logo||m.symbol;
+ if(!u){return setBadge(m);}
+ return '<img class="slogo" data-sid="'+esc(m.id||'')+'" src="'+esc(u)+'" alt="" loading="lazy" onerror="TK_logoFail(this)">';
 }
 window.TK_logoFail=function(im){
  var sid=im.getAttribute('data-sid'),m=sid&&TK.catalog.setMeta?TK.catalog.setMeta(sid):null;
  var span=document.createElement('span');span.className='slogo ph';span.setAttribute('data-sid',sid||'');span.setAttribute('aria-hidden','true');
  span.textContent=(sid&&TK.catalog.abbr(sid))||(m&&m.name||'?').split(/\s+/).map(function(w){return w.charAt(0);}).join('').slice(0,4).toUpperCase();
  if(im.parentNode){im.parentNode.replaceChild(span,im);}fillThumbs();
+ if(sid&&sid.indexOf('demo-')!==0){TK.catalog.reportMissing('set',sid,(m&&m.name)||sid,sid);}
 };
 function fillThumbs(){
  var q=document.querySelectorAll('.slogo.ph[data-sid]:not([data-t])'),n=0;
@@ -697,7 +699,6 @@ function vAdd(){
  }else{
   body='<div style="display:flex;flex-direction:column;gap:10px;margin-top:14px">'+
    '<input id="aq" class="field" type="search" placeholder="Nom, sigle, n° (ex. Darkrai PBL 110)" aria-label="Rechercher une carte par nom, sigle de série ou numéro" value="'+esc(a.q)+'" autocomplete="off">'+
-   (a.type==='loose'&&TK.camera&&TK.camera.supported()?'<button class="btn" data-a="scan"'+(a.scanning?' disabled':'')+'>'+(a.scanning?'Analyse de la carte…':ico(I.camera,18,'currentColor')+' Scanner la carte')+'</button>':'')+
    '</div>'+
    trayHtml()+'<div style="margin-top:14px">'+resultsHtml()+
    '<p style="margin-top:14px"><button class="btn sm ghost" style="color:var(--accent)" data-a="manual">Je ne trouve pas ma carte</button></p></div>';
@@ -786,7 +787,7 @@ function fmtWhen(iso){
 }
 function snapRows(list){
  var h=(list||[]).map(function(i){
-  return '<button class="prow" data-a="item" data-v="'+esc(i.id)+'">'+(i.img?'<img class="pimg" alt="" loading="lazy" data-n="'+esc(i.name)+'" onerror="TK_imgFallback(this)" src="'+esc(i.img)+'">':'<span class="pimg cph" style="background:'+phColor(i.name)+'">'+esc(String(i.name||'?').charAt(0))+'</span>')+
+  return '<button class="prow" data-a="item" data-v="'+esc(i.id)+'">'+(i.img?'<img class="pimg" alt="" loading="lazy" '+(i.card_id?'data-cid="'+esc(i.card_id)+'" ':'')+'data-n="'+esc(i.name)+'" onerror="TK_imgFallback(this)" src="'+esc(i.img)+'">':'<span class="pimg cph" style="background:'+phColor(i.name)+'">'+esc(String(i.name||'?').charAt(0))+'</span>')+
    '<span class="grow"><span class="name" style="display:block;font-size:14px">'+esc(i.name)+(i.number?' <span class="muted">('+esc(i.number)+')</span>':'')+'</span><span class="muted" style="display:block;font-size:12px">'+esc(i.set_name||'')+'</span></span><span class="val">'+eur(i.value_eur)+'</span><span class="muted" aria-hidden="true">›</span></button>';
  }).join('');
  return h||'<span class="muted">—</span>';
@@ -836,6 +837,17 @@ function vMerci(t){
    (!dr.length&&!ti.length?'<p class="muted">Personne pour l\'instant : tu peux être le premier.</p>':''))+
   (sup?'<a class="btn primary" style="display:flex;justify-content:center;margin-top:24px" href="'+esc(sup)+'" target="_blank" rel="noopener">Soutenir Trokémon</a>':'')+'</div>');
 }
+function vAdmin(t){
+ var D=t.data;
+ var row=function(m){return '<div class="row"><div class="grow"><b>'+esc(m.label||m.ref)+'</b><div class="note" style="margin:2px 0 0 0">'+(m.kind==='set'?'Logo de série':'Carte')+' · '+esc(m.ref)+' · vu '+(m.hits||1)+' fois</div></div><button class="btn sm" data-a="ovpick" data-k="'+esc(m.kind)+'" data-v="'+esc(m.ref)+'">Ajouter</button></div>';};
+ var ov=function(o){return '<div class="row"><img class="slogo" style="width:36px;height:36px;object-fit:contain" alt="" src="'+esc(o.url)+'"><div class="grow note" style="margin:0">'+(o.kind==='set'?'Série':'Carte')+' · '+esc(o.ref)+'</div><button class="btn sm" data-a="ovpick" data-k="'+esc(o.kind)+'" data-v="'+esc(o.ref)+'">Remplacer</button><button class="btn sm" data-a="ovdel" data-k="'+esc(o.kind)+'" data-v="'+esc(o.ref)+'">Retirer</button></div>';};
+ var sets=D?D.missing.filter(function(m){return m.kind==='set';}):[],cards=D?D.missing.filter(function(m){return m.kind!=='set';}):[];
+ return page(header('Images manquantes',null,true)+'<div class="scroll"><p class="note" style="margin:6px 0 12px 0">Les images introuvables sont signalées ici automatiquement par les appareils des utilisateurs. Ajoute-les : elles s\'afficheront chez tout le monde. Logos de séries : PNG transparent conseillé.</p>'+
+  (!D?'<p class="muted">Chargement…</p>':
+   '<div class="name" style="margin:10px 0 6px 0">Séries ('+sets.length+')</div>'+(sets.map(row).join('')||'<p class="note">Rien de manquant.</p>')+
+   '<div class="name" style="margin:18px 0 6px 0">Cartes ('+cards.length+')</div>'+(cards.map(row).join('')||'<p class="note">Rien de manquant.</p>')+
+   '<div class="name" style="margin:18px 0 6px 0">Images ajoutées ('+D.ovr.length+')</div>'+(D.ovr.map(ov).join('')||'<p class="note">Aucune.</p>'))+'</div>');
+}
 function vProposal(t){
  var pr=S.props.filter(function(x){return x.id===t.id;})[0];
  if(!pr){return loading('Échange');}
@@ -883,6 +895,7 @@ function vProfil(){
   (S.blockedList.length?S.blockedList.map(function(b){return '<div class="row"><span class="grow">'+esc(b.pseudo)+'</span><button class="btn sm" data-a="unblock" data-v="'+esc(b.id)+'">Débloquer</button></div>';}).join(''):'<p class="note" style="margin:4px 0 10px 0">Personne. Tu peux bloquer ou signaler quelqu\'un depuis son profil.</p>')+
   '<button class="btn" style="margin-top:8px" data-a="exportdata">Télécharger mes données</button>'+
   '<button class="btn" style="margin-top:8px;color:var(--danger,#ff6b6b)" data-a="delopen">Supprimer mon compte</button></div></details>'+
+ (S.user&&S.user.admin?'<button class="btn" style="margin-top:16px" data-a="admin">Admin : images manquantes</button>':'')+
  (TK.demo?'<p class="note" style="margin-top:16px">Mode démo : profils, cartes et valeurs fictifs, rien n\'est enregistré.</p>':'')+
  '<div class="card" style="margin-top:16px"><div class="name">Soutenir Trokémon</div><p class="note" style="margin:6px 0 10px 0">Trokémon est gratuit et sans pub. Si l\'appli te rend service, un petit don aide à payer l\'hébergement.</p>'+((window.TK_CONFIG||{}).SUPPORT_URL?'<a class="btn" style="display:flex;justify-content:center;margin-bottom:8px" href="'+esc((window.TK_CONFIG||{}).SUPPORT_URL)+'" target="_blank" rel="noopener">Faire un don</a>':'')+'<button class="btn" data-a="merci">Page Merci</button></div>'+
  '<button class="btn" style="margin-top:16px" data-a="logout">Se déconnecter</button>'+
@@ -1001,6 +1014,7 @@ function render(){
    else if(t.name==='propose'){body=vPropose(t);}
    else if(t.name==='proposal'){body=vProposal(t);}
    else if(t.name==='merci'){body=vMerci(t);}
+   else if(t.name==='admin'){body=vAdmin(t);}
   }else if(S.tab==='carte'){body=vCarte();}
   else if(S.tab==='listes'){body=vListes();}
   else if(S.tab==='echanges'){body=vEchanges();}
@@ -1141,18 +1155,6 @@ function startAdd(kind){
   f:{variant:'',condition:'Near Mint',company:'PSA',grade:'',cert:'',notes:'',sealedKind:TK.SEALED_KINDS[0],custom:'',name:'',number:'',setName:'',value:''},photos:{front:null,back:null}};
  nav({name:'add'});
  TK.catalog.sets().then(function(s){S.sets=s;if(top()&&top().name==='add'){render();}}).catch(function(e){S.add.err=TK.frError(e);render();});
-}
-async function scanBlob(blob){
- var a=S.add;if(!a){return;}
- a.scanning=true;render();
- try{
-  var r=await TK.scan.run(blob);
-  if(S.add!==a){return;}
-  a.scanning=false;
-  if(r&&r.card){a.byId=a.byId||{};a.byId[r.card.card_id]=r.card;render();toast('Carte reconnue : '+r.card.name+(r.card.number?' ('+r.card.number+')':''));ACT.pickcard(r.card.card_id);return;}
-  if(r&&r.query){a.q=r.query;render();runSearch(false);toast('Lecture incertaine : voici les cartes les plus proches.');return;}
-  render();toast('Impossible de lire la carte. Recadre-la ou cherche-la à la main.');
- }catch(e){if(S.add===a){a.scanning=false;render();}toast('Scan indisponible sur cet appareil : cherche la carte à la main.');}
 }
 async function runSearch(live){
  var a=S.add,qq=a.q.trim();
@@ -1397,16 +1399,6 @@ var ACT={
    onFail:function(){toast('Caméra indisponible : choisis une photo dans la galerie.');}
   });
  },
- scan:function(){
-  var a=S.add;if(!a||a.scanning){return;}
-  try{TK.scan.warm().catch(function(){});}catch(e){}
-  TK.camera.open({
-   hint:'Cadre la carte entière, bien à plat : on lit son numéro et sa série',
-   onShot:function(blob){scanBlob(blob);},
-   onGallery:function(f){TK.shrink(f,1600).then(scanBlob).catch(function(err){toast(TK.frError(err));});},
-   onFail:function(){toast('Caméra indisponible : choisis une photo dans la galerie.');}
-  });
- },
  photogal:function(){var i=$('#sf-gal');if(i){i.click();}},
  photoredo:function(){var s=S.sheet;if(s&&s.url){URL.revokeObjectURL(s.url);}S.sheet={kind:'photo',side:s.side};render();},
  photook:function(){
@@ -1450,6 +1442,24 @@ var ACT={
   try{await DB.setProposalStatus(t.id,v);await loadProps();if(v==='done'){await loadReviewState(t.id);}render();}
   catch(e){toast(TK.frError(e));}
  },
+ admin:async function(){var t={name:'admin',data:null};nav(t);await ACT.adminload(t);},
+ adminload:async function(t){try{var r=await Promise.all([DB.listMissing(),DB.listOverrides()]);t.data={missing:r[0]||[],ovr:r[1]||[]};}catch(e){toast(TK.frError(e));t.data={missing:[],ovr:[]};}if(top()===t){render();}},
+ ovpick:function(v,el){
+  var kind=el&&el.getAttribute('data-k')||'card',ref=v;
+  var inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.style.display='none';document.body.appendChild(inp);
+  inp.addEventListener('change',async function(){
+   var f=inp.files&&inp.files[0];document.body.removeChild(inp);if(!f){return;}
+   if(!/^image\//.test(f.type)){toast('Choisis un fichier image.');return;}
+   try{
+    var blob=await TK.shrink(f,kind==='set'?600:900,kind==='set'?'image/png':'image/webp');
+    var url=await DB.setOverride(kind,ref,blob);
+    TK.catalog.setOvLocal(kind,ref,url);toast('Image ajoutée.');
+    var t=top();if(t&&t.name==='admin'){await ACT.adminload(t);}
+   }catch(e){toast(TK.frError(e));}
+  });
+  inp.click();
+ },
+ ovdel:async function(v,el){var kind=el&&el.getAttribute('data-k')||'card';try{await DB.removeOverride(kind,v);TK.catalog.setOvLocal(kind,v,null);toast('Image retirée.');var t=top();if(t&&t.name==='admin'){await ACT.adminload(t);}}catch(e){toast(TK.frError(e));}},
  merci:async function(){var t={name:'merci',data:null};nav(t);try{t.data=await DB.listSupporters();}catch(e){t.data=[];}if(top()===t){render();}},
  reportopen:function(v){var a=v.split('|');S.sheet={kind:'report',target:a[0],pseudo:a[1]||'cette personne',proposal:a[2]||null,reason:'',details:'',saving:false};render();},
  rreason:function(v){if(S.sheet){S.sheet.reason=v;render();}},
@@ -1664,6 +1674,7 @@ document.addEventListener('keydown',function(e){
  });
  try{
   var uid=await DB.init();
+  try{TK.catalog.loadOverrides();}catch(e){}
   if(uid){await loadUser();}else if(S.phase==='boot'){S.phase='landing';render();}
  }catch(e){S.err=TK.frError(e);S.phase='fatal';render();}
 })();
