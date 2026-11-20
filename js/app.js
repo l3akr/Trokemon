@@ -842,7 +842,7 @@ function vAdmin(t){
  var row=function(m){return '<div class="row"><div class="grow"><b>'+esc(m.label||m.ref)+'</b><div class="note" style="margin:2px 0 0 0">'+(m.kind==='set'?'Logo de série':'Carte')+' · '+esc(m.ref)+' · vu '+(m.hits||1)+' fois</div></div><button class="btn sm" data-a="ovpick" data-k="'+esc(m.kind)+'" data-v="'+esc(m.ref)+'">Ajouter</button></div>';};
  var ov=function(o){return '<div class="row"><img class="slogo" style="width:36px;height:36px;object-fit:contain" alt="" src="'+esc(o.url)+'"><div class="grow note" style="margin:0">'+(o.kind==='set'?'Série':'Carte')+' · '+esc(o.ref)+'</div><button class="btn sm" data-a="ovpick" data-k="'+esc(o.kind)+'" data-v="'+esc(o.ref)+'">Remplacer</button><button class="btn sm" data-a="ovdel" data-k="'+esc(o.kind)+'" data-v="'+esc(o.ref)+'">Retirer</button></div>';};
  var sets=D?D.missing.filter(function(m){return m.kind==='set';}):[],cards=D?D.missing.filter(function(m){return m.kind!=='set';}):[];
- return page(header('Images manquantes',null,true)+'<div class="scroll"><p class="note" style="margin:6px 0 12px 0">Les images introuvables sont signalées ici automatiquement par les appareils des utilisateurs. Ajoute-les : elles s\'afficheront chez tout le monde. Logos de séries : PNG transparent conseillé.</p>'+
+ return page(header('Images manquantes',null,true)+'<div class="scroll"><p class="note" style="margin:6px 0 12px 0">Les images introuvables sont signalées ici automatiquement par les appareils des utilisateurs. Ajoute-les : elles s\'afficheront chez tout le monde. Logos de séries : PNG transparent conseillé.</p><button class="btn sm" data-a="adminscan" style="margin-bottom:8px">Détecter les séries sans logo</button>'+
   (!D?'<p class="muted">Chargement…</p>':
    '<div class="name" style="margin:10px 0 6px 0">Séries ('+sets.length+')</div>'+(sets.map(row).join('')||'<p class="note">Rien de manquant.</p>')+
    '<div class="name" style="margin:18px 0 6px 0">Cartes ('+cards.length+')</div>'+(cards.map(row).join('')||'<p class="note">Rien de manquant.</p>')+
@@ -1444,6 +1444,7 @@ var ACT={
  },
  admin:async function(){var t={name:'admin',data:null};nav(t);await ACT.adminload(t);},
  adminload:async function(t){try{var r=await Promise.all([DB.listMissing(),DB.listOverrides()]);t.data={missing:r[0]||[],ovr:r[1]||[]};}catch(e){toast(TK.frError(e));t.data={missing:[],ovr:[]};}if(top()===t){render();}},
+ adminscan:async function(){try{var n=await TK.catalog.reportAllSets();toast(n+' série(s) sans logo.');var t=top();if(t&&t.name==='admin'){await ACT.adminload(t);}}catch(e){toast(TK.frError(e));}},
  ovpick:function(v,el){
   var kind=el&&el.getAttribute('data-k')||'card',ref=v;
   var inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.style.display='none';document.body.appendChild(inp);

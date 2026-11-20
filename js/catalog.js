@@ -205,8 +205,15 @@ TK.catalog.reportMissing=function(kind,ref,label,sid){
  if(!ref||!TK.db||!TK.db.reportMissing){return;}
  var k=kind+':'+ref,now=Date.now();
  if(OV[k]||(REP[k]&&now-REP[k]<7*864e5)){return;}
- REP[k]=now;try{localStorage.setItem('tk_rep',JSON.stringify(REP));}catch(e){}
- TK.db.reportMissing(kind,ref,label,sid).catch(function(){});
+ REP[k]=now;
+ Promise.resolve().then(function(){return TK.db.reportMissing(kind,ref,label,sid);}).then(function(){try{localStorage.setItem('tk_rep',JSON.stringify(REP));}catch(e){}}).catch(function(){delete REP[k];});
+};
+/* Admin : signale d'un coup toutes les séries sans logo (ignore la limite d'une fois par semaine). */
+TK.catalog.reportAllSets=async function(){
+ var r=await TK.catalog.sets(),all=(r&&r.list?r.list:r)||[],n=0;
+ for(var i=0;i<all.length;i++){var m=all[i];if(m.logo||m.symbol||OV['set:'+m.id]){continue;}
+  await TK.db.reportMissing('set',m.id,m.name,m.id);n++;}
+ return n;
 };
 function imgPh(el){
  var n=(el.getAttribute('data-n')||'?').charAt(0).toUpperCase(),sp=document.createElement('span');

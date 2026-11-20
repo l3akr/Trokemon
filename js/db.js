@@ -258,7 +258,7 @@ function makeDemo(){
   uploadPhoto:async function(blob){return URL.createObjectURL(blob);},
   imageOverrides:async function(){return copy(DB.ovr||{});},
   reportMissing:async function(kind,ref,label,sid){DB.missing=DB.missing||[];var e=DB.missing.filter(function(x){return x.kind===kind&&x.ref===ref;})[0];if(e){e.hits++;}else{DB.missing.push({kind:kind,ref:ref,label:label||'',set_id:sid||'',hits:1});}},
-  listMissing:async function(){DB.missing=DB.missing||[{kind:'set',ref:'demo-delta',label:'Règne Delta',set_id:'demo-delta',hits:4},{kind:'card',ref:'demo-delta-12',label:'Pikachu δ (Règne Delta)',set_id:'demo-delta',hits:2}];return copy(DB.missing);},
+  listMissing:async function(){if(!DB.seeded){DB.seeded=1;DB.missing=(DB.missing||[]).concat([{kind:'set',ref:'demo-delta',label:'Règne Delta',set_id:'demo-delta',hits:4},{kind:'card',ref:'demo-delta-12',label:'Pikachu δ (Règne Delta)',set_id:'demo-delta',hits:2}]);}return copy(DB.missing);},
   listOverrides:async function(){var o=DB.ovr||{};return Object.keys(o).map(function(k){return {kind:k.split(':')[0],ref:k.slice(k.indexOf(':')+1),url:o[k]};});},
   setOverride:async function(kind,ref,blob){DB.ovr=DB.ovr||{};var url=URL.createObjectURL(blob);DB.ovr[kind+':'+ref]=url;DB.missing=(DB.missing||[]).filter(function(x){return !(x.kind===kind&&x.ref===ref);});return url;},
   removeOverride:async function(kind,ref){if(DB.ovr){delete DB.ovr[kind+':'+ref];}},
