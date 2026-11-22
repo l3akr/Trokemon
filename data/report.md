@@ -1,6 +1,6 @@
 # Rapport prix Cardmarket
 
-Généré : 2026-11-21T12:51:36.434Z (guide du 2026-11-20T02:43:56+0100)
+Généré : 2026-11-22T12:43:49.839Z (guide du 2026-11-22T02:43:59+0100)
 
 - Cartes associées : 18758
 - Cartes sans produit : 304
