@@ -1,10 +1,10 @@
 # Rapport prix Cardmarket
 
-Généré : 2026-11-24T15:02:05.917Z (guide du 2026-11-24T02:45:23+0100)
+Généré : 2026-11-25T14:41:54.994Z (guide du 2026-11-25T02:42:31+0100)
 
 - Cartes associées : 18758
 - Cartes sans produit : 304
-- Dont associées par approximation (produits en trop) : 2064
+- Dont associées par approximation (produits en trop) : 2065
 - Sets TCGdex associés : 160 / 221
 
 ## Sets non associés
